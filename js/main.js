@@ -60,11 +60,10 @@ $(document).ready(function () {
 
             event.preventDefault();
 
-            $("html, body").animate(
-                {
-                    scrollTop: target.offset().top - 80
-                },
-                700
+            $("html, body").animate({
+                scrollTop: target.offset().top - 80
+            },
+                350
             );
 
         }
