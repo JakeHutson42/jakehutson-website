@@ -134,7 +134,53 @@ body::after {
         background: rgba(255,255,255,0.08);
         transform: translateY(-1px);
     }
+.nav-menu-toggle {
+    width: 42px;
+    height: 42px;
+    margin-left: auto;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    font-size: 23px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
 
+.nav-menu-toggle:hover,
+.nav-menu-toggle:focus-visible {
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.08);
+}
+
+.mobile-navigation {
+    width: 100%;
+}
+
+.mobile-navigation-inner {
+    margin-top: 14px;
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border);
+}
+
+.mobile-navigation-inner a {
+    padding: 12px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #aeb3bd;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.mobile-navigation-inner a:hover,
+.mobile-navigation-inner a:focus-visible {
+    color: white;
+}
 /* --------------------------------------------------
            Hero
         -------------------------------------------------- */
@@ -520,6 +566,22 @@ footer {
         -------------------------------------------------- */
 
 @media (max-width: 900px) {
+    .desktop-navigation {
+        display: none;
+    }
+
+    .nav-inner {
+        flex-wrap: wrap;
+    }
+
+    .nav-menu-toggle {
+        display: flex;
+    }
+
+    .project-card,
+    .project-card.small {
+        grid-column: span 12;
+    }
 
     .nav-links {
         display: none;
