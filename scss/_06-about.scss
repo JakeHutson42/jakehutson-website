@@ -1,18 +1,114 @@
-.about-section { padding: 150px 0 132px; background: var(--ink); color: var(--paper); }
-.section-heading-light .section-heading-index { color: rgba(242, 240, 233, 0.55); }
-.about-grid { padding-top: 10px; }
-.about-large { max-width: 840px; margin: 0; font-size: clamp(32px, 4.2vw, 66px); line-height: 1.04; letter-spacing: -0.055em; font-weight: 500; }
-.about-copy { max-width: 510px; margin-left: auto; color: rgba(242, 240, 233, 0.68); font-size: 15px; line-height: 1.8; }
-.about-copy p:last-child { margin-bottom: 0; }
-.discipline-grid { margin-top: 104px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(242, 240, 233, 0.28); border-bottom: 1px solid rgba(242, 240, 233, 0.28); }
-.discipline { min-height: 280px; padding: 28px 32px 34px 0; }
-.discipline + .discipline { padding-left: 32px; border-left: 1px solid rgba(242, 240, 233, 0.28); }
-.discipline span { font-family: var(--font-mono); font-size: 10px; color: rgba(242, 240, 233, 0.45); }
-.discipline h3 { margin: 68px 0 14px; max-width: 310px; font-size: 28px; line-height: 1.05; letter-spacing: -0.045em; }
-.discipline p { max-width: 340px; margin: 0; color: rgba(242, 240, 233, 0.6); font-size: 13px; line-height: 1.7; }
-.archive-section { padding: 90px 0 108px; border-bottom: 1px solid var(--ink); }
-.archive-header { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid var(--ink); }
-.archive-count { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.technology-list { padding-top: 38px; display: flex; flex-wrap: wrap; gap: 10px 22px; }
-.technology-list span { font-size: clamp(27px, 3.8vw, 56px); line-height: 1; letter-spacing: -0.05em; }
-.technology-list span:not(:last-child)::after { content: "/"; margin-left: 22px; color: rgba(17, 17, 17, 0.23); }
+.about-section {
+    padding: 150px 0 132px;
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.section-heading-light .section-heading-index {
+    color: rgba(242, 240, 233, 0.55);
+}
+
+.about-grid {
+    padding-top: 10px;
+}
+
+.about-large {
+    max-width: 840px;
+    margin: 0;
+    font-size: clamp(32px, 4.2vw, 66px);
+    line-height: 1.04;
+    letter-spacing: -0.055em;
+    font-weight: 500;
+}
+
+.about-copy {
+    max-width: 510px;
+    margin-left: auto;
+    color: rgba(242, 240, 233, 0.68);
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+    .about-copy p:last-child {
+        margin-bottom: 0;
+    }
+
+.discipline-grid {
+    margin-top: 104px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid rgba(242, 240, 233, 0.28);
+    border-bottom: 1px solid rgba(242, 240, 233, 0.28);
+}
+
+.discipline {
+    min-height: 280px;
+    padding: 28px 32px 34px 0;
+}
+
+    .discipline + .discipline {
+        padding-left: 32px;
+        border-left: 1px solid rgba(242, 240, 233, 0.28);
+    }
+
+    .discipline span {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: rgba(242, 240, 233, 0.45);
+    }
+
+    .discipline h3 {
+        margin: 68px 0 14px;
+        max-width: 310px;
+        font-size: 28px;
+        line-height: 1.05;
+        letter-spacing: -0.045em;
+    }
+
+    .discipline p {
+        max-width: 340px;
+        margin: 0;
+        color: rgba(242, 240, 233, 0.6);
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+.archive-section {
+    padding: 90px 0 108px;
+    border-bottom: 1px solid var(--ink);
+}
+
+.archive-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--ink);
+}
+
+.archive-count {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+.technology-list {
+    padding-top: 38px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+}
+
+    .technology-list span {
+        font-size: clamp(27px, 3.8vw, 56px);
+        line-height: 1;
+        letter-spacing: -0.05em;
+    }
+
+        .technology-list span:not(:last-child)::after {
+            content: "/";
+            margin-left: 22px;
+            color: rgba(17, 17, 17, 0.23);
+        }
