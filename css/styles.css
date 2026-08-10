@@ -947,13 +947,14 @@ img {
     }
 
 .footer-wordmark {
-    padding: 52px 0 58px;
+    padding: 52px 12px 58px;
     overflow: hidden;
     white-space: nowrap;
     font-size: clamp(80px, 16.5vw, 250px);
     line-height: 0.75;
     letter-spacing: -0.085em;
     font-weight: 600;
+    text-align: center;
 }
 
 .footer-bottom {
