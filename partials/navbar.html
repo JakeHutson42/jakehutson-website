@@ -1,31 +1,28 @@
-<nav class="navbar" id="navbar">
-    <div class="nav-inner">
-        <a href="index.html" class="brand">Jake Hutson</a>
+<nav class="site-nav" id="navbar" aria-label="Primary navigation">
+    <div class="site-shell nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="Jake Hutson home">
+            <span class="nav-monogram" aria-hidden="true">JH</span>
+            <span class="nav-brand-name">Jake Hutson</span>
+        </a>
 
         <div class="nav-links desktop-navigation">
             <a href="index.html#work">Work</a>
             <a href="index.html#about">About</a>
-            <a href="index.html#contact">Contact</a>
             <a href="browser-device.html">Diagnostics</a>
-            <span class="nav-separator" aria-hidden="true">|</span>
-            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer" class="nav-button github-nav-button">GitHub <i class="bi bi-arrow-up-right"></i></a>
+            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>
 
-        <button class="nav-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavigation"
-                aria-controls="mobileNavigation" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="bi bi-list" aria-hidden="true"></i>
+        <button class="nav-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavigation" aria-controls="mobileNavigation" aria-expanded="false" aria-label="Toggle navigation">
+            <span></span><span></span>
         </button>
+    </div>
 
-        <div class="collapse mobile-navigation" id="mobileNavigation">
-            <div class="mobile-navigation-inner">
-                <a href="index.html#work">Work</a>
-                <a href="index.html#about">About</a>
-                <a href="index.html#contact">Contact</a>
-                <a href="browser-device.html">Diagnostics</a>
-                <div class="mobile-navigation-actions">
-                    <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer" class="mobile-navigation-button github-nav-button">GitHub <i class="bi bi-arrow-up-right"></i></a>
-                </div>
-            </div>
+    <div class="collapse mobile-navigation" id="mobileNavigation">
+        <div class="site-shell mobile-navigation-inner">
+            <a href="index.html#work"><span>Work</span><span>01</span></a>
+            <a href="index.html#about"><span>About</span><span>02</span></a>
+            <a href="browser-device.html"><span>Diagnostics</span><span>03</span></a>
+            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer"><span>GitHub</span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>
     </div>
 </nav>
