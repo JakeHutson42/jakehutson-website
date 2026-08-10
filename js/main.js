@@ -1,106 +1,103 @@
 $(function () {
-    const $navbar = $("#navbar");
-    const $mobileNavigation = $("#mobileNavigation");
+    var $siteNavbar = $("#siteNavbar");
+    var $window = $(window);
 
     /*
-     * -----------------------------------------------
-     * Navigation
-     * -----------------------------------------------
+     * Load the shared navigation first so every page keeps the same header.
      */
+    $siteNavbar.load("partials/navbar.html", function (response, status) {
+        if (status === "error") {
+            console.error("The shared navigation could not be loaded.");
+            return;
+        }
 
-    loadSharedNavbar();
+        initialiseNavigation();
+    });
 
     /*
-     * -----------------------------------------------
-     * Shared layout
-     * -----------------------------------------------
+     * Keep the navigation visually quiet at the top of the page and give it
+     * a solid backdrop once content begins to move behind it.
      */
-
-    function loadSharedNavbar() {
-        $("#siteNavbar").load("partials/navbar.html", function (response, status) {
-            if (status === "error") {
-                console.error("The shared navigation could not be loaded.");
-                return;
-            }
-
-            initialiseNavigation();
-        });
-    }
-
     function initialiseNavigation() {
-        const $navbar = $("#navbar");
-        const $mobileNavigation = $("#mobileNavigation");
+        var $navbar = $("#navbar");
+        var $mobileNavigation = $("#mobileNavigation");
 
         function updateNavbar() {
-            $navbar.toggleClass("scrolled", $(window).scrollTop() > 40);
+            $navbar.toggleClass("is-scrolled", $window.scrollTop() > 24);
         }
 
         updateNavbar();
-        $(window).on("scroll", updateNavbar);
+        $window.on("scroll", updateNavbar);
 
         $mobileNavigation.on("show.bs.collapse", function () {
-            $navbar.addClass("mobile-menu-open");
+            $navbar.addClass("is-open");
         });
 
         $mobileNavigation.on("hidden.bs.collapse", function () {
-            $navbar.removeClass("mobile-menu-open");
+            $navbar.removeClass("is-open");
         });
-    }
 
-    /*
-     * -----------------------------------------------
-     * Scroll reveal
-     * -----------------------------------------------
-     */
-
-    function revealElements() {
-        const windowBottom = $(window).scrollTop() + $(window).height();
-
-        $(".reveal").each(function () {
-            if ($(this).offset().top < windowBottom - 60) {
-                $(this).addClass("visible");
+        $mobileNavigation.find("a").on("click", function () {
+            if (window.bootstrap) {
+                bootstrap.Collapse.getOrCreateInstance($mobileNavigation[0]).hide();
             }
         });
     }
 
-    revealElements();
-    $(window).on("scroll", revealElements);
+    /*
+     * Reveal content once, as it enters the viewport. IntersectionObserver is
+     * used instead of a continuous scroll calculation to keep the page light.
+     */
+    function initialiseReveal() {
+        var $revealItems = $(".reveal");
+
+        if (!("IntersectionObserver" in window)) {
+            $revealItems.addClass("is-visible");
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                $(entry.target).addClass("is-visible");
+                observer.unobserve(entry.target);
+            });
+        }, {
+            threshold: 0.12,
+            rootMargin: "0px 0px -40px 0px"
+        });
+
+        $revealItems.each(function () {
+            observer.observe(this);
+        });
+    }
+
+    initialiseReveal();
 
     /*
-     * -----------------------------------------------
-     * Smooth navigation
-     * -----------------------------------------------
+     * Use native smooth scrolling so anchor links remain accessible and work
+     * even when JavaScript enhancements are unavailable.
      */
-
-    $('a[href^="#"]').on("click", function (event) {
-        const href = $(this).attr("href");
+    $(document).on("click", 'a[href^="#"]', function (event) {
+        var href = $(this).attr("href");
+        var $target;
 
         if (!href || href === "#") {
             return;
         }
 
-        const $target = $(href);
+        $target = $(href);
 
         if (!$target.length) {
             return;
         }
 
         event.preventDefault();
-
-        $("html, body").animate({
-            scrollTop: $target.offset().top - 80
-        }, 350);
-
-        if ($(this).closest("#mobileNavigation").length && $mobileNavigation.length && window.bootstrap) {
-            bootstrap.Collapse.getOrCreateInstance($mobileNavigation[0]).hide();
-        }
+        window.scrollTo({ top: Math.max(0, $target.offset().top - 72), behavior: "smooth" });
     });
-
-    /*
-     * -----------------------------------------------
-     * Current year
-     * -----------------------------------------------
-     */
 
     $("#year").text(new Date().getFullYear());
 });
