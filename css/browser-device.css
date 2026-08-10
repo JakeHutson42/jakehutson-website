@@ -1,405 +1,63 @@
-/* --------------------------------------------------
-Browser & Device Information
--------------------------------------------------- */
-
-.device-hero {
-    min-height: 78vh;
-    padding: 170px 24px 90px;
-    display: flex;
-    align-items: center;
-}
-
-.device-hero h1 {
-    max-width: 950px;
-    margin-top: 30px;
-    margin-bottom: 28px;
-    font-family: "Manrope", sans-serif;
-    font-size: clamp(52px, 8vw, 96px);
-    line-height: 0.95;
-    letter-spacing: -0.065em;
-    font-weight: 800;
-}
-
-.device-hero-description {
-    max-width: 760px;
-    margin-bottom: 0;
-    color: var(--muted);
-    font-size: 18px;
-    line-height: 1.75;
-}
-
-.summary-card {
-    padding: 22px;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018));
-}
-
-.summary-icon {
-    margin-bottom: 24px;
-    color: #c4b5fd;
-    font-size: 22px;
-}
-
-.summary-label {
-    margin-bottom: 6px;
-    color: #727985;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
-.summary-value {
-    overflow-wrap: anywhere;
-    color: var(--text);
-    font-family: "Manrope", sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-}
-
-.diagnostics-section {
-    padding-top: 105px;
-    padding-bottom: 105px;
-}
-
-.section-bordered {
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-}
-
-.diagnostic-card {
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.018));
-}
-
-.diagnostic-card-header {
-    padding: 25px 26px;
-    border-bottom: 1px solid var(--border);
-}
-
-.diagnostic-card-header > div {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-}
-
-.diagnostic-card-header h3 {
-    margin: 0;
-    font-family: "Manrope", sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-}
-
-.diagnostic-card-icon {
-    display: inline-flex;
-    width: 38px;
-    height: 38px;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border: 1px solid rgba(139,92,246,0.22);
-    border-radius: 11px;
-    background: rgba(139,92,246,0.09);
-    color: #c4b5fd;
-}
-
-.diagnostic-list {
-    display: flex;
-    flex-direction: column;
-}
-
-.diagnostic-row {
-    min-height: 57px;
-    padding: 14px 26px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 25px;
-    border-bottom: 1px solid rgba(255,255,255,0.055);
-}
-
-.diagnostic-row:last-child {
-    border-bottom: 0;
-}
-
-.diagnostic-label {
-    flex-shrink: 0;
-    color: #7d8490;
-    font-size: 13px;
-}
-
-.diagnostic-value {
-    min-width: 0;
-    color: #e2e4e8;
-    font-size: 13px;
-    font-weight: 600;
-    text-align: right;
-    overflow-wrap: anywhere;
-}
-
-.diagnostic-action-button {
-    padding: 12px 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 12px;
-    background: rgba(255,255,255,0.06);
-    color: #f4f4f5;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.2;
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-
-.diagnostic-action-button:hover {
-    border-color: rgba(255,255,255,0.24);
-    background: rgba(255,255,255,0.11);
-    color: white;
-    transform: translateY(-1px);
-}
-
-.diagnostic-action-button:focus-visible {
-    outline: 2px solid rgba(139,92,246,0.75);
-    outline-offset: 3px;
-}
-
-.diagnostic-action-button:active {
-    transform: translateY(0);
-}
-
-.user-agent-value {
-    padding: 25px 26px;
-    color: #aeb3bd;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 12px;
-    line-height: 1.75;
-    overflow-wrap: anywhere;
-}
-
-.value-supported {
-    color: #86efac;
-}
-
-.value-unavailable {
-    color: #737a86;
-    font-weight: 500;
-}
-
-.value-warning {
-    color: #fde68a;
-}
-
-.capability-diagnostics-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-}
-
-.browser-capability {
-    min-height: 104px;
-    padding: 21px;
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    background: var(--surface);
-    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
-}
-
-.browser-capability:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255,255,255,0.16);
-    background: var(--surface-hover);
-}
-
-.browser-capability > i {
-    margin-top: 1px;
-    flex-shrink: 0;
-    color: #c4b5fd;
-    font-size: 20px;
-}
-
-.browser-capability h4 {
-    margin: 0 0 7px;
-    font-family: "Manrope", sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.browser-capability span {
-    color: var(--muted);
-    font-size: 12px;
-}
-
-.browser-capability span.supported {
-    color: #86efac;
-}
-
-.browser-capability span.unavailable {
-    color: #737a86;
-}
-
-.privacy-section {
-    padding-top: 120px;
-    padding-bottom: 120px;
-}
-
-.privacy-card {
-    padding: 55px;
-    display: flex;
-    align-items: flex-start;
-    gap: 28px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 30px;
-    background: radial-gradient(circle at 12% 20%, rgba(139,92,246,0.15), transparent 35%), rgba(255,255,255,0.025);
-}
-
-.privacy-icon {
-    width: 54px;
-    height: 54px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border: 1px solid rgba(139,92,246,0.22);
-    border-radius: 16px;
-    background: rgba(139,92,246,0.09);
-    color: #c4b5fd;
-    font-size: 25px;
-}
-
-.privacy-card h2 {
-    margin: 0 0 17px;
-    font-family: "Manrope", sans-serif;
-    font-size: clamp(28px, 4vw, 45px);
-    font-weight: 800;
-    letter-spacing: -0.045em;
-}
-
-.privacy-card p {
-    max-width: 760px;
-    margin: 0;
-    color: var(--muted);
-    line-height: 1.8;
-}
-
-.copy-notification {
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-    z-index: 1100;
-    padding: 13px 17px;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateY(15px);
-    border: 1px solid rgba(134,239,172,0.22);
-    border-radius: 14px;
-    background: rgba(12,17,22,0.94);
-    box-shadow: 0 15px 50px rgba(0,0,0,0.35);
-    color: #dfffe8;
-    backdrop-filter: blur(16px);
-    font-size: 13px;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.copy-notification.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.copy-notification i {
-    color: #86efac;
-}
-
-@media (max-width: 991.98px) {
-    .capability-diagnostics-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
+/* Browser & Device Information page */
+.device-hero { min-height: 78vh; padding: calc(var(--nav-height) + 110px) 0 92px; display: flex; align-items: center; }
+.device-hero h1 { max-width: 1020px; margin: 28px 0 26px; font-size: clamp(56px, 8vw, 112px); line-height: 0.9; letter-spacing: -0.07em; font-weight: 600; }
+.device-hero-description { max-width: 800px; margin: 0; color: var(--muted); font-size: 18px; line-height: 1.65; }
+.summary-card { padding: 22px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.36); }
+.summary-icon { margin-bottom: 26px; color: var(--accent); font-size: 20px; }
+.summary-label { margin-bottom: 6px; color: var(--muted); font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; }
+.summary-value { overflow-wrap: anywhere; color: var(--ink); font-size: 17px; font-weight: 700; letter-spacing: -0.03em; }
+.diagnostics-section { padding: 104px 0; }
+.section-bordered { border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); background: var(--paper-deep); }
+.diagnostic-card { overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.33); }
+.diagnostic-card-header { padding: 24px 26px; border-bottom: 1px solid var(--line); }
+.diagnostic-card-header > div { display: flex; align-items: center; gap: 13px; }
+.diagnostic-card-header h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.03em; }
+.diagnostic-card-icon { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(70, 86, 255, 0.25); border-radius: 50%; background: rgba(70, 86, 255, 0.08); color: var(--accent-dark); }
+.diagnostic-list { display: flex; flex-direction: column; }
+.diagnostic-row { min-height: 57px; padding: 14px 26px; display: flex; align-items: center; justify-content: space-between; gap: 25px; border-bottom: 1px solid var(--line); }
+.diagnostic-row:last-child { border-bottom: 0; }
+.diagnostic-label { flex-shrink: 0; color: var(--muted); font-size: 13px; }
+.diagnostic-value { min-width: 0; color: var(--ink); font-size: 13px; font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+.diagnostic-action-button { padding: 12px 18px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink); font-size: 13px; font-weight: 600; transition: background-color 180ms ease, color 180ms ease, transform 180ms ease; }
+.diagnostic-action-button:hover { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
+.diagnostic-action-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.user-agent-value { padding: 25px 26px; color: var(--muted); font-family: var(--font-mono); font-size: 11px; line-height: 1.75; overflow-wrap: anywhere; }
+.value-supported { color: #207647; }
+.value-unavailable { color: #817d74; font-weight: 500; }
+.value-warning { color: #9b6410; }
+.capability-diagnostics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.browser-capability { min-height: 104px; padding: 21px; display: flex; align-items: flex-start; gap: 15px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.28); transition: transform 180ms ease, background-color 180ms ease; }
+.browser-capability:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.58); }
+.browser-capability > i { margin-top: 1px; flex-shrink: 0; color: var(--accent); font-size: 20px; }
+.browser-capability h4 { margin: 0 0 7px; font-size: 14px; font-weight: 700; }
+.browser-capability span { color: var(--muted); font-size: 12px; }
+.browser-capability span.supported { color: #207647; }
+.browser-capability span.unavailable { color: #817d74; }
+.privacy-section { padding: 110px 0 120px; }
+.privacy-card { padding: 54px; display: flex; align-items: flex-start; gap: 28px; overflow: hidden; border: 1px solid var(--ink); border-radius: var(--radius-lg); background: var(--ink); color: var(--paper); }
+.privacy-icon { width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(242, 240, 233, 0.25); border-radius: 50%; color: var(--paper); font-size: 23px; }
+.privacy-card h2 { margin: 0 0 17px; font-size: clamp(30px, 4vw, 50px); font-weight: 600; letter-spacing: -0.05em; }
+.privacy-card p { max-width: 760px; margin: 0; color: rgba(242, 240, 233, 0.65); line-height: 1.8; }
+.copy-notification { position: fixed; right: 24px; bottom: 24px; z-index: 1200; padding: 13px 17px; display: flex; align-items: center; gap: 9px; pointer-events: none; opacity: 0; transform: translateY(15px); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 999px; background: var(--ink); box-shadow: 0 15px 50px rgba(0, 0, 0, 0.22); color: var(--paper); font-size: 12px; transition: opacity 180ms ease, transform 180ms ease; }
+.copy-notification.visible { opacity: 1; transform: translateY(0); }
+.copy-notification i { color: #8de0aa; }
+@media (max-width: 991.98px) { .capability-diagnostics-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 767.98px) {
-    .device-hero {
-        min-height: auto;
-        padding: 145px 20px 75px;
-    }
-
-    .device-hero h1 {
-        font-size: clamp(48px, 14vw, 68px);
-    }
-
-    .device-hero-description {
-        font-size: 16px;
-    }
-
-    .diagnostics-section {
-        padding-top: 80px;
-        padding-bottom: 80px;
-    }
-
-    .diagnostic-row {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .diagnostic-value {
-        width: 100%;
-        text-align: left;
-    }
-
-    .privacy-card {
-        padding: 35px 28px;
-        flex-direction: column;
-    }
+    .device-hero { min-height: auto; padding: calc(var(--nav-height) + 76px) 0 70px; }
+    .device-hero h1 { font-size: clamp(50px, 15vw, 74px); }
+    .device-hero-description { font-size: 16px; }
+    .diagnostics-section { padding: 78px 0; }
+    .diagnostic-row { align-items: flex-start; flex-direction: column; gap: 5px; }
+    .diagnostic-value { width: 100%; text-align: left; }
+    .privacy-card { padding: 34px 26px; flex-direction: column; }
 }
-
 @media (max-width: 575.98px) {
-    .capability-diagnostics-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .summary-card {
-        padding: 18px;
-    }
-
-    .summary-icon {
-        margin-bottom: 18px;
-    }
-
-    .summary-value {
-        font-size: 15px;
-    }
-
-    .diagnostic-card-header,
-    .diagnostic-row,
-    .user-agent-value {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    .device-hero .hero-actions {
-        align-items: stretch;
-    }
-
-    .diagnostic-action-button {
-        width: 100%;
-    }
-    
-    .copy-notification {
-        right: 16px;
-        bottom: 16px;
-        left: 16px;
-        justify-content: center;
-    }
+    .capability-diagnostics-grid { grid-template-columns: 1fr; }
+    .summary-card { padding: 18px; }
+    .summary-icon { margin-bottom: 18px; }
+    .summary-value { font-size: 15px; }
+    .diagnostic-card-header, .diagnostic-row, .user-agent-value { padding-left: 20px; padding-right: 20px; }
+    .device-hero .hero-actions { align-items: stretch; }
+    .diagnostic-action-button { width: 100%; }
+    .copy-notification { right: 16px; bottom: 16px; left: 16px; justify-content: center; }
 }
