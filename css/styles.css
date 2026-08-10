@@ -1094,6 +1094,10 @@ img {
         .discipline h3 {
             margin-top: 42px;
         }
+
+    .featured-project-development {
+        display: none;
+    }
 }
 
 @media (max-width: 767.98px) {
