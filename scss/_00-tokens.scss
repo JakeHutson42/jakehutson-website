@@ -1,0 +1,32 @@
+:root {
+    --paper: #f2f0e9;
+    --paper-deep: #e7e4dc;
+    --ink: #111111;
+    --ink-soft: #242424;
+    --muted: #66635d;
+    --line: rgba(17, 17, 17, 0.16);
+    --line-strong: rgba(17, 17, 17, 0.32);
+    --white: #ffffff;
+    --accent: #4656ff;
+    --accent-dark: #2938df;
+    --corvus: #101114;
+    --corvus-line: rgba(255, 255, 255, 0.14);
+    --corvus-muted: #9ea2ad;
+    --shell: 1360px;
+    --nav-height: 76px;
+    --radius-sm: 10px;
+    --radius-md: 18px;
+    --radius-lg: 30px;
+    --font-display: "Manrope", sans-serif;
+    --font-mono: "DM Mono", monospace;
+}
+
+/* Compatibility aliases used by the existing Diagnostics page stylesheet. */
+:root {
+    --bg: var(--paper);
+    --bg-soft: var(--paper-deep);
+    --surface: rgba(17, 17, 17, 0.035);
+    --surface-hover: rgba(17, 17, 17, 0.06);
+    --border: var(--line);
+    --text: var(--ink);
+}

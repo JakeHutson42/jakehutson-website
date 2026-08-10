@@ -1,0 +1,21 @@
+.home-hero { min-height: 100svh; padding: calc(var(--nav-height) + 72px) 0 44px; display: flex; align-items: stretch; }
+.home-hero-inner { display: flex; flex-direction: column; min-height: calc(100svh - var(--nav-height) - 116px); }
+.hero-kicker { display: flex; align-items: center; gap: 18px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; }
+.hero-kicker-rule { width: 76px; height: 1px; background: var(--ink); }
+.hero-title { margin: auto 0; padding: 76px 0 64px; font-size: clamp(62px, 10vw, 166px); line-height: 0.82; letter-spacing: -0.078em; font-weight: 600; }
+.hero-title-line { display: block; }
+.hero-title-offset { margin-left: 8.7vw; }
+.hero-lower { border-top: 1px solid var(--line-strong); padding-top: 26px; }
+.hero-intro { max-width: 780px; margin: 0; font-size: clamp(20px, 2.1vw, 31px); line-height: 1.32; letter-spacing: -0.035em; }
+.hero-meta { margin-left: auto; max-width: 430px; }
+.hero-meta-item { display: grid; grid-template-columns: 115px minmax(0, 1fr); gap: 14px; padding: 7px 0; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.hero-meta-item span { color: var(--muted); }
+.hero-meta-item strong { font-weight: 500; }
+.hero-scroll { margin-top: 40px; display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+.hero-scroll i { transition: transform 180ms ease; }
+.hero-scroll:hover i { transform: translateY(4px); }
+.manifesto { overflow: hidden; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--ink); color: var(--paper); }
+.manifesto-track { width: max-content; display: flex; align-items: center; animation: manifesto-scroll 34s linear infinite; }
+.manifesto-track span { display: inline-flex; align-items: center; padding: 16px 30px; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+.manifesto-track span::after { content: "✦"; margin-left: 60px; opacity: 0.45; }
+@keyframes manifesto-scroll { to { transform: translateX(-50%); } }

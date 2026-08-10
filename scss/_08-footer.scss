@@ -1,0 +1,9 @@
+.site-footer { padding: 92px 0 34px; background: var(--paper); }
+.footer-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; padding-bottom: 22px; border-bottom: 1px solid var(--ink); }
+.footer-label { margin: 0; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
+.footer-github { display: inline-flex; align-items: center; gap: 9px; font-size: 20px; font-weight: 600; letter-spacing: -0.03em; }
+.footer-github i { transition: transform 180ms ease; }
+.footer-github:hover i { transform: translate(3px, -3px); }
+.footer-wordmark { padding: 52px 0 58px; overflow: hidden; white-space: nowrap; font-size: clamp(80px, 16.5vw, 250px); line-height: 0.75; letter-spacing: -0.085em; font-weight: 600; }
+.footer-bottom { padding-top: 18px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 20px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.footer-bottom a { color: var(--ink); }

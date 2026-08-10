@@ -1,0 +1,54 @@
+.site-nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 1100;
+    height: var(--nav-height);
+    border-bottom: 1px solid transparent;
+    transition: background-color 180ms ease, border-color 180ms ease, backdrop-filter 180ms ease;
+}
+.site-nav.is-scrolled,
+.site-nav.is-open {
+    background: rgba(242, 240, 233, 0.88);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+.nav-shell { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+.nav-brand { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 700; letter-spacing: -0.02em; }
+.nav-monogram {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: -0.08em;
+}
+.nav-links { display: flex; align-items: center; gap: 30px; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+.nav-links a { position: relative; padding: 10px 0; }
+.nav-links a::after { content: ""; position: absolute; left: 0; right: 100%; bottom: 5px; height: 1px; background: currentColor; transition: right 180ms ease; }
+.nav-links a:hover::after, .nav-links a:focus-visible::after { right: 0; }
+.nav-menu-toggle {
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: transparent;
+}
+.nav-menu-toggle span { width: 17px; height: 1px; background: var(--ink); transition: transform 180ms ease; }
+.site-nav.is-open .nav-menu-toggle span:first-child { transform: translateY(4px) rotate(45deg); }
+.site-nav.is-open .nav-menu-toggle span:last-child { transform: translateY(-4px) rotate(-45deg); }
+.mobile-navigation { background: var(--paper); border-bottom: 1px solid var(--line); }
+.mobile-navigation-inner { padding-top: 14px; padding-bottom: 26px; }
+.mobile-navigation-inner a { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 20px; font-weight: 600; letter-spacing: -0.025em; }
+.mobile-navigation-inner a span:last-child { font-family: var(--font-mono); font-size: 10px; font-weight: 400; letter-spacing: 0.1em; }
