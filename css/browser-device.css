@@ -142,6 +142,37 @@ Browser & Device Information
     overflow-wrap: anywhere;
 }
 
+.diagnostic-action-button {
+    padding: 12px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    color: #f4f4f5;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.diagnostic-action-button:hover {
+    border-color: rgba(255,255,255,0.24);
+    background: rgba(255,255,255,0.11);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.diagnostic-action-button:focus-visible {
+    outline: 2px solid rgba(139,92,246,0.75);
+    outline-offset: 3px;
+}
+
+.diagnostic-action-button:active {
+    transform: translateY(0);
+}
+
 .user-agent-value {
     padding: 25px 26px;
     color: #aeb3bd;
@@ -357,6 +388,14 @@ Browser & Device Information
         padding-right: 20px;
     }
 
+    .device-hero .hero-actions {
+        align-items: stretch;
+    }
+
+    .diagnostic-action-button {
+        width: 100%;
+    }
+    
     .copy-notification {
         right: 16px;
         bottom: 16px;
