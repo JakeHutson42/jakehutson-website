@@ -3,365 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f2f0e9">
 
-    <title>Jake Hutson</title>
-
-    <meta name="description" content="Projects, experiments and things built by Jake Hutson.">
+    <title>Jake Hutson — Software Developer & Maker</title>
+    <meta name="description" content="Selected software, tools and experiments by Jake Hutson.">
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Site Styles -->
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Site styles -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body>
-
-    <!-- ==================================================
-         Navigation
-    =================================================== -->
     <div id="siteNavbar"></div>
 
-    <!-- ==================================================
-         Hero
-    =================================================== -->
     <main>
-        <section class="hero">
-            <div class="hero-container">
-                <div class="eyebrow reveal">
-                    <span class="status-dot"></span>
-                    Building things worth using
+        <!-- ==================================================
+             Hero
+        =================================================== -->
+        <section class="home-hero" aria-labelledby="heroTitle">
+            <div class="site-shell home-hero-inner">
+                <div class="hero-kicker reveal">
+                    <span>Portfolio / 2026</span>
+                    <span class="hero-kicker-rule" aria-hidden="true"></span>
+                    <span>Software developer & maker</span>
                 </div>
 
-                <h1 class="reveal">Ideas become <span class="gradient-text">something real.</span></h1>
+                <h1 id="heroTitle" class="hero-title reveal">
+                    <span class="hero-title-line">Jake Hutson builds</span>
+                    <span class="hero-title-line hero-title-offset">software with intent.</span>
+                </h1>
 
-                <p class="hero-description reveal">
-                    A collection of projects, experiments and things I'm building, exploring and occasionally breaking along the way.
-                </p>
-
-                <div class="hero-actions reveal">
-                    <a href="#work" class="btn-main">Explore my work <i class="bi bi-arrow-down-right ms-1"></i></a>
-                    <a href="#contact" class="btn-secondary">Get in touch</a>
+                <div class="row g-4 align-items-end hero-lower">
+                    <div class="col-12 col-lg-7">
+                        <p class="hero-intro reveal">A personal archive of products, utilities and experiments — designed, engineered and refined with equal attention to how they work and how they feel.</p>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="hero-meta reveal">
+                            <div class="hero-meta-item"><span>Based in</span><strong>United Kingdom</strong></div>
+                            <div class="hero-meta-item"><span>Current focus</span><strong>Corvus</strong></div>
+                            <div class="hero-meta-item"><span>Working with</span><strong>.NET / Web / Desktop</strong></div>
+                        </div>
+                    </div>
                 </div>
+
+                <a class="hero-scroll reveal" href="#work" aria-label="Scroll to selected work">
+                    <span>Selected work</span>
+                    <i class="bi bi-arrow-down" aria-hidden="true"></i>
+                </a>
             </div>
-
-            <div class="scroll-indicator">Scroll to explore</div>
         </section>
-
 
         <!-- ==================================================
-             Statement
+             Statement band
         =================================================== -->
-        <section class="statement">
-            <div class="section-container">
-                <p class="statement-text reveal">I like building things that are <span> useful, interesting and beautifully engineered. </span></p>
+        <section class="manifesto" aria-label="Design philosophy">
+            <div class="manifesto-track" aria-hidden="true">
+                <span>Useful first</span><span>Built properly</span><span>Designed deliberately</span><span>Always evolving</span>
+                <span>Useful first</span><span>Built properly</span><span>Designed deliberately</span><span>Always evolving</span>
             </div>
         </section>
-
 
         <!-- ==================================================
-             Work
+             Selected work
         =================================================== -->
-        <section id="work">
-            <div class="section-container">
-
-                <h2 class="section-title reveal">
-                    Things I've been building.
-                </h2>
-
-                <p class="section-description reveal">
-                    Software, experiments and projects that started as ideas and gradually became something much more tangible.
-                </p>
-
-
-                <div class="projects-grid">
-
-                    <!-- Corvus -->
-
-                    <article class="project-card corvus-card reveal">
-
-                        <div class="corvus-glow"></div>
-
-                        <div class="project-number">
-                            01 / CURRENT PROJECT
-                        </div>
-
-                        <h3>
-                            Corvus
-                        </h3>
-
-                        <p>
-                            A modern Windows audio companion designed
-                            around sound, creativity and control.
-                            Combining a soundboard, clip recording,
-                            audio tools and a highly customisable
-                            interface into one application.
-                        </p>
-
-                        <div class="project-tags">
-
-                            <span class="tag">C#</span>
-                            <span class="tag">.NET 8</span>
-                            <span class="tag">WPF</span>
-                            <span class="tag">NAudio</span>
-
-                        </div>
-
-                        <div class="corvus-symbol">
-                            <i class="bi bi-soundwave"></i>
-                        </div>
-
-                    </article>
-
-
-                    <!-- Personal Tools -->
-
-                    <article class="project-card small reveal">
-
-                        <div class="project-number">
-                            02 / PROJECT
-                        </div>
-
-                        <h3>
-                            Personal Tools
-                        </h3>
-
-                        <p>
-                            A collection of utilities and experiments
-                            built to solve everyday problems and make
-                            working with digital content a little easier.
-                        </p>
-
-                        <div class="project-tags">
-
-                            <span class="tag">ASP.NET</span>
-                            <span class="tag">Razor Pages</span>
-                            <span class="tag">.NET</span>
-
-                        </div>
-
-                    </article>
-
-
-                    <!-- Future project -->
-
-                    <article class="project-card small reveal">
-
-                        <div class="project-number">
-                            03 / EXPERIMENT
-                        </div>
-
-                        <h3>
-                            More to come.
-                        </h3>
-
-                        <p>
-                            Not every idea has a name yet. Some are
-                            still being designed, tested or waiting
-                            for the right moment.
-                        </p>
-
-                        <div class="project-tags">
-
-                            <span class="tag">Ideas</span>
-                            <span class="tag">Experiments</span>
-
-                        </div>
-
-                    </article>
-
-
-                    <!-- Exploration -->
-
-                    <article class="project-card reveal">
-
-                        <div class="project-number">
-                            04 / EXPLORATION
-                        </div>
-
-                        <h3>
-                            Always experimenting.
-                        </h3>
-
-                        <p>
-                            New technologies, interfaces, tools and
-                            ridiculous ideas are often where the most
-                            interesting projects begin.
-                        </p>
-
-                        <div class="project-tags">
-
-                            <span class="tag">Development</span>
-                            <span class="tag">Design</span>
-                            <span class="tag">Experimentation</span>
-
-                        </div>
-
-                    </article>
-
+        <section id="work" class="work-section">
+            <div class="site-shell">
+                <div class="section-heading reveal">
+                    <div class="section-heading-index">01</div>
+                    <div>
+                        <p class="section-eyebrow">Selected work</p>
+                        <h2>Things worth showing.</h2>
+                    </div>
                 </div>
 
+                <article class="featured-project reveal" aria-labelledby="corvusTitle">
+                    <div class="featured-project-topline">
+                        <span>01 — Desktop application</span>
+                        <span>In active development</span>
+                    </div>
+
+                    <div class="row g-0">
+                        <div class="col-12 col-xl-5 featured-project-copy">
+                            <div class="project-status"><span class="project-status-dot"></span> Current project</div>
+                            <h3 id="corvusTitle">Corvus</h3>
+                            <p class="project-lead">A Windows audio companion built around fast access, creative control and a deeply customisable interface.</p>
+                            <p class="project-body">Corvus brings soundboards, clip recording and practical audio tools into one focused desktop experience. It is being built as a product rather than a collection of features: architecture, interaction design and polish all matter.</p>
+
+                            <div class="project-tech" aria-label="Corvus technologies">
+                                <span>C#</span><span>.NET 8</span><span>WPF</span><span>NAudio</span>
+                            </div>
+
+                            <div class="project-note">
+                                <span class="project-note-label">Next</span>
+                                <span>Product screenshots and a deeper case study will live here.</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-xl-7">
+                            <div class="corvus-stage" aria-label="Corvus interface preview placeholder">
+                                <div class="corvus-stage-grid" aria-hidden="true"></div>
+                                <div class="corvus-mark" aria-hidden="true">C</div>
+                                <div class="corvus-ui corvus-ui-main" aria-hidden="true">
+                                    <div class="corvus-ui-bar"><span></span><span></span><span></span></div>
+                                    <div class="corvus-ui-layout">
+                                        <div class="corvus-ui-sidebar">
+                                            <span></span><span></span><span></span><span></span><span></span>
+                                        </div>
+                                        <div class="corvus-ui-content">
+                                            <div class="corvus-wave"></div>
+                                            <div class="corvus-clips"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="corvus-ui corvus-ui-float" aria-hidden="true">
+                                    <div class="float-wave"></div>
+                                    <div class="float-meta"><span></span><span></span></div>
+                                </div>
+                                <div class="stage-caption"><span>Interface study</span><span>Screenshot-ready layout</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="project-list">
+                    <article class="project-row reveal">
+                        <div class="project-row-number">02</div>
+                        <div class="project-row-main">
+                            <p class="project-row-type">Web utilities</p>
+                            <h3>Personal Tools</h3>
+                            <p>A growing set of useful browser-based tools and small experiments, built to make repetitive digital jobs simpler.</p>
+                        </div>
+                        <div class="project-row-meta">
+                            <span>ASP.NET</span><span>Razor Pages</span><span>.NET</span>
+                        </div>
+                        <div class="project-row-arrow" aria-hidden="true"><i class="bi bi-arrow-up-right"></i></div>
+                    </article>
+
+                    <a class="project-row project-row-link reveal" href="browser-device.html">
+                        <div class="project-row-number">03</div>
+                        <div class="project-row-main">
+                            <p class="project-row-type">Browser experiment</p>
+                            <h3>Device Diagnostics</h3>
+                            <p>A privacy-conscious browser utility that surfaces device, display, connection and browser capability information locally.</p>
+                        </div>
+                        <div class="project-row-meta">
+                            <span>JavaScript</span><span>Browser APIs</span><span>Privacy-first</span>
+                        </div>
+                        <div class="project-row-arrow" aria-hidden="true"><i class="bi bi-arrow-up-right"></i></div>
+                    </a>
+                </div>
             </div>
-
         </section>
-
 
         <!-- ==================================================
              About
         =================================================== -->
-
-        <section id="about">
-
-            <div class="section-container">
-
-                <div class="section-label reveal">
-                    Approach
+        <section id="about" class="about-section">
+            <div class="site-shell">
+                <div class="section-heading section-heading-light reveal">
+                    <div class="section-heading-index">02</div>
+                    <div>
+                        <p class="section-eyebrow">About</p>
+                        <h2>Engineering and design belong in the same conversation.</h2>
+                    </div>
                 </div>
 
-                <h2 class="section-title reveal">
-                    Curious by default.
-                </h2>
-
-                <p class="section-description reveal">
-                    I'm interested in the space between software,
-                    design and solving problems. The best projects
-                    usually happen when those things overlap.
-                </p>
-
-
-                <div class="capability-grid">
-
-                    <div class="capability reveal">
-
-                        <i class="bi bi-code-slash"></i>
-
-                        <h4>
-                            Software
-                        </h4>
-
-                        <p>
-                            Building applications with a focus on
-                            useful functionality, maintainable
-                            architecture and a great user experience.
-                        </p>
-
+                <div class="row g-5 about-grid">
+                    <div class="col-12 col-lg-7">
+                        <p class="about-large reveal">I like software that feels considered — clear structure underneath, useful behaviour on the surface, and details that make it pleasant to use repeatedly.</p>
                     </div>
-
-
-                    <div class="capability reveal">
-
-                        <i class="bi bi-stars"></i>
-
-                        <h4>
-                            Experimentation
-                        </h4>
-
-                        <p>
-                            Trying new technologies and ideas simply
-                            because something interesting might come
-                            from them.
-                        </p>
-
+                    <div class="col-12 col-lg-5">
+                        <div class="about-copy reveal">
+                            <p>Most of my work sits somewhere between application development, interface design and solving awkward practical problems. I am interested in the whole product, not just the code that makes it run.</p>
+                            <p>This site is a record of that work. Some projects are polished products, some are useful tools, and others are simply ideas worth exploring.</p>
+                        </div>
                     </div>
-
-
-                    <div class="capability reveal">
-
-                        <i class="bi bi-layout-text-window-reverse"></i>
-
-                        <h4>
-                            Design
-                        </h4>
-
-                        <p>
-                            Creating interfaces that feel considered
-                            rather than simply functional.
-                        </p>
-
-                    </div>
-
                 </div>
 
+                <div class="discipline-grid">
+                    <div class="discipline reveal"><span>01</span><h3>Application development</h3><p>Maintainable software, practical architecture and dependable behaviour.</p></div>
+                    <div class="discipline reveal"><span>02</span><h3>Interface design</h3><p>Layouts and interactions that are purposeful rather than decorative.</p></div>
+                    <div class="discipline reveal"><span>03</span><h3>Experimentation</h3><p>Trying unfamiliar tools and technologies when there is something useful to learn.</p></div>
+                </div>
             </div>
-
         </section>
-
 
         <!-- ==================================================
-             Contact
+             Stack / archive
         =================================================== -->
-
-        <section id="contact" class="contact-section">
-
-            <div class="section-container">
-
-                <div class="contact-box reveal">
-
-                    <div class="section-label">
-                        Get in touch
-                    </div>
-
-                    <h2>
-                        Have an idea?
-                        Let's make it real.
-                    </h2>
-
-                    <p>
-                        Whether it's a project, collaboration,
-                        question or simply something interesting,
-                        I'm always open to hearing from people.
-                    </p>
-
-                    <div class="mt-4">
-
-                        <a href="mailto:hello@jakehutson.me"
-                           class="btn-main">
-                            Say hello
-                            <i class="bi bi-arrow-up-right ms-1"></i>
-                        </a>
-
-                    </div>
-
+        <section class="archive-section">
+            <div class="site-shell">
+                <div class="archive-header reveal">
+                    <span class="section-eyebrow">Working set</span>
+                    <span class="archive-count">Selected technologies / not exhaustive</span>
                 </div>
-
+                <div class="technology-list reveal" aria-label="Technologies">
+                    <span>C#</span><span>.NET</span><span>ASP.NET Core</span><span>Razor Pages</span><span>WPF</span><span>JavaScript</span><span>jQuery</span><span>Bootstrap</span><span>MariaDB</span><span>REST APIs</span><span>Git</span>
+                </div>
             </div>
-
         </section>
-
     </main>
-
 
     <!-- ==================================================
          Footer
     =================================================== -->
-
-    <footer>
-        <div class="footer-inner">
-            <div>© <span id="year"></span> Jake Hutson</div>
-
-            <div class="footer-links">
-                <a href="privacy.html">Privacy</a>
-                <span>·</span>
-                <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <footer class="site-footer">
+        <div class="site-shell">
+            <div class="footer-top">
+                <p class="footer-label">Elsewhere</p>
+                <a class="footer-github" href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
             </div>
-
-            <div>Built with curiosity.</div>
+            <div class="footer-wordmark" aria-label="Jake Hutson">Jake Hutson</div>
+            <div class="footer-bottom">
+                <span>© <span id="year"></span> Jake Hutson</span>
+                <span>Personal portfolio / United Kingdom</span>
+                <a href="privacy.html">Privacy</a>
+            </div>
         </div>
     </footer>
 
-
-    <!-- ==================================================
-         JavaScript Libraries
-    =================================================== -->
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Site JavaScript -->
     <script src="js/main.js"></script>
-
 </body>
 </html>
