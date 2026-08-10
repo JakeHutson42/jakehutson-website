@@ -65,7 +65,7 @@ body::after {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: 1050;
     padding: 20px 0;
     transition: padding 0.35s ease, background 0.35s ease, backdrop-filter 0.35s ease;
 }
@@ -157,14 +157,46 @@ body::after {
 
 .mobile-navigation {
     width: 100%;
+    position: relative;
+    z-index: 1001;
+}
+
+.mobile-navigation-actions {
+    padding-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
 .mobile-navigation-inner {
-    margin-top: 14px;
-    padding-top: 12px;
+    margin: 14px -24px -14px;
+    padding: 16px 24px 22px;
     display: flex;
     flex-direction: column;
     border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: rgba(7,9,13,0.94);
+    box-shadow: 0 24px 45px rgba(0,0,0,0.35);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+.mobile-navigation-button {
+    padding: 11px 14px;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    text-align: center;
+}
+
+.mobile-navigation-inner .mobile-navigation-button:hover,
+.mobile-navigation-inner .mobile-navigation-button:focus-visible {
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.08);
+    color: white;
 }
 
 .mobile-navigation-inner a {
@@ -546,9 +578,96 @@ footer {
     gap: 20px;
 }
 
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-links a {
+    color: var(--muted);
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+    color: white;
+}
+
 /* --------------------------------------------------
-           Scroll reveal
-        -------------------------------------------------- */
+Privacy Page
+-------------------------------------------------- */
+
+.privacy-page {
+    padding: 180px 24px 120px;
+}
+
+.privacy-page-title {
+    max-width: 900px;
+    margin: 22px 0 24px;
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(48px, 7vw, 82px);
+    line-height: 1;
+    letter-spacing: -0.055em;
+    font-weight: 800;
+}
+
+.privacy-page-intro {
+    max-width: 760px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+.privacy-content {
+    max-width: 850px;
+    margin-top: 80px;
+}
+
+.privacy-content-section {
+    padding: 36px 0;
+    border-top: 1px solid var(--border);
+}
+
+.privacy-content-section:last-child {
+    border-bottom: 1px solid var(--border);
+}
+
+.privacy-content-section h2 {
+    margin: 0 0 18px;
+    font-family: "Manrope", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.privacy-content-section p {
+    margin: 0 0 15px;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.85;
+}
+
+.privacy-content-section p:last-child {
+    margin-bottom: 0;
+}
+
+.privacy-content-section a {
+    color: #c4b5fd;
+}
+
+.privacy-content-section a:hover {
+    color: white;
+}
+
+.privacy-updated {
+    font-size: 13px;
+}
+
+/* --------------------------------------------------
+    Scroll reveal
+-------------------------------------------------- */
 
 .reveal {
     opacity: 0;
@@ -562,8 +681,8 @@ footer {
     }
 
 /* --------------------------------------------------
-           Responsive
-        -------------------------------------------------- */
+    Responsive
+-------------------------------------------------- */
 
 @media (max-width: 900px) {
     .desktop-navigation {
@@ -583,15 +702,6 @@ footer {
         grid-column: span 12;
     }
 
-    .nav-links {
-        display: none;
-    }
-
-    .project-card,
-    .project-card.small {
-        grid-column: span 12;
-    }
-
     .capability-grid {
         grid-template-columns: 1fr;
     }
@@ -602,7 +712,6 @@ footer {
 }
 
 @media (max-width: 576px) {
-
     .hero {
         padding-top: 150px;
     }
@@ -635,12 +744,25 @@ footer {
     }
 
     .footer-inner {
+        gap: 10px;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-links {
+        justify-content: center;
+    }
+
+    .privacy-page {
+        padding: 145px 20px 80px;
+    }
+
+    .privacy-page-intro {
+        font-size: 16px;
+    }
+
+    .privacy-content {
+        margin-top: 55px;
     }
 }
-
-</style >
-</head >
-
-<body >
