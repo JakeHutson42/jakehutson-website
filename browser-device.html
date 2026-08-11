@@ -1,402 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="theme-color" content="#f2f0e9">
     <title>Browser & Device Information | Jake Hutson</title>
-    <meta name="description" content="View browser, device, display, connection and web capability information directly in your browser.">
-
-    <!-- Bootstrap -->
+    <meta name="description" content="Explore the browser, device, display, connection and web capabilities your browser makes available locally.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Site Styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-
-    <!-- Page Styles -->
     <link rel="stylesheet" href="css/browser-device.css">
 </head>
-
 <body>
-
-    <!-- ==================================================
-    Navigation
-    =================================================== -->
     <div id="siteNavbar"></div>
 
-
-    <!-- ==================================================
-    Hero
-    =================================================== -->
     <main>
-        <section class="device-hero">
-            <div class="section-container">
-                <div class="eyebrow reveal">
-                    <span class="status-dot"></span>
-                    Live browser diagnostics
+        <section class="diagnostics-hero" aria-labelledby="diagnosticsHeroTitle">
+            <div class="site-shell diagnostics-hero-inner">
+                <div class="hero-kicker reveal">
+                    <span>Browser experiment / Live</span>
+                    <span class="hero-kicker-rule" aria-hidden="true"></span>
+                    <span>Processed locally</span>
                 </div>
 
-                <h1 class="reveal">See what your <span class="gradient-text">browser knows.</span></h1>
+                <h1 id="diagnosticsHeroTitle" class="diagnostics-hero-title reveal">
+                    <span>Your browser,</span>
+                    <span class="diagnostics-hero-title-offset">translated.</span>
+                </h1>
 
-                <p class="device-hero-description reveal">
-                    A detailed, privacy-conscious look at the browser, device, display and web capabilities currently available to this page.
-                    Everything is inspected locally in your browser.
-                </p>
-
-                <div class="hero-actions reveal">
-                    <a href="#browser" class="btn-main">View diagnostics <i class="bi bi-arrow-down-right ms-1"></i></a>
-                    <button type="button" class="diagnostic-action-button" id="copyReportButton">
-                        <i class="bi bi-clipboard me-1"></i> Copy report
-                    </button>
-
-                    <button type="button" class="diagnostic-action-button" id="downloadReportButton">
-                        <i class="bi bi-download me-1"></i> Export JSON
-                    </button>
+                <div class="row g-4 align-items-end diagnostics-hero-lower">
+                    <div class="col-12 col-lg-7">
+                        <p class="diagnostics-hero-intro reveal">A live, privacy-conscious view of the browser, hardware hints, display, network environment and modern web capabilities available to this page.</p>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="diagnostics-hero-meta reveal">
+                            <div><span>Collection</span><strong>On-device</strong></div>
+                            <div><span>Permissions</span><strong>None requested</strong></div>
+                            <div><span>Report</span><strong>Yours to export</strong></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="row g-3 mt-5 reveal">
-                    <div class="col-6 col-lg-3">
-                        <div class="summary-card h-100">
-                            <div class="summary-icon"><i class="bi bi-browser-chrome"></i></div>
-                            <div class="summary-label">Browser</div>
-                            <div class="summary-value" id="summaryBrowser">Detecting...</div>
-                        </div>
-                    </div>
+                <div class="diagnostics-actions reveal">
+                    <a class="diagnostics-primary-action" href="#snapshot">Explore the data <i class="bi bi-arrow-down-right" aria-hidden="true"></i></a>
+                    <button type="button" class="diagnostics-secondary-action" id="copyReportButton"><i class="bi bi-clipboard" aria-hidden="true"></i> Copy report</button>
+                    <button type="button" class="diagnostics-secondary-action" id="downloadReportButton"><i class="bi bi-download" aria-hidden="true"></i> Export JSON</button>
+                </div>
+            </div>
+        </section>
 
-                    <div class="col-6 col-lg-3">
-                        <div class="summary-card h-100">
-                            <div class="summary-icon"><i class="bi bi-phone"></i></div>
-                            <div class="summary-label">Device</div>
-                            <div class="summary-value" id="summaryDevice">Detecting...</div>
-                        </div>
-                    </div>
+        <section id="snapshot" class="snapshot-section">
+            <div class="site-shell">
+                <div class="section-heading reveal">
+                    <div class="section-heading-index">01</div>
+                    <div><p class="section-eyebrow">Live snapshot</p><h2>The essentials, at a glance.</h2></div>
+                </div>
 
-                    <div class="col-6 col-lg-3">
-                        <div class="summary-card h-100">
-                            <div class="summary-icon"><i class="bi bi-display"></i></div>
-                            <div class="summary-label">Display</div>
-                            <div class="summary-value" id="summaryDisplay">Detecting...</div>
-                        </div>
+                <div class="snapshot-panel reveal">
+                    <div class="snapshot-panel-topline">
+                        <span>Current environment</span>
+                        <span class="snapshot-live"><span></span> Live</span>
                     </div>
-
-                    <div class="col-6 col-lg-3">
-                        <div class="summary-card h-100">
-                            <div class="summary-icon"><i class="bi bi-wifi"></i></div>
-                            <div class="summary-label">Connection</div>
-                            <div class="summary-value" id="summaryConnection">Detecting...</div>
+                    <div class="snapshot-grid">
+                        <div class="snapshot-item">
+                            <div class="snapshot-icon"><i class="bi bi-browser-chrome"></i></div>
+                            <span class="snapshot-label">Browser</span>
+                            <strong class="snapshot-value" id="summaryBrowser">Detecting...</strong>
+                            <span class="snapshot-detail">Identity & rendering engine</span>
+                        </div>
+                        <div class="snapshot-item">
+                            <div class="snapshot-icon"><i class="bi bi-laptop"></i></div>
+                            <span class="snapshot-label">Device</span>
+                            <strong class="snapshot-value" id="summaryDevice">Detecting...</strong>
+                            <span class="snapshot-detail">Reported form factor</span>
+                        </div>
+                        <div class="snapshot-item">
+                            <div class="snapshot-icon"><i class="bi bi-aspect-ratio"></i></div>
+                            <span class="snapshot-label">Display</span>
+                            <strong class="snapshot-value" id="summaryDisplay">Detecting...</strong>
+                            <span class="snapshot-detail">CSS pixel resolution</span>
+                        </div>
+                        <div class="snapshot-item">
+                            <div class="snapshot-icon"><i class="bi bi-wifi"></i></div>
+                            <span class="snapshot-label">Connection</span>
+                            <strong class="snapshot-value" id="summaryConnection">Detecting...</strong>
+                            <span class="snapshot-detail">Browser-reported status</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ==================================================
-        Browser
-        =================================================== -->
-        <section id="browser" class="diagnostics-section">
-            <div class="section-container">
-                <div class="section-label reveal">Browser</div>
-                <h2 class="section-title reveal">Your browser environment.</h2>
-                <p class="section-description reveal">
-                    Information reported by the browser itself, including its identity, languages, privacy settings and underlying browser engine.
-                </p>
+        <section id="browser" class="diagnostics-section diagnostics-section-paper">
+            <div class="site-shell">
+                <div class="section-heading reveal">
+                    <div class="section-heading-index">02</div>
+                    <div><p class="section-eyebrow">Browser</p><h2>The software between you and the web.</h2></div>
+                </div>
+                <div class="diagnostics-section-intro reveal"><p>Your browser exposes a useful picture of its identity, language, privacy preferences and underlying rendering environment.</p></div>
 
-                <div class="row g-4 mt-4">
-                    <div class="col-12 col-lg-6">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div>
-                                    <span class="diagnostic-card-icon"><i class="bi bi-window"></i></span>
-                                    <h3>Browser</h3>
-                                </div>
-                            </div>
-
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Browser</span><span class="diagnostic-value" id="browserName">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Version</span><span class="diagnostic-value" id="browserVersion">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Engine</span><span class="diagnostic-value" id="browserEngine">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Vendor</span><span class="diagnostic-value" id="browserVendor">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Platform</span><span class="diagnostic-value" id="browserPlatform">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">PDF viewer</span><span class="diagnostic-value" id="pdfViewerEnabled">-</span></div>
-                            </div>
+                <div class="diagnostics-layout diagnostics-layout-two">
+                    <article class="diagnostic-card diagnostic-card-feature reveal">
+                        <div class="diagnostic-card-heading"><span class="diagnostic-card-index">A</span><div><p>Runtime</p><h3>Browser identity</h3></div><i class="bi bi-window"></i></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">Browser</span><span class="diagnostic-value" id="browserName">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Version</span><span class="diagnostic-value" id="browserVersion">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Engine</span><span class="diagnostic-value" id="browserEngine">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Vendor</span><span class="diagnostic-value" id="browserVendor">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Platform</span><span class="diagnostic-value" id="browserPlatform">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">PDF viewer</span><span class="diagnostic-value" id="pdfViewerEnabled">-</span></div>
                         </div>
-                    </div>
+                    </article>
 
-                    <div class="col-12 col-lg-6">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div>
-                                    <span class="diagnostic-card-icon"><i class="bi bi-translate"></i></span>
-                                    <h3>Language & privacy</h3>
-                                </div>
-                            </div>
-
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Primary language</span><span class="diagnostic-value" id="primaryLanguage">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Languages</span><span class="diagnostic-value" id="browserLanguages">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Cookies enabled</span><span class="diagnostic-value" id="cookiesEnabled">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Do Not Track</span><span class="diagnostic-value" id="doNotTrack">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Online</span><span class="diagnostic-value" id="onlineStatus">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Java enabled</span><span class="diagnostic-value" id="javaEnabled">-</span></div>
-                            </div>
+                    <article class="diagnostic-card reveal">
+                        <div class="diagnostic-card-heading"><span class="diagnostic-card-index">B</span><div><p>Preferences</p><h3>Language & privacy</h3></div><i class="bi bi-translate"></i></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">Primary language</span><span class="diagnostic-value" id="primaryLanguage">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Languages</span><span class="diagnostic-value" id="browserLanguages">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Cookies enabled</span><span class="diagnostic-value" id="cookiesEnabled">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Do Not Track</span><span class="diagnostic-value" id="doNotTrack">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Online</span><span class="diagnostic-value" id="onlineStatus">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Java enabled</span><span class="diagnostic-value" id="javaEnabled">-</span></div>
                         </div>
-                    </div>
+                    </article>
+                </div>
 
-                    <div class="col-12">
-                        <div class="diagnostic-card reveal">
-                            <div class="diagnostic-card-header">
-                                <div>
-                                    <span class="diagnostic-card-icon"><i class="bi bi-code-square"></i></span>
-                                    <h3>User agent</h3>
-                                </div>
-                            </div>
-                            <div class="user-agent-value" id="userAgent">-</div>
+                <article class="user-agent-panel reveal">
+                    <div class="user-agent-panel-heading"><span>Raw identifier</span><span>User agent string</span></div>
+                    <div class="user-agent-value" id="userAgent">-</div>
+                </article>
+            </div>
+        </section>
+
+        <section id="device" class="diagnostics-section diagnostics-section-deep">
+            <div class="site-shell">
+                <div class="section-heading reveal">
+                    <div class="section-heading-index">03</div>
+                    <div><p class="section-eyebrow">Device</p><h2>Hardware hints, without fingerprint theatre.</h2></div>
+                </div>
+                <div class="diagnostics-section-intro reveal"><p>Modern browsers deliberately limit exact hardware identification. What remains is enough to understand the environment without pretending the browser knows more than it does.</p></div>
+
+                <div class="device-dashboard">
+                    <article class="diagnostic-card diagnostic-card-tall reveal">
+                        <div class="diagnostic-card-heading"><span class="diagnostic-card-index">A</span><div><p>Hardware</p><h3>System</h3></div><i class="bi bi-cpu"></i></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">Device type</span><span class="diagnostic-value" id="deviceType">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Operating system</span><span class="diagnostic-value" id="operatingSystem">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Architecture</span><span class="diagnostic-value" id="architecture">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Bitness</span><span class="diagnostic-value" id="bitness">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Device model</span><span class="diagnostic-value" id="deviceModel">-</span></div>
+                            <div class="diagnostic-row diagnostic-row-emphasis"><span class="diagnostic-label">Logical processors</span><span class="diagnostic-value diagnostic-value-large" id="logicalProcessors">-</span></div>
+                            <div class="diagnostic-row diagnostic-row-emphasis"><span class="diagnostic-label">Estimated memory</span><span class="diagnostic-value diagnostic-value-large" id="deviceMemory">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Touch points</span><span class="diagnostic-value" id="touchPoints">-</span></div>
+                        </div>
+                    </article>
+
+                    <article class="diagnostic-card reveal">
+                        <div class="diagnostic-card-heading"><span class="diagnostic-card-index">B</span><div><p>Canvas</p><h3>Display</h3></div><i class="bi bi-display"></i></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">Screen resolution</span><span class="diagnostic-value" id="screenResolution">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Available screen</span><span class="diagnostic-value" id="availableScreen">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Viewport</span><span class="diagnostic-value" id="viewportSize">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Device pixel ratio</span><span class="diagnostic-value" id="devicePixelRatio">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Colour depth</span><span class="diagnostic-value" id="colourDepth">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Pixel depth</span><span class="diagnostic-value" id="pixelDepth">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Orientation</span><span class="diagnostic-value" id="screenOrientation">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Colour gamut</span><span class="diagnostic-value" id="colourGamut">-</span></div>
+                        </div>
+                    </article>
+
+                    <article class="diagnostic-card reveal">
+                        <div class="diagnostic-card-heading"><span class="diagnostic-card-index">C</span><div><p>Locale</p><h3>Time & region</h3></div><i class="bi bi-clock-history"></i></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">Timezone</span><span class="diagnostic-value" id="timezone">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">UTC offset</span><span class="diagnostic-value" id="utcOffset">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Local time</span><span class="diagnostic-value" id="localTime">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">24-hour preference</span><span class="diagnostic-value" id="hourCycle">-</span></div>
+                        </div>
+                    </article>
+
+                    <article class="diagnostic-card reveal">
+                        <div class="diagnostic-card-heading"><span class="diagnostic-card-index">D</span><div><p>Rendering</p><h3>Graphics</h3></div><i class="bi bi-gpu-card"></i></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">WebGL</span><span class="diagnostic-value" id="webglVersion">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">GPU vendor</span><span class="diagnostic-value" id="gpuVendor">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">GPU renderer</span><span class="diagnostic-value" id="gpuRenderer">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">HDR display</span><span class="diagnostic-value" id="hdrDisplay">-</span></div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="environment" class="diagnostics-section diagnostics-section-paper">
+            <div class="site-shell">
+                <div class="section-heading reveal">
+                    <div class="section-heading-index">04</div>
+                    <div><p class="section-eyebrow">Environment</p><h2>Network, storage and power.</h2></div>
+                </div>
+
+                <div class="environment-grid">
+                    <article class="environment-card environment-card-dark reveal">
+                        <div class="environment-card-icon"><i class="bi bi-wifi"></i></div>
+                        <div class="environment-card-title"><span>01 / Network</span><h3>Connection</h3></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">Status</span><span class="diagnostic-value" id="connectionStatus">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Type</span><span class="diagnostic-value" id="connectionType">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Effective type</span><span class="diagnostic-value" id="effectiveConnectionType">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Downlink</span><span class="diagnostic-value" id="connectionDownlink">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Estimated RTT</span><span class="diagnostic-value" id="connectionRtt">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Data saver</span><span class="diagnostic-value" id="saveData">-</span></div>
+                        </div>
+                    </article>
+
+                    <article class="environment-card reveal">
+                        <div class="environment-card-icon"><i class="bi bi-device-ssd"></i></div>
+                        <div class="environment-card-title"><span>02 / Local</span><h3>Browser storage</h3></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row"><span class="diagnostic-label">Used</span><span class="diagnostic-value" id="storageUsed">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Available quota</span><span class="diagnostic-value" id="storageQuota">-</span></div>
+                            <div class="diagnostic-row diagnostic-row-emphasis"><span class="diagnostic-label">Usage</span><span class="diagnostic-value diagnostic-value-large" id="storagePercentage">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Persistent storage</span><span class="diagnostic-value" id="persistentStorage">-</span></div>
+                        </div>
+                    </article>
+
+                    <article class="environment-card reveal">
+                        <div class="environment-card-icon"><i class="bi bi-battery-half"></i></div>
+                        <div class="environment-card-title"><span>03 / Power</span><h3>Battery</h3></div>
+                        <div class="diagnostic-list">
+                            <div class="diagnostic-row diagnostic-row-emphasis"><span class="diagnostic-label">Battery level</span><span class="diagnostic-value diagnostic-value-large" id="batteryLevel">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Charging</span><span class="diagnostic-value" id="batteryCharging">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Charging time</span><span class="diagnostic-value" id="batteryChargingTime">-</span></div>
+                            <div class="diagnostic-row"><span class="diagnostic-label">Discharge time</span><span class="diagnostic-value" id="batteryDischargingTime">-</span></div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section id="capabilities" class="capabilities-section">
+            <div class="site-shell">
+                <div class="section-heading section-heading-light reveal">
+                    <div class="section-heading-index">05</div>
+                    <div><p class="section-eyebrow">Capabilities</p><h2>A map of the modern web platform.</h2></div>
+                </div>
+
+                <div class="capabilities-intro reveal">
+                    <p>Support means the API exists in this browser. It does not mean a website has permission to use it, and this page does not request those permissions simply to run the check.</p>
+                    <div class="capability-legend"><span><i class="capability-dot capability-dot-supported"></i> Available</span><span><i class="capability-dot capability-dot-muted"></i> Unavailable</span></div>
+                </div>
+
+                <div class="capability-diagnostics-grid">
+                    <div class="browser-capability reveal"><span class="capability-number">01</span><i class="bi bi-database"></i><div><h4>Local Storage</h4><span id="capLocalStorage">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">02</span><i class="bi bi-database-check"></i><div><h4>IndexedDB</h4><span id="capIndexedDb">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">03</span><i class="bi bi-gear-wide-connected"></i><div><h4>Service Workers</h4><span id="capServiceWorker">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">04</span><i class="bi bi-code-slash"></i><div><h4>WebAssembly</h4><span id="capWebAssembly">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">05</span><i class="bi bi-gpu-card"></i><div><h4>WebGL 2</h4><span id="capWebGl2">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">06</span><i class="bi bi-stars"></i><div><h4>WebGPU</h4><span id="capWebGpu">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">07</span><i class="bi bi-geo-alt"></i><div><h4>Geolocation</h4><span id="capGeolocation">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">08</span><i class="bi bi-clipboard"></i><div><h4>Clipboard API</h4><span id="capClipboard">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">09</span><i class="bi bi-bell"></i><div><h4>Notifications</h4><span id="capNotifications">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">10</span><i class="bi bi-camera-video"></i><div><h4>Camera & microphone</h4><span id="capMediaDevices">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">11</span><i class="bi bi-broadcast"></i><div><h4>WebRTC</h4><span id="capWebRtc">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">12</span><i class="bi bi-arrows-fullscreen"></i><div><h4>Fullscreen</h4><span id="capFullscreen">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">13</span><i class="bi bi-picture-in-picture"></i><div><h4>Picture-in-Picture</h4><span id="capPictureInPicture">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">14</span><i class="bi bi-share"></i><div><h4>Web Share</h4><span id="capShare">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">15</span><i class="bi bi-phone-vibrate"></i><div><h4>Vibration</h4><span id="capVibration">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">16</span><i class="bi bi-bluetooth"></i><div><h4>Web Bluetooth</h4><span id="capBluetooth">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">17</span><i class="bi bi-usb-symbol"></i><div><h4>WebUSB</h4><span id="capUsb">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">18</span><i class="bi bi-terminal"></i><div><h4>Web Serial</h4><span id="capSerial">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">19</span><i class="bi bi-folder2-open"></i><div><h4>File System Access</h4><span id="capFileSystem">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">20</span><i class="bi bi-moon-stars"></i><div><h4>Dark mode preference</h4><span id="capDarkMode">Checking...</span></div></div>
+                    <div class="browser-capability reveal"><span class="capability-number">21</span><i class="bi bi-universal-access"></i><div><h4>Reduced motion</h4><span id="capReducedMotion">Checking...</span></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="diagnostics-privacy-section">
+            <div class="site-shell">
+                <div class="diagnostics-privacy-panel reveal">
+                    <div class="diagnostics-privacy-kicker"><span class="privacy-status-dot"></span> Privacy by design</div>
+                    <div class="row g-5 align-items-end">
+                        <div class="col-12 col-lg-8"><h2>Useful information.<br>No unnecessary collection.</h2></div>
+                        <div class="col-12 col-lg-4">
+                            <p>This page reads standard browser APIs and displays the result back to you locally. It does not request location, camera or microphone access. A report only leaves the page when you explicitly copy or export it.</p>
+                            <a href="privacy.html">Read the privacy note <i class="bi bi-arrow-up-right"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
-        <!-- ==================================================
-        Device
-        =================================================== -->
-        <section id="device" class="diagnostics-section section-bordered">
-            <div class="section-container">
-                <div class="section-label reveal">Device</div>
-                <h2 class="section-title reveal">Hardware & operating environment.</h2>
-                <p class="section-description reveal">
-                    Browsers intentionally limit exact hardware identification, but a useful amount of device information can still be reported safely.
-                </p>
-
-                <div class="row g-4 mt-4">
-                    <div class="col-12 col-lg-6">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div>
-                                    <span class="diagnostic-card-icon"><i class="bi bi-cpu"></i></span>
-                                    <h3>System</h3>
-                                </div>
-                            </div>
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Device type</span><span class="diagnostic-value" id="deviceType">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Operating system</span><span class="diagnostic-value" id="operatingSystem">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Architecture</span><span class="diagnostic-value" id="architecture">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Bitness</span><span class="diagnostic-value" id="bitness">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Device model</span><span class="diagnostic-value" id="deviceModel">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Logical processors</span><span class="diagnostic-value" id="logicalProcessors">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Estimated memory</span><span class="diagnostic-value" id="deviceMemory">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Touch points</span><span class="diagnostic-value" id="touchPoints">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-6">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div>
-                                    <span class="diagnostic-card-icon"><i class="bi bi-display"></i></span>
-                                    <h3>Display</h3>
-                                </div>
-                            </div>
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Screen resolution</span><span class="diagnostic-value" id="screenResolution">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Available screen</span><span class="diagnostic-value" id="availableScreen">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Viewport</span><span class="diagnostic-value" id="viewportSize">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Device pixel ratio</span><span class="diagnostic-value" id="devicePixelRatio">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Colour depth</span><span class="diagnostic-value" id="colourDepth">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Pixel depth</span><span class="diagnostic-value" id="pixelDepth">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Orientation</span><span class="diagnostic-value" id="screenOrientation">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Colour gamut</span><span class="diagnostic-value" id="colourGamut">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-6">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div>
-                                    <span class="diagnostic-card-icon"><i class="bi bi-clock-history"></i></span>
-                                    <h3>Locale & time</h3>
-                                </div>
-                            </div>
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Timezone</span><span class="diagnostic-value" id="timezone">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">UTC offset</span><span class="diagnostic-value" id="utcOffset">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Local time</span><span class="diagnostic-value" id="localTime">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">24-hour preference</span><span class="diagnostic-value" id="hourCycle">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-6">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div>
-                                    <span class="diagnostic-card-icon"><i class="bi bi-gpu-card"></i></span>
-                                    <h3>Graphics</h3>
-                                </div>
-                            </div>
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">WebGL</span><span class="diagnostic-value" id="webglVersion">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">GPU vendor</span><span class="diagnostic-value" id="gpuVendor">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">GPU renderer</span><span class="diagnostic-value" id="gpuRenderer">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">HDR display</span><span class="diagnostic-value" id="hdrDisplay">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================
-        Environment
-        =================================================== -->
-        <section id="environment" class="diagnostics-section">
-            <div class="section-container">
-                <div class="section-label reveal">Environment</div>
-                <h2 class="section-title reveal">Connection, power & storage.</h2>
-
-                <div class="row g-4 mt-4">
-                    <div class="col-12 col-lg-4">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div><span class="diagnostic-card-icon"><i class="bi bi-wifi"></i></span><h3>Connection</h3></div>
-                            </div>
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Status</span><span class="diagnostic-value" id="connectionStatus">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Type</span><span class="diagnostic-value" id="connectionType">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Effective type</span><span class="diagnostic-value" id="effectiveConnectionType">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Downlink</span><span class="diagnostic-value" id="connectionDownlink">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Estimated RTT</span><span class="diagnostic-value" id="connectionRtt">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Data saver</span><span class="diagnostic-value" id="saveData">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-4">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div><span class="diagnostic-card-icon"><i class="bi bi-device-ssd"></i></span><h3>Browser storage</h3></div>
-                            </div>
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Used</span><span class="diagnostic-value" id="storageUsed">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Available quota</span><span class="diagnostic-value" id="storageQuota">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Usage</span><span class="diagnostic-value" id="storagePercentage">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Persistent storage</span><span class="diagnostic-value" id="persistentStorage">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-4">
-                        <div class="diagnostic-card reveal h-100">
-                            <div class="diagnostic-card-header">
-                                <div><span class="diagnostic-card-icon"><i class="bi bi-battery-half"></i></span><h3>Battery</h3></div>
-                            </div>
-                            <div class="diagnostic-list">
-                                <div class="diagnostic-row"><span class="diagnostic-label">Battery level</span><span class="diagnostic-value" id="batteryLevel">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Charging</span><span class="diagnostic-value" id="batteryCharging">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Charging time</span><span class="diagnostic-value" id="batteryChargingTime">-</span></div>
-                                <div class="diagnostic-row"><span class="diagnostic-label">Discharge time</span><span class="diagnostic-value" id="batteryDischargingTime">-</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================
-        Capabilities
-        =================================================== -->
-        <section id="capabilities" class="diagnostics-section section-bordered">
-            <div class="section-container">
-                <div class="section-label reveal">Capabilities</div>
-                <h2 class="section-title reveal">What this browser can do.</h2>
-                <p class="section-description reveal">
-                    These checks test whether common modern browser APIs are available. A supported API may still require your permission before a site can use it.
-                </p>
-
-                <div class="capability-diagnostics-grid mt-5">
-                    <div class="browser-capability reveal"><i class="bi bi-database"></i><div><h4>Local Storage</h4><span id="capLocalStorage">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-database-check"></i><div><h4>IndexedDB</h4><span id="capIndexedDb">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-gear-wide-connected"></i><div><h4>Service Workers</h4><span id="capServiceWorker">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-code-slash"></i><div><h4>WebAssembly</h4><span id="capWebAssembly">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-gpu-card"></i><div><h4>WebGL 2</h4><span id="capWebGl2">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-stars"></i><div><h4>WebGPU</h4><span id="capWebGpu">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-geo-alt"></i><div><h4>Geolocation</h4><span id="capGeolocation">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-clipboard"></i><div><h4>Clipboard API</h4><span id="capClipboard">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-bell"></i><div><h4>Notifications</h4><span id="capNotifications">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-camera-video"></i><div><h4>Camera & microphone</h4><span id="capMediaDevices">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-broadcast"></i><div><h4>WebRTC</h4><span id="capWebRtc">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-arrows-fullscreen"></i><div><h4>Fullscreen</h4><span id="capFullscreen">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-picture-in-picture"></i><div><h4>Picture-in-Picture</h4><span id="capPictureInPicture">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-share"></i><div><h4>Web Share</h4><span id="capShare">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-phone-vibrate"></i><div><h4>Vibration</h4><span id="capVibration">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-bluetooth"></i><div><h4>Web Bluetooth</h4><span id="capBluetooth">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-usb-symbol"></i><div><h4>WebUSB</h4><span id="capUsb">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-terminal"></i><div><h4>Web Serial</h4><span id="capSerial">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-folder2-open"></i><div><h4>File System Access</h4><span id="capFileSystem">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-moon-stars"></i><div><h4>Dark mode preference</h4><span id="capDarkMode">Checking...</span></div></div>
-                    <div class="browser-capability reveal"><i class="bi bi-universal-access"></i><div><h4>Reduced motion</h4><span id="capReducedMotion">Checking...</span></div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================================================
-        Privacy
-        =================================================== -->
-        <section class="privacy-section">
-            <div class="section-container">
-                <div class="privacy-card reveal">
-                    <div class="privacy-icon"><i class="bi bi-shield-check"></i></div>
-                    <div>
-                        <div class="section-label">Privacy by design</div>
-                        <h2>Nothing here needs to leave your browser.</h2>
-                        <p>
-                            This page reads information exposed to normal browser JavaScript and displays it back to you locally.
-                            It does not request your location, camera or microphone, and the report is only exported when you choose to copy or download it.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
     </main>
 
-    <div class="copy-notification" id="copyNotification" role="status" aria-live="polite">
-        <i class="bi bi-check-circle-fill"></i>
-        Report copied to clipboard
-    </div>
+    <div class="copy-notification" id="copyNotification" role="status" aria-live="polite"><i class="bi bi-check-circle-fill"></i> Report copied to clipboard</div>
 
-    <footer>
-        <div class="footer-inner">
-            <div>© <span id="year"></span> Jake Hutson</div>
-
-            <div class="footer-links">
-                <a href="privacy.html">Privacy</a>
-                <span>·</span>
-                <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <footer class="site-footer">
+        <div class="site-shell">
+            <div class="footer-top">
+                <p class="footer-label">Elsewhere</p>
+                <a class="footer-github" href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub <i class="bi bi-arrow-up-right"></i></a>
             </div>
-
-            <div>Built with curiosity.</div>
+            <div class="footer-wordmark" aria-label="Jake Hutson">Jake Hutson</div>
+            <div class="footer-bottom">
+                <span>© <span id="year"></span> Jake Hutson</span>
+                <span>Personal portfolio / United Kingdom</span>
+                <a href="privacy.html">Privacy</a>
+            </div>
         </div>
     </footer>
 
-    <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Site JavaScript -->
     <script src="js/main.js"></script>
-
-    <!-- Page JavaScript -->
     <script src="js/browser-device.js"></script>
-</body>
 
+    <script>
+        $(function () {
+            if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                return;
+            }
+
+            var animatedValueIds = ["logicalProcessors", "deviceMemory", "touchPoints", "devicePixelRatio", "colourDepth", "pixelDepth", "connectionDownlink", "connectionRtt", "storagePercentage", "batteryLevel"];
+
+            animatedValueIds.forEach(function (id) {
+                var element = document.getElementById(id);
+
+                if (!element) {
+                    return;
+                }
+
+                var observer = new MutationObserver(function () {
+                    animateNumericValue(element, observer);
+                });
+
+                observer.observe(element, { childList: true, characterData: true, subtree: true });
+                animateNumericValue(element, observer);
+            });
+
+            function animateNumericValue(element, observer) {
+                if (element.dataset.countAnimated === "true") {
+                    return;
+                }
+
+                var text = element.textContent.trim();
+                var match = text.match(/-?\d+(?:\.\d+)?/);
+
+                if (!match || text === "-" || /not reported|unavailable/i.test(text)) {
+                    return;
+                }
+
+                var target = parseFloat(match[0]);
+
+                if (!Number.isFinite(target)) {
+                    return;
+                }
+
+                element.dataset.countAnimated = "true";
+                observer.disconnect();
+
+                var decimals = match[0].includes(".") ? match[0].split(".")[1].length : 0;
+                var prefix = text.substring(0, match.index);
+                var suffix = text.substring(match.index + match[0].length);
+                var duration = 900;
+                var startTime = null;
+
+                function frame(timestamp) {
+                    if (startTime === null) {
+                        startTime = timestamp;
+                    }
+
+                    var progress = Math.min((timestamp - startTime) / duration, 1);
+                    var eased = 1 - Math.pow(1 - progress, 3);
+                    var current = target * eased;
+                    var displayed = decimals > 0 ? current.toFixed(decimals) : Math.round(current).toString();
+
+                    element.textContent = prefix + displayed + suffix;
+
+                    if (progress < 1) {
+                        window.requestAnimationFrame(frame);
+                    } else {
+                        element.textContent = text;
+                    }
+                }
+
+                window.requestAnimationFrame(frame);
+            }
+        });
+    </script>
+</body>
 </html>
