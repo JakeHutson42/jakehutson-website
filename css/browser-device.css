@@ -447,13 +447,9 @@
 
 .device-dashboard {
     display: grid;
-    grid-template-columns: 1.12fr 0.88fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
-    align-items: start;
-}
-
-.device-dashboard .diagnostic-card:nth-child(1) {
-    grid-row: span 2;
+    align-items: stretch;
 }
 
 .environment-grid {
@@ -792,8 +788,9 @@
         grid-template-columns: 1fr;
     }
 
-    .device-dashboard .diagnostic-card:nth-child(1) { grid-row: auto; }
-    .capability-diagnostics-grid { grid-template-columns: repeat(2, 1fr); }
+    .capability-diagnostics-grid { 
+       grid-template-columns: repeat(2, 1fr); 
+    }
 
     .capabilities-intro {
         align-items: flex-start;
