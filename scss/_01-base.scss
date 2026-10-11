@@ -72,3 +72,8 @@ img {
     letter-spacing: -0.065em;
     font-weight: 600;
 }
+
+/* Keep anchor destinations clear of the fixed navigation. */
+html { scroll-padding-top: calc(var(--nav-height) + 20px); }
+.mobile-navigation[hidden] { display: none; }
+@media (min-width: 992px) { .mobile-navigation { display: none; } }

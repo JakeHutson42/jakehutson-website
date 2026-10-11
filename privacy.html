@@ -14,7 +14,34 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div id="siteNavbar"></div>
+    <nav class="site-nav" id="navbar" aria-label="Primary navigation">
+    <div class="site-shell nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="Jake Hutson home">
+            <span class="nav-monogram" aria-hidden="true">JH</span>
+            <span class="nav-brand-name">Jake Hutson</span>
+        </a>
+
+        <div class="nav-links desktop-navigation">
+            <a href="index.html#work">Work</a>
+            <a href="index.html#about">About</a>
+            <a href="browser-device.html">Diagnostics</a>
+            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </div>
+
+        <button class="nav-menu-toggle" type="button" aria-controls="mobileNavigation" aria-expanded="false" aria-label="Toggle navigation">
+            <span></span><span></span>
+        </button>
+    </div>
+
+    <div class="mobile-navigation" hidden id="mobileNavigation">
+        <div class="site-shell mobile-navigation-inner">
+            <a href="index.html#work"><span>Work</span><span>01</span></a>
+            <a href="index.html#about"><span>About</span><span>02</span></a>
+            <a href="browser-device.html"><span>Diagnostics</span><span>03</span></a>
+            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer"><span>GitHub</span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</nav>
 
     <main>
         <section class="privacy-page">

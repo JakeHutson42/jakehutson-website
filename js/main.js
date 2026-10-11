@@ -1,103 +1,65 @@
-$(function () {
-    var $siteNavbar = $("#siteNavbar");
-    var $window = $(window);
+document.addEventListener('DOMContentLoaded', function () {
+    var navbar = document.getElementById('navbar');
+    var menu = document.getElementById('mobileNavigation');
+    var toggle = document.querySelector('.nav-menu-toggle');
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    /*
-     * Load the shared navigation first so every page keeps the same header.
-     */
-    $siteNavbar.load("partials/navbar.html", function (response, status) {
-        if (status === "error") {
-            console.error("The shared navigation could not be loaded.");
-            return;
-        }
+    function setMenuOpen(open) {
+        menu.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+        navbar.classList.toggle('is-open', open);
+    }
 
-        initialiseNavigation();
-    });
-
-    /*
-     * Keep the navigation visually quiet at the top of the page and give it
-     * a solid backdrop once content begins to move behind it.
-     */
-    function initialiseNavigation() {
-        var $navbar = $("#navbar");
-        var $mobileNavigation = $("#mobileNavigation");
-
+    if (navbar && menu && toggle) {
         function updateNavbar() {
-            $navbar.toggleClass("is-scrolled", $window.scrollTop() > 24);
+            navbar.classList.toggle('is-scrolled', window.scrollY > 24);
         }
-
         updateNavbar();
-        $window.on("scroll", updateNavbar);
-
-        $mobileNavigation.on("show.bs.collapse", function () {
-            $navbar.addClass("is-open");
-        });
-
-        $mobileNavigation.on("hidden.bs.collapse", function () {
-            $navbar.removeClass("is-open");
-        });
-
-        $mobileNavigation.find("a").on("click", function () {
-            if (window.bootstrap) {
-                bootstrap.Collapse.getOrCreateInstance($mobileNavigation[0]).hide();
+        window.addEventListener('scroll', updateNavbar, { passive: true });
+        toggle.addEventListener('click', function () { setMenuOpen(menu.hidden); });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && !menu.hidden) {
+                setMenuOpen(false);
+                toggle.focus();
             }
         });
-    }
-
-    /*
-     * Reveal content once, as it enters the viewport. IntersectionObserver is
-     * used instead of a continuous scroll calculation to keep the page light.
-     */
-    function initialiseReveal() {
-        var $revealItems = $(".reveal");
-
-        if (!("IntersectionObserver" in window)) {
-            $revealItems.addClass("is-visible");
-            return;
-        }
-
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (!entry.isIntersecting) {
-                    return;
-                }
-
-                $(entry.target).addClass("is-visible");
-                observer.unobserve(entry.target);
-            });
-        }, {
-            threshold: 0.12,
-            rootMargin: "0px 0px -40px 0px"
-        });
-
-        $revealItems.each(function () {
-            observer.observe(this);
+        window.matchMedia('(min-width: 992px)').addEventListener('change', function (event) {
+            if (event.matches) { setMenuOpen(false); }
         });
     }
 
-    initialiseReveal();
-
-    /*
-     * Use native smooth scrolling so anchor links remain accessible and work
-     * even when JavaScript enhancements are unavailable.
-     */
-    $(document).on("click", 'a[href^="#"]', function (event) {
-        var href = $(this).attr("href");
-        var $target;
-
-        if (!href || href === "#") {
-            return;
-        }
-
-        $target = $(href);
-
-        if (!$target.length) {
-            return;
-        }
-
+    document.addEventListener('click', function (event) {
+        var link = event.target.closest('a[href]');
+        if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+        var destination = new URL(link.href, window.location.href);
+        var currentPath = window.location.pathname.replace(/index\.html$/, '');
+        var targetPath = destination.pathname.replace(/index\.html$/, '');
+        if (menu && toggle && menu.contains(link)) { setMenuOpen(false); }
+        if (destination.origin !== window.location.origin || currentPath !== targetPath || !destination.hash) { return; }
+        var target = document.getElementById(decodeURIComponent(destination.hash.slice(1)));
+        if (!target) { return; }
         event.preventDefault();
-        window.scrollTo({ top: Math.max(0, $target.offset().top - 72), behavior: "smooth" });
+        history.pushState(null, '', destination.hash);
+        target.scrollIntoView({ behavior: reducedMotion.matches ? 'instant' : 'smooth', block: 'start' });
+        if (!target.hasAttribute('tabindex')) { target.setAttribute('tabindex', '-1'); }
+        target.focus({ preventScroll: true });
     });
 
-    $("#year").text(new Date().getFullYear());
+    var revealItems = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+        revealItems.forEach(function (item) { item.classList.add('is-visible'); });
+    } else {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        revealItems.forEach(function (item) { observer.observe(item); });
+    }
+    var year = document.getElementById('year');
+    if (year) { year.textContent = new Date().getFullYear(); }
 });
