@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f2f0e9">
+    <title>DroidFrame — A closer look | Jake Hutson</title>
+    <meta name="description" content="Inside DroidFrame: an Android workspace for Windows, with an app library, device profiles and editable recording sequences. A product study by Jake Hutson.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/droidframe-story.css">
+</head>
+<body class="df-page">
+    <a class="df-skip" href="#dfMain">Skip to content</a>
+<nav class="site-nav" id="navbar" aria-label="Primary navigation">
+    <div class="site-shell nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="Jake Hutson home">
+            <span class="nav-monogram" aria-hidden="true">JH</span>
+            <span class="nav-brand-name">Jake Hutson</span>
+        </a>
+
+        <div class="nav-links desktop-navigation">
+            <a href="index.html#work">Work</a>
+            <a href="index.html#about">About</a>
+            <a href="droidframe.html" aria-current="page">DroidFrame</a>
+            <a href="browser-device.html">Diagnostics</a>
+            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </div>
+
+        <button class="nav-menu-toggle" type="button" aria-controls="mobileNavigation" aria-expanded="false" aria-label="Toggle navigation">
+            <span></span><span></span>
+        </button>
+    </div>
+
+    <div class="mobile-navigation" hidden id="mobileNavigation">
+        <div class="site-shell mobile-navigation-inner">
+            <a href="index.html#work"><span>Work</span><span>01</span></a>
+            <a href="index.html#about"><span>About</span><span>02</span></a>
+            <a href="droidframe.html" aria-current="page"><span>DroidFrame</span><span>03</span></a>
+            <a href="browser-device.html"><span>Diagnostics</span><span>04</span></a>
+            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer"><span>GitHub</span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </div>
+    </div>
+</nav>
+    <main id="dfMain">
+        <header class="df-hero site-shell">
+            <div class="df-masthead df-mono"><span>Jake Hutson / Product study No. 02</span><span>Windows application · 2026</span></div>
+            <div class="df-title-row"><h1>DroidFrame<span class="df-title-dot">.</span></h1><span class="df-edition df-mono">Designed<br>to feel<br>at home.</span></div>
+            <div class="df-hero-grid">
+                <div class="df-hero-copy">
+                    <p class="df-mono df-eyebrow"><span class="df-status-dot"></span> In active development</p>
+                    <h2>Android.<br>In its element.</h2>
+                    <p>A considered Windows home for your Android apps, games and recordings. Familiar tools. Room to play. Control where you need it.</p>
+                    <a class="df-text-link" href="#inside">Look inside <span aria-hidden="true">↓</span></a>
+                </div>
+                <figure class="df-cover">
+                    <img src="images/droidframe/art/frame-sculpture.webp" width="1536" height="1024" alt="An editorial sculpture of graphite frames and a translucent blue pane, separated in space" fetchpriority="high">
+                    <figcaption class="df-mono"><span>Form study / Frame, space, control</span><span>Fig. 01</span></figcaption>
+                </figure>
+            </div>
+            <div class="df-project-facts df-mono"><span>Independent project</span><span>C# / .NET 10 / WPF</span><span>Private repository</span><a href="#inside">Scroll to disassemble <span aria-hidden="true">↘</span></a></div>
+        </header>
+
+        <section id="inside" class="df-inside" aria-labelledby="insideTitle">
+            <div class="site-shell df-section-heading"><p class="df-mono df-eyebrow">01 / The workspace</p><h2 id="insideTitle">Everything has<br>its place.</h2><p>The app library, Android display and automation tools share one workspace. Take it apart to see how the pieces fit.</p></div>
+            <a class="df-story-skip df-text-link site-shell" href="#recordings">Skip the animated tour <span aria-hidden="true">↓</span></a>
+            <div class="df-story-stage">
+                <div class="df-story-top df-mono"><span>DroidFrame / Interface anatomy</span><span class="df-scene-state">Assembled</span></div>
+                <div class="df-story-grid site-shell">
+                    <div class="df-chapters">
+                        <article class="df-chapter" data-chapter="0">
+                            <p class="df-mono df-eyebrow">01 / A clear starting point</p><h3>One window.<br>Your Android.</h3>
+                            <p>A home for the whole session: your apps on the left, Android in the centre and recording controls close to hand.</p>
+                            <span class="df-chapter-detail df-mono">Library · Device · Automation</span>
+                            <img class="df-mobile-shot" src="images/droidframe/desktop.webp" width="1424" height="861" loading="lazy" alt="The DroidFrame desktop workspace">
+                        </article>
+                        <article class="df-chapter" data-chapter="1">
+                            <p class="df-mono df-eyebrow">02 / The app library</p><h3>Drop it in.<br>Make it yours.</h3>
+                            <p>Import an APK or APKM bundle, install it and launch it from the library. App icons make finding your way back easy.</p>
+                            <span class="df-chapter-detail df-mono">APK + APKM / Persistent app data</span>
+                            <img class="df-mobile-shot" src="images/droidframe/desktop.webp" width="1424" height="861" loading="lazy" alt="The app library beside the Android device workspace">
+                        </article>
+                        <article class="df-chapter" data-chapter="2">
+                            <p class="df-mono df-eyebrow">03 / Space for the device</p><h3>Let Android<br>take the stage.</h3>
+                            <p>Google’s Android Emulator sits inside a focused Windows interface. Navigation, volume and fullscreen controls stay alongside the display.</p>
+                            <span class="df-chapter-detail df-mono">A real Android runtime / A Windows home</span>
+                            <img class="df-mobile-shot df-mobile-android" src="images/droidframe/android-home.webp" width="1080" height="1920" loading="lazy" alt="Android home screen captured from the running emulator">
+                        </article>
+                        <article class="df-chapter" data-chapter="3">
+                            <p class="df-mono df-eyebrow">04 / Repeat with intention</p><h3>A sequence.<br>On your terms.</h3>
+                            <p>Record interactions and save a named sequence. Replay once, repeat a chosen number of times or keep going until you stop it.</p>
+                            <span class="df-chapter-detail df-mono">Named recordings / Adjustable repeat gaps</span>
+                            <img class="df-mobile-shot" src="images/droidframe/automation.webp" width="1424" height="861" loading="lazy" alt="Automation panel with repeat count, gap and playback controls">
+                        </article>
+                        <article class="df-chapter" data-chapter="4">
+                            <p class="df-mono df-eyebrow">05 / Refine the details</p><h3>Every gesture.<br>Editable.</h3>
+                            <p>Tap, Hold, Swipe, Key and Wait. A separate editor gives each step its own timing and position, without taking over the Android view.</p>
+                            <span class="df-chapter-detail df-mono">Reorder / Duplicate / Disable / Undo</span>
+                            <img class="df-mobile-shot" src="images/droidframe/recording-editor.webp" width="1144" height="741" loading="lazy" alt="Recording editor with tap, wait and swipe steps">
+                        </article>
+                        <article class="df-chapter" data-chapter="5">
+                            <p class="df-mono df-eyebrow">06 / Back in place</p><h3>Separate parts.<br>One experience.</h3>
+                            <p>Practical tools that work together. Your apps and saved data stay with the device, ready for the next session.</p>
+                            <span class="df-chapter-detail df-mono">Built for returning to</span>
+                        </article>
+                    </div>
+                    <div class="df-scene" role="img" aria-label="Exploded view of the DroidFrame interface: app library, Android device, automation panel and recording editor">
+                        <div class="df-scene-grid" aria-hidden="true"></div>
+                        <svg class="df-scene-orbit" viewBox="0 0 900 700" fill="none" aria-hidden="true"><ellipse cx="450" cy="350" rx="400" ry="240" stroke="currentColor"/><ellipse cx="450" cy="350" rx="400" ry="240" transform="rotate(-28 450 350)" stroke="currentColor" stroke-dasharray="3 7"/><path d="M20 350h860M450 35v630" stroke="currentColor" stroke-dasharray="2 8"/><circle cx="450" cy="350" r="5" fill="currentColor"/></svg>
+                        <div class="df-model">
+                            <div class="df-layer df-shell" aria-hidden="true">
+                                <svg viewBox="0 0 1424 861" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="dfShellClip"><path d="M0 0H1424V57H0ZM0 827H1424V861H0Z"/></clipPath></defs><rect x="1" y="1" width="1422" height="859" rx="10" fill="#15191e" stroke="#48525d" stroke-width="2"/><image href="images/droidframe/automation.webp" width="1424" height="861" clip-path="url(#dfShellClip)"/></svg>
+                                <span class="df-layer-label df-mono">00 / Windows shell</span>
+                            </div>
+                            <div class="df-layer df-library" aria-hidden="true"><svg viewBox="16 73 244 738" xmlns="http://www.w3.org/2000/svg"><image href="images/droidframe/automation.webp" width="1424" height="861"/></svg><span class="df-layer-label df-mono">01 / App library</span></div>
+                            <div class="df-layer df-device" aria-hidden="true"><svg viewBox="276 73 832 738" xmlns="http://www.w3.org/2000/svg"><image href="images/droidframe/automation.webp" width="1424" height="861"/></svg><div class="df-android-insert"><img src="images/droidframe/android-home.webp" width="1080" height="1920" alt=""></div><span class="df-layer-label df-mono">02 / Android device</span></div>
+                            <div class="df-layer df-automation" aria-hidden="true"><svg viewBox="1128 73 280 738" xmlns="http://www.w3.org/2000/svg"><image href="images/droidframe/automation.webp" width="1424" height="861"/></svg><span class="df-layer-label df-mono">03 / Automation</span></div>
+                            <div class="df-layer df-editor" aria-hidden="true"><img src="images/droidframe/recording-editor.webp" width="1144" height="741" alt=""><span class="df-layer-label df-mono">04 / Recording editor</span></div>
+                        </div>
+                        <span class="df-scene-note df-mono">Interface study / Current development build</span>
+                    </div>
+                </div>
+                <div class="df-story-bottom site-shell"><span class="df-mono df-scroll-hint">Scroll to explore <span aria-hidden="true">↓</span></span><div class="df-story-progress" aria-hidden="true"><span></span></div><span class="df-mono df-story-count">01 / 06</span></div>
+            </div>
+        </section>
+
+        <section id="recordings" class="df-recordings">
+            <div class="site-shell">
+                <div class="df-recording-heading"><p class="df-mono df-eyebrow">02 / The art of repetition</p><h2>A little repetition.<br><span>A lot of control.</span></h2></div>
+                <div class="df-score-grid">
+                    <div class="df-gesture-art">
+                        <div class="df-art-top df-mono"><span>Gesture study / Swipe up</span><span>500 ms</span></div>
+                        <svg class="df-gesture-svg" viewBox="0 0 560 600" role="img" aria-label="A swipe diagram: a gesture travels from 50 percent across, 80 percent down to 50 percent across, 20 percent down"><defs><pattern id="dfDotGrid" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".7" fill="#6c7584" opacity=".42"/></pattern><linearGradient id="dfGlass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a6c4ff" stop-opacity=".15"/><stop offset="1" stop-color="#a6c4ff" stop-opacity=".01"/></linearGradient></defs><rect width="560" height="600" fill="url(#dfDotGrid)"/><rect x="152" y="66" width="256" height="468" rx="26" fill="url(#dfGlass)" stroke="#68788e"/><path d="M240 82h80" stroke="#75849a" stroke-linecap="round"/><path d="M152 160H408M152 440H408M280 66V534" stroke="#667a98" stroke-dasharray="3 7" opacity=".5"/><path class="df-gesture-trail" d="M280 440V160" stroke="#a6c4ff" stroke-width="3"/><path d="m272 170 8-10 8 10" stroke="#a6c4ff" fill="none" stroke-width="2"/><circle cx="280" cy="440" r="7" fill="#a6c4ff"/><circle cx="280" cy="160" r="12" fill="#161b23" stroke="#a6c4ff" stroke-width="2"/><circle class="df-gesture-cursor" cx="280" cy="440" r="22" fill="#a6c4ff" fill-opacity=".12" stroke="#a6c4ff"/><path d="M300 440H460M300 160H460" stroke="#68788e"/><text x="460" y="430" text-anchor="end" fill="#c4cedc" font-family="monospace" font-size="11">START / 50, 80</text><text x="460" y="150" text-anchor="end" fill="#c4cedc" font-family="monospace" font-size="11">END / 50, 20</text><path d="M128 66V534m-5-468h10m-10 468h10" stroke="#68788e"/><text x="80" y="306" fill="#8795a9" font-family="monospace" font-size="10" transform="rotate(-90 80 306)">RELATIVE DISPLAY COORDINATES</text></svg>
+                        <div class="df-art-bottom df-mono"><span>01 / Position</span><span>02 / Duration</span><span>03 / Direction</span></div>
+                    </div>
+                    <div class="df-score-copy"><h3>Not just recorded.<br>Composed.</h3><p>A recording is a sequence you can work on. Change the order. Give a swipe more time. Disable a step without deleting it. Save a copy and try a different approach.</p><ol class="df-score"><li><span class="df-mono">01</span><div><strong>Tap Start</strong><span>50%, 75% / 100 ms</span></div><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><circle cx="20" cy="20" r="6" fill="currentColor"/><circle cx="20" cy="20" r="15" stroke="currentColor"/></svg></li><li><span class="df-mono">02</span><div><strong>Wait for next screen</strong><span>2 seconds</span></div><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M15 8v24M25 8v24" stroke="currentColor" stroke-width="3"/></svg></li><li><span class="df-mono">03</span><div><strong>Swipe up</strong><span>50%, 80% → 50%, 20% / 500 ms</span></div><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M20 33V7m-8 9 8-9 8 9" stroke="currentColor" stroke-width="2"/></svg></li></ol><p class="df-mono df-example-note">Illustrative sequence / Matches the editor preview</p></div>
+                </div>
+                <button class="df-screenshot-button" type="button" data-full-image="images/droidframe/recording-editor.webp" data-image-caption="DroidFrame recording editor — current development preview" aria-label="Enlarge the DroidFrame recording editor screenshot"><img src="images/droidframe/recording-editor.webp" width="1144" height="741" loading="lazy" alt="The real recording editor, with named sequences, step settings and a swipe preview"><span class="df-image-caption df-mono"><span>A dedicated editor. An uninterrupted Android view.</span><span>View full size ↗</span></span></button>
+            </div>
+        </section>
+
+        <section class="df-profiles site-shell" aria-labelledby="profilesTitle">
+            <div class="df-profile-copy"><p class="df-mono df-eyebrow">03 / Pick up where you left off</p><h2 id="profilesTitle">Your device.<br>Your space.</h2><p>Keep different devices in separate profiles, remember preferences for each app, and back up a device when you need to. Apps and saved data stay with the device between sessions.</p><div class="df-profile-spec df-mono"><span>Device profiles</span><span>App preferences</span><span>Device backups</span></div></div>
+            <div class="df-profile-art" role="img" aria-label="An illustrative stack of three device profiles, each with its own apps, preferences and saved data">
+                <div class="df-profile-orbit" aria-hidden="true"></div>
+                <div class="df-profile-sheet df-profile-back" aria-hidden="true"><span class="df-mono">Profile / 03</span><span class="df-sheet-mark">03</span></div>
+                <div class="df-profile-sheet df-profile-mid" aria-hidden="true"><span class="df-mono">Profile / 02</span><span class="df-sheet-mark">02</span></div>
+                <div class="df-profile-sheet df-profile-front" aria-hidden="true"><div class="df-sheet-top df-mono"><span><i></i> Default device</span><span>01</span></div><svg viewBox="0 0 80 80" fill="none"><rect x="20" y="9" width="40" height="62" rx="5" stroke="currentColor" stroke-width="1.5"/><path d="M31 16h18M34 63h12" stroke="currentColor"/><rect x="27" y="24" width="26" height="29" rx="2" fill="currentColor" fill-opacity=".1"/></svg><div class="df-sheet-bottom df-mono"><span>Apps<br>Preferences<br>Saved data</span><span class="df-sheet-symbol">↳</span></div></div>
+                <span class="df-profile-caption df-mono">Separate spaces. A familiar starting point.</span>
+            </div>
+        </section>
+
+        <section class="df-foundation" aria-labelledby="foundationTitle"><div class="site-shell">
+            <div class="df-foundation-header"><div><p class="df-mono df-eyebrow">04 / Under the surface</p><h2 id="foundationTitle">A native home.<br>A real Android core.</h2></div><p>Built with C# and WPF around Google’s Android Emulator and a local display gateway. First-time setup finds an existing runtime or prepares the missing components.</p></div>
+            <div class="df-runtime-diagram" role="img" aria-label="DroidFrame's Windows interface connects through a local display gateway to Google's Android Emulator"><div><span class="df-mono">01 / Interface</span><svg viewBox="0 0 120 80" fill="none" aria-hidden="true"><rect x="10" y="12" width="100" height="60" rx="4" stroke="currentColor"/><path d="M10 25h100M34 25v47M17 18h3m5 0h3" stroke="currentColor"/><rect x="42" y="33" width="58" height="30" stroke="currentColor" opacity=".4"/></svg><strong>Windows workspace</strong><small>C# / .NET 10 / WPF</small></div><span class="df-runtime-connector" aria-hidden="true">↔</span><div><span class="df-mono">02 / Connection</span><svg viewBox="0 0 120 80" fill="none" aria-hidden="true"><path d="M10 25h28l20 30h52M10 55h28l20-30h52" stroke="currentColor"/><circle cx="10" cy="25" r="4" fill="var(--paper)" stroke="currentColor"/><circle cx="110" cy="55" r="4" fill="var(--paper)" stroke="currentColor"/><circle cx="10" cy="55" r="4" fill="var(--paper)" stroke="currentColor"/><circle cx="110" cy="25" r="4" fill="var(--paper)" stroke="currentColor"/></svg><strong>Local display gateway</strong><small>Display & interaction</small></div><span class="df-runtime-connector" aria-hidden="true">↔</span><div><span class="df-mono">03 / Runtime</span><svg viewBox="0 0 120 80" fill="none" aria-hidden="true"><rect x="36" y="10" width="48" height="62" rx="5" stroke="currentColor"/><path d="M49 17h22M52 64h16" stroke="currentColor"/><rect x="43" y="26" width="34" height="28" stroke="currentColor" opacity=".4"/></svg><strong>Android Emulator</strong><small>Apps / Games / Saved data</small></div></div>
+            <button class="df-screenshot-button df-setup-shot" type="button" data-full-image="images/droidframe/setup.webp" data-image-caption="First-time Android preparation — current development preview" aria-label="Enlarge the Android setup screenshot"><img src="images/droidframe/setup.webp" width="1424" height="861" loading="lazy" alt="DroidFrame's first-time Android preparation screen"><span class="df-image-caption df-mono"><span>Prepare Android once. Reuse it every time.</span><span>View full size ↗</span></span></button>
+            <div class="df-requirements df-mono"><span>Windows x64</span><span>Hardware virtualisation</span><span>12 GB free disk space</span><span>Internet for first-time setup</span></div>
+        </div></section>
+
+        <section class="df-outro site-shell"><p class="df-mono df-eyebrow">An ongoing project by Jake Hutson</p><h2>Built with intent.<br>Still taking shape.</h2><div class="df-outro-bottom"><p>DroidFrame is in active development. Compatibility, longer sessions and fresh-PC setup are still being tested. The repository remains private while the product takes shape.</p><a class="df-text-link" href="index.html#work">Back to selected work <span aria-hidden="true">↗</span></a></div><p class="df-preview-note df-mono">Interface screenshots show the current development build with sample app data and performance values. Diagrams and the cover sculpture are illustrative.</p></section>
+    </main>
+    <footer class="df-footer site-shell df-mono"><span>© <span id="year">2026</span> Jake Hutson</span><a href="index.html">Personal portfolio</a><a href="privacy.html">Privacy</a></footer>
+    <dialog class="df-image-dialog" aria-labelledby="dfDialogCaption"><button type="button" class="df-dialog-close" aria-label="Close enlarged screenshot">Close <span aria-hidden="true">×</span></button><img alt=""><p id="dfDialogCaption" class="df-mono"></p></dialog>
+    <script src="js/vendor/gsap.min.js"></script>
+    <script src="js/vendor/ScrollTrigger.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/droidframe-story.js"></script>
+</body>
+</html>
