@@ -237,6 +237,41 @@ html.df-dialog-open { overflow: hidden; }
  .df-footer { flex-wrap: wrap; font-size: 8px; gap: 16px; }
  .df-image-dialog { padding: 14px; }
 }
+/* Keep the actual exploded tour on phones, with the scene above its caption. */
+@media (max-width: 899px) {
+ .df-story-stage.has-compact-story { height: calc(100svh - var(--nav-height)); min-height: 0; max-height: none; }
+ .has-compact-story .df-story-grid { display: grid; grid-template-columns: 1fr; grid-template-rows: minmax(180px, 1fr) 245px; gap: 0; width: min(calc(100% - 36px), 640px); }
+ .has-compact-story .df-scene { grid-row: 1; height: 100%; min-height: 0; perspective: 1000px; }
+ .has-compact-story .df-model { width: 80%; }
+ .has-compact-story .df-chapters { grid-row: 2; display: block; height: auto; padding: 0; }
+ .has-compact-story .df-chapter { margin: 0; padding: 12px 0 0; border: 0; justify-content: flex-start; }
+ .has-compact-story .df-chapter h3 { font-size: 32px; line-height: 1; margin-bottom: 14px; }
+ .has-compact-story .df-chapter .df-eyebrow { margin-bottom: 12px; font-size: 8px; }
+ .has-compact-story .df-chapter > p:not(.df-mono) { font-size: 13px; line-height: 1.6; margin-bottom: 0; max-width: 430px; }
+ .has-compact-story .df-chapter-detail { margin-top: 14px; padding-top: 10px; max-width: none; font-size: 7px; }
+ .has-compact-story .df-mobile-shot { display: none; }
+ .has-compact-story .df-scene-note { bottom: 0; font-size: 6px; }
+ .has-compact-story .df-layer-label { font-size: 6px; top: calc(100% + 8px); }
+ .has-compact-story .df-shell > .df-layer-label { top: auto; bottom: calc(100% + 8px); }
+ .has-compact-story .df-story-bottom { gap: 18px; padding: 12px 0 16px; }
+ .has-compact-story .df-story-bottom .df-mono { font-size: 8px; }
+ .has-compact-story .df-story-top { padding: 14px 18px; font-size: 7px; }
+}
+@media (max-width: 899px) and (max-height: 700px) {
+ .has-compact-story .df-story-grid { grid-template-rows: minmax(120px, 1fr) 210px; }
+ .has-compact-story .df-chapter h3 { font-size: 27px; margin-bottom: 10px; }
+ .has-compact-story .df-chapter .df-eyebrow { margin-bottom: 9px; }
+ .has-compact-story .df-chapter > p:not(.df-mono) { font-size: 12px; line-height: 1.5; }
+ .has-compact-story .df-chapter-detail { margin-top: 10px; padding-top: 8px; }
+ .has-compact-story .df-scene-note { display: none; }
+}
+@media (max-width: 899px) and (orientation: landscape) {
+ .has-compact-story .df-story-grid { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr); gap: 24px; }
+ .has-compact-story .df-scene { grid-column: 2; grid-row: 1; }
+ .has-compact-story .df-chapters { grid-column: 1; grid-row: 1; }
+ .has-compact-story .df-chapter { justify-content: center; padding: 0; }
+ .has-compact-story .df-chapter-detail { display: none; }
+}
 @media (prefers-reduced-motion: reduce) {
  .df-chapter, .df-layer, .df-profile-sheet { transition: none !important; }
 }

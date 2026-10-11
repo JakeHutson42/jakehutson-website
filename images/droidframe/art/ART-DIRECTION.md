@@ -47,6 +47,8 @@ copyright and license banners. Source: jsDelivr's `gsap@3.13.0/dist` distributio
 License terms: https://gsap.com/standard-license.
 
 The six-chapter animation scrubs with native scroll position in both directions.
-Smaller or short screens, reduced-motion settings and unavailable animation
-scripts use a normal-flow reading layout. Screenshots have a keyboard-accessible
+Phones use a compact pinned tour with the scene above the changing captions;
+landscape phones place the scene beside the captions. Short desktop screens,
+reduced-motion settings and unavailable animation scripts use a normal-flow
+reading layout. Screenshots have a keyboard-accessible
 dialog for full-size inspection.

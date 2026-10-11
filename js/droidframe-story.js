@@ -29,13 +29,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // Without the animation libraries, every chapter remains in normal flow.
     if (!window.gsap || !window.ScrollTrigger || !stage) { return; }
     gsap.registerPlugin(ScrollTrigger);
+    // Avoid re-pinning when mobile browser chrome changes the visible height.
+    ScrollTrigger.config({ ignoreMobileResize: true });
     var media = gsap.matchMedia();
 
-    media.add('(min-width: 900px) and (min-height: 650px) and (prefers-reduced-motion: no-preference)', function () {
+    media.add({ motion: '(prefers-reduced-motion: no-preference)', compact: '(max-width: 899px)', wide: '(min-width: 900px)', short: '(max-height: 649px)' }, function (context) {
+        if (!context.conditions.motion || (context.conditions.wide && context.conditions.short)) { return; }
         stage.classList.add('has-scroll-story');
         var active = -1;
+        var compact = window.innerWidth < 900;
+        stage.classList.toggle('has-compact-story', compact);
         // Leave room for forward-projecting panels on smaller laptop screens.
-        function sceneFit() { return window.innerWidth < 1200 ? .82 : 1; }
+        function sceneFit() { return compact ? 1 : (window.innerWidth < 1200 ? .82 : 1); }
         function showChapter(index) {
             if (index === active) { return; }
             active = index;
@@ -55,9 +60,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 id: 'droidframe-anatomy',
                 trigger: stage,
                 start: function () { return 'top ' + parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')); },
-                end: function () { return '+=' + Math.round(window.innerHeight * 6); },
+                end: function () { return '+=' + Math.round(window.innerHeight * (compact ? 4.5 : 6)); },
                 pin: true,
-                scrub: 0.65,
+                scrub: compact ? .35 : .65,
                 anticipatePin: 1,
                 invalidateOnRefresh: true
             },
@@ -70,24 +75,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         // Assemble → lift apart → inspect each working area → reassemble.
-        timeline.to('.df-model', { rotationX: 24, rotationY: -24, rotationZ: -5, scale: function () { return .82 * sceneFit(); }, duration: .9 }, .3)
-            .to('.df-shell', { z: -90, opacity: .5, duration: .9 }, .3)
-            .to('.df-library', { x: -38, y: -40, z: 150, duration: .9 }, .3)
-            .to('.df-device', { z: 65, duration: .9 }, .3)
-            .to('.df-automation', { x: 42, y: 48, z: 210, duration: .9 }, .3)
+        timeline.to('.df-model', { rotationX: compact ? 20 : 24, rotationY: compact ? -18 : -24, rotationZ: -5, scale: function () { return .82 * sceneFit(); }, duration: .9 }, .3)
+            .to('.df-shell', { z: compact ? -35 : -90, opacity: .5, duration: .9 }, .3)
+            .to('.df-library', { x: compact ? -22 : -38, y: compact ? -28 : -40, z: compact ? 65 : 150, duration: .9 }, .3)
+            .to('.df-device', { z: compact ? 25 : 65, duration: .9 }, .3)
+            .to('.df-automation', { x: compact ? 24 : 42, y: compact ? 28 : 48, z: compact ? 90 : 210, duration: .9 }, .3)
             .to('.df-layer-label', { opacity: 1, duration: .4 }, .8)
-            .to('.df-library', { x: -70, y: -30, z: 200, scale: 1.12, duration: .5 }, 1.3)
+            .to('.df-library', { x: compact ? 28 : -70, y: compact ? -18 : -30, z: compact ? 120 : 200, scale: compact ? 1.45 : 1.12, duration: .5 }, 1.3)
             .to(['.df-device', '.df-automation'], { opacity: .42, duration: .5 }, 1.3)
             .to('.df-model', { rotationX: 13, rotationY: -12, rotationZ: -3, scale: function () { return .9 * sceneFit(); }, duration: .6 }, 2.35)
-            .to('.df-library', { scale: 1, z: 100, opacity: .35, duration: .6 }, 2.35)
-            .to('.df-device', { opacity: 1, z: 160, duration: .6 }, 2.35)
+            .to('.df-library', { scale: 1, x: compact ? -22 : -70, z: compact ? 45 : 100, opacity: .35, duration: .6 }, 2.35)
+            .to('.df-device', { opacity: 1, z: compact ? 85 : 160, duration: .6 }, 2.35)
             .to('.df-android-insert', { opacity: 1, duration: .6 }, 2.35)
             .to('.df-model', { rotationX: 17, rotationY: 20, rotationZ: 4, scale: function () { return .85 * sceneFit(); }, duration: .6 }, 3.45)
-            .to('.df-device', { opacity: .35, z: 60, duration: .6 }, 3.45)
-            .to('.df-automation', { opacity: 1, x: 10, y: 0, z: 240, scale: 1.1, duration: .6 }, 3.45)
+            .to('.df-device', { opacity: .35, z: compact ? 25 : 60, duration: .6 }, 3.45)
+            .to('.df-automation', { opacity: 1, x: compact ? -30 : 10, y: 0, z: compact ? 120 : 240, scale: compact ? 1.3 : 1.1, duration: .6 }, 3.45)
             .to('.df-model', { rotationX: 0, rotationY: 0, rotationZ: 0, scale: function () { return sceneFit(); }, duration: .7 }, 4.5)
             .to(['.df-shell', '.df-library', '.df-device', '.df-automation'], { opacity: 0, duration: .6 }, 4.5)
-            .fromTo('.df-editor', { autoAlpha: 0, z: 300, y: 60 }, { autoAlpha: 1, z: 360, y: 0, duration: .7 }, 4.5)
+            .fromTo('.df-editor', { autoAlpha: 0, z: compact ? 100 : 300, y: compact ? 24 : 60 }, { autoAlpha: 1, z: compact ? 100 : 360, y: 0, duration: .7 }, 4.5)
             .to('.df-editor', { autoAlpha: 0, z: 0, y: 20, duration: .7 }, 5.8)
             .to('.df-model', { rotationX: 0, rotationY: 0, rotationZ: 0, scale: 1, duration: .9 }, 5.8)
             .to(['.df-shell', '.df-library', '.df-device', '.df-automation'], { x: 0, y: 0, z: 0, scale: 1, opacity: 1, duration: .9 }, 5.8)
@@ -96,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .to('.df-story-progress span', { scaleX: 1, ease: 'none', duration: 7 }, 0);
 
         return function () {
-            stage.classList.remove('has-scroll-story');
+            stage.classList.remove('has-scroll-story', 'has-compact-story');
             chapters.forEach(function (chapter) {
                 chapter.classList.remove('is-active');
                 chapter.removeAttribute('aria-hidden');
