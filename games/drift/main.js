@@ -1,3 +1,6 @@
+import { initialiseDrivingGuides } from './tutorial.js';
+import { LoadingOverlay } from './loading-overlay.js';
+import { GaragePreferences, CAR_MODELS } from './garage-data.js';
 import { GAME_CONFIG } from './config.js';
 import { formatTime, clamp } from './math.js';
 import { DrivingInput } from './input.js';
@@ -9,10 +12,14 @@ import { utcDate, loadTrackManifest, availableTrackDates, loadTrack } from './tr
 
 // This module coordinates the page. Physics, scoring, persistence, and rendering remain
 // independent so each can be tuned or replaced without rewriting the interface.
+initialiseDrivingGuides();
 const element = id => document.getElementById(id);
+element('year').textContent = new Date().getFullYear();
 const stage = element('raceStage');
 const records = new LocalRecords();
 const audio = new EngineAudio();
+const garagePreferences = new GaragePreferences();
+let garage;
 let world;
 let race;
 let manifest;
@@ -27,12 +34,16 @@ let performanceMode = false;
 let pendingDailyDate = null;
 
 const input = new DrivingInput(stage, command => {
+    if (command === 'blur') { pauseRun(); return; }
+    if (loader.active || element('garageDialog').open) return;
     if (command === 'KeyR') { race?.resetCar(); world && (world.lastMark = null); }
     else if (command === 'Escape') {
         if (race?.state === 'paused') resumeRun();
         else pauseRun();
-    } else if (command === 'blur') pauseRun();
+    }
 });
+
+const loader = new LoadingOverlay(element('loadingDialog'), () => input.clear());
 
 const mobileView = new MobilePlayView(stage, () => {
     input.clear();
@@ -56,8 +67,8 @@ function updateStorageStatus() {
 
 function displayPersonalBest() {
     const best = race && records.get(race.track.date);
-    element('personalBest').textContent = best ? `${best.score.toLocaleString()} DRIFT POINTS.` : 'SET THE STANDARD.';
-    element('personalBestNote').textContent = best ? `Fastest finish ${formatTime(best.time)} · ${best.runs} completed ${best.runs === 1 ? 'run' : 'runs'} on this circuit.` : 'Finish a run to put your best on the board. No account. Just you and the next corner.';
+    element('personalBest').textContent = best ? `${best.score.toLocaleString()} DRIFT POINTS.` : 'Set your first benchmark.';
+    element('personalBestNote').textContent = best ? `Fastest finish ${formatTime(best.time)} · ${best.runs} completed ${best.runs === 1 ? 'run' : 'runs'} on this circuit.` : 'Finish a run to save your best score and time on this device.';
     updateStorageStatus();
 }
 
@@ -77,12 +88,12 @@ function drawMap(canvas, track, car = null) {
         if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
     });
     context.closePath();
-    context.strokeStyle = '#647065'; context.lineWidth = car ? 3 : 9; context.lineJoin = 'round'; context.stroke();
-    context.strokeStyle = '#dfff00'; context.lineWidth = car ? 1 : 3; context.stroke();
+    context.strokeStyle = '#61718b'; context.lineWidth = car ? 3 : 9; context.lineJoin = 'round'; context.stroke();
+    context.strokeStyle = '#ffbe55'; context.lineWidth = car ? 1 : 3; context.stroke();
     for (let checkpoint = 0; checkpoint < 4; checkpoint++) {
         const point = track.points[Math.floor(checkpoint * track.points.length / 4)];
         const [x, y] = project(...point);
-        context.fillStyle = checkpoint === 0 ? '#dfff00' : '#f1f0e6';
+        context.fillStyle = checkpoint === 0 ? '#ffbe55' : '#f3f5fa';
         context.fillRect(x - 3, y - 3, 6, 6);
     }
     if (car) {
@@ -106,6 +117,10 @@ function populateTrackSelector(selectedDate) {
 }
 
 async function selectTrack(date) {
+    return loader.run('Preparing circuit', () => selectTrackContent(date));
+}
+
+async function selectTrackContent(date) {
     const sequence = ++loadSequence;
     element('startButton').disabled = true;
     element('startButton').textContent = 'LOADING CIRCUIT…';
@@ -128,7 +143,8 @@ async function selectTrack(date) {
         element('trackLength').textContent = `${(track.length / 1000).toFixed(2)} KM`;
         drawMap(element('trackMap'), track);
         displayPersonalBest();
-        element('startButton').replaceChildren(document.createTextNode('HIT THE CIRCUIT '));
+        await world.prepare(race);
+        element('startButton').replaceChildren(document.createTextNode('Drive this circuit '));
         const arrow = document.createElement('span'); arrow.textContent = '↗'; arrow.setAttribute('aria-hidden', 'true');
         element('startButton').append(arrow);
         element('startButton').disabled = false;
@@ -157,7 +173,26 @@ function showPreview() {
     clearTimeout(noticeTimeout); element('raceNotice').textContent = '';
 }
 
-function startRun() {
+async function startRun() {
+    if (loader.active) return;
+    if (!race || !world) { await initialize(); return; }
+    // Move the mobile stage before opening a top-layer dialog: reparenting an
+    // already-open dialog can dismiss it in some browsers.
+    mobileView.enter();
+    try {
+        await loader.run('Putting you on the grid', async () => {
+            startRunContent();
+            await world.prepare(race);
+            await loader.nextPaint();
+        });
+        if (race.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });
+    } catch {
+        pauseRun();
+        showStageMessage('Graphics could not prepare. Try again or reload the page.');
+    }
+}
+
+function startRunContent() {
     if (!race || !world) { initialize(); return; }
     race = new Race(race.track);
     race.start(); finishHandled = false;
@@ -193,7 +228,7 @@ function pauseRun() {
 }
 
 function resumeRun() {
-    if (race?.state !== 'paused') return;
+    if (loader.active || element('garageDialog').open || race?.state !== 'paused') return;
     race.resume(); simulationRemainder = 0; input.clear(); input.suspended = false;
     element('raceOverlay').hidden = true;
     element('raceCanvas').focus({ preventScroll: true });
@@ -240,7 +275,7 @@ function animate(timeMilliseconds) {
     const seconds = timeMilliseconds / 1000;
     const deltaTime = Math.min(GAME_CONFIG.maximumFrameTime, seconds - (lastFrameTime || seconds));
     lastFrameTime = seconds;
-    if (!race || !world || document.hidden) return;
+    if (!race || !world || document.hidden || loader.active) return;
     if (['racing', 'countdown'].includes(race.state)) {
         simulationRemainder += deltaTime;
         const controls = input.read();
@@ -289,12 +324,37 @@ function showRecords() {
 }
 
 async function initialize() {
+    return loader.run('Warming up Apex Drift', initializeContent);
+}
+
+async function initializeContent() {
     element('startButton').disabled = true;
     try {
         if (!world) {
             // Dynamic import lets a failed renderer/library load show an actionable error.
             const { DriftWorld } = await import('./world.js');
             world = new DriftWorld(element('raceCanvas'));
+            world.setCar(garagePreferences.value);
+        }
+        if (!garage) {
+            const { Garage } = await import('./garage.js');
+            garage = new Garage(element('garageDialog'), garagePreferences, customization => loader.run('Preparing your build', async () => {
+                try {
+                    world.setCar(customization);
+                    await world.prepare(race);
+                    updateSelectedCar(customization);
+                    await loader.nextPaint();
+                } catch (error) {
+                    world.setCar(garagePreferences.value);
+                    throw error;
+                }
+            }), operation => loader.run('Opening your garage', async () => {
+                await operation();
+                await loader.nextPaint();
+            }));
+            updateSelectedCar(garagePreferences.value);
+            element('garageButton').disabled = false;
+            element('previewGarageButton').disabled = false;
             element('raceCanvas').addEventListener('webglcontextlost', event => {
                 event.preventDefault(); pauseRun();
                 showStageMessage('Graphics were interrupted. Reload this page to restore the circuit.');
@@ -312,6 +372,19 @@ async function initialize() {
         showStageMessage(`Unable to load the game. ${error.message} A browser with WebGL2 is required.`);
         element('startButton').textContent = 'TRY AGAIN ↗'; element('startButton').disabled = false;
     }
+}
+
+function updateSelectedCar(customization) {
+    const car = CAR_MODELS.find(model => model.id === customization.model);
+    element('selectedCar').textContent = `${car.name} · ${car.category}`;
+}
+
+for (const id of ['garageButton', 'previewGarageButton', 'pauseGarageButton']) {
+    element(id).addEventListener('click', () => {
+        if (!garage || loader.active || !race) return;
+        pauseRun();
+        garage.open();
+    });
 }
 
 element('startButton').addEventListener('click', startRun);
@@ -334,9 +407,19 @@ element('soundButton').addEventListener('click', () => {
     enableSound(!audio.enabled);
     if (input.active && race?.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });
 });
-element('qualityButton').addEventListener('click', () => {
+element('qualityButton').addEventListener('click', async () => {
     if (!world) return;
-    performanceMode = !performanceMode; world.setPerformanceMode(performanceMode);
+    if (loader.active) return;
+    try {
+        await loader.run('Adjusting graphics', async () => {
+            performanceMode = !performanceMode; world.setPerformanceMode(performanceMode);
+            if (race) await world.prepare(race);
+        });
+    } catch {
+        pauseRun();
+        showStageMessage('Graphics settings could not be prepared. Try reloading the page.');
+        return;
+    }
     element('qualityButton').setAttribute('aria-pressed', String(performanceMode));
     element('qualityButton').setAttribute('aria-label', performanceMode ? 'Disable performance mode' : 'Enable performance mode');
     element('qualityState').textContent = performanceMode ? 'ON' : 'OFF';
@@ -361,7 +444,10 @@ element('raceOverlay').addEventListener('keydown', event => {
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 });
-element('helpButton').addEventListener('click', () => { pauseRun(); element('helpDialog').showModal(); });
+// Instructions remain available inside the full-screen mobile stage.
+for (const id of ['helpButton', 'pauseHelpButton']) {
+    element(id).addEventListener('click', () => { pauseRun(); element('helpDialog').showModal(); });
+}
 element('recordsButton').addEventListener('click', () => { pauseRun(); showRecords(); });
 document.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
 

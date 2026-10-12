@@ -2,7 +2,8 @@
 
 A static Three.js driving game at `/drift.html`. No application server, account,
 database, package installation, or JavaScript build step is needed to play.
-The current art direction is a flat, high-desert race paddock with acid-yellow accents.
+The game has its own navy-and-amber interface, separate from the main website,
+with a high-desert circuit preview, spacious launch menu, and illustrated driving guide.
 All geometry and engine audio are created locally; no assets were copied from DailyDrift.
 
 ## Run locally
@@ -34,7 +35,10 @@ Using the existing root-directory deployment also works with the checked-in bank
 | File | Responsibility |
 | --- | --- |
 | `drift.html` (repository root) | Accessible page, menus, race HUD, dialogs |
-| `css/drift.css` | Game page styling and responsive layouts |
+| `css/drift.css` | Standalone game theme, lobby, tutorials, and responsive menus |
+| `css/drift-play.css` | Race HUD, floating controls, mobile safe areas and scroll lock |
+| `css/drift-garage.css` | Garage and input-blocking loader |
+| `games/drift/tutorial.js` | Keyboard-accessible keyboard/touch tutorial tabs |
 | `css/racing-nav.css` | Shared bordered link and waving checkerboard animation |
 | `games/drift/main.js` | Loading, UI state, fixed-step loop, UTC rollover |
 | `games/drift/config.js` | Race length, physics tuning, archive and storage limits |
@@ -55,15 +59,18 @@ Using the existing root-directory deployment also works with the checked-in bank
 | `.github/workflows/drift-tracks.yml` | Scheduled generation and optional Pages deployment |
 
 CSS is authored directly here; the existing site's compiled SCSS remains separate.
-Navigation is duplicated in the existing static pages and `partials/navbar.html`;
+The game uses its own navigation. Main-site navigation is duplicated in the other
+static pages and `partials/navbar.html`;
 update all copies when adding links, as there is no server-side template include.
 
 ## Daily circuits and the archive
 
-The generator uses a SHA-256 seed of the UTC date and generator version. Version 2
-adds smooth linked S-bends and medium-radius corners, requiring four to eight
-meaningful curvature reversals per lap. It rejects tight or overlapping road
-sections, resamples to 320 evenly spaced points, and places the start on a gentle section. World scenery
+The generator uses a SHA-256 seed of the UTC date and generator version. Version 3
+uses a 10-metre road, stronger linked bends, asymmetric inlets and pinched crests.
+It requires 10–16 meaningful curvature reversals and 15.5–21 radians of accumulated
+absolute turning per lap; these are validation metrics, not a displayed corner count.
+Inside radii below 13.5 metres and nearby overlapping road sections are rejected.
+It resamples to 320 evenly spaced points and places the start on a gentle section. World scenery
 uses the same published seed. Generation does not depend on machine-local randomness.
 `generatorVersion` identifies the layout independently of the JSON schema version;
 bank maintenance replaces outdated generated layouts and repairs incomplete files.
@@ -158,7 +165,7 @@ rather than claiming identical physics or copying its implementation.
 
 ## Records, privacy, and future backend
 
-The `apex-drift:v2` local-storage entry holds sound preference and up to 64 dated
+The `apex-drift:v3` local-storage entry holds sound preference and up to 64 dated
 records: best drift score, fastest finish (which may be from a different run), and
 completed-run count. There is no tracking or data upload. If storage is inaccessible,
 records stay in memory for the current visit and the page clearly says so. Clearing
@@ -171,3 +178,27 @@ To add a C# API, replace the storage adapter and add authentication/score valida
 Keep the driving loop in JavaScript. Three.js remains self-hosted, pinned, and licensed.
 The prototype uses synthesized engine audio and geometric scenery/car art; driving
 feel can be tuned independently from graphics and styling.
+
+
+### Garage and loading surfaces
+
+Open **Garage** from the page, the selected car under the start button, or the pause/results panel. The responsive native dialog previews Sora GT (coupe), Metro RX (hatchback), and Vandal V8 (muscle) with palette/custom paint, twin stripes, three wheel finishes, and an optional spoiler. Rotate the preview with its two buttons. **Use this build** applies and saves; close/Escape discards the draft. All three use identical physics and scoring, so existing records remain comparable. Garage storage is separate from race records and falls back to memory if browser storage is blocked.
+
+- `garage-data.js` owns the model specifications, allowed options, save validation, and local preferences. Add body specifications here and corresponding geometry details in the factory to extend the roster.
+- `car-model.js` creates the exact same car in the garage and circuit; it also disposes shared geometry and materials when a car is replaced.
+- `garage.js` owns the draft, controls, and on-demand Three.js preview. It releases the preview renderer between visits and uses a fresh canvas when reopening to avoid stale WebGL context events.
+- `loading-overlay.js` owns a nested input lock with a native top-layer dialog, real operation messages, reduced-motion support, and cleanup on success or failure. Scene preparation compiles shaders before submitting a rendered frame. The simulation freezes while loading, and held controls are cleared before preparation. Background-tab interruptions still pause a run.
+- `css/drift-garage.css` contains the garage and loader styling, with independent surface tokens for the upcoming game theme. Dialog actions remain visible while their contents scroll on small screens. The dialogs live inside the game stage so they work in fullscreen and the mobile play shell.
+
+Everything remains static, local, and backend-free. No additional libraries or downloaded car models are required.
+
+
+### Track edges and solid barriers
+
+Road edges have a 0.32-metre white line, a one-metre desert verge, then a red/white wall 0.95 metres high and 0.5 metres thick. The existing desert scenery, horizon, materials and lighting remain in use. Start/finish supports and checkpoint markers sit beyond the walls.
+
+`TRACK_EDGE_CONFIG` in `config.js` owns shared dimensions. `track-edges.js` provides the same offset vertices to the renderer's road ribbons and `barrier-mesh.js`. The walls are continuous prisms with joined endpoints, rendered as two batched meshes rather than hundreds of draw calls. This avoids gaps between rotated blocks in tight corners.
+
+The physics resolves body corners, bumper centres and side midpoints against the corridor after each fixed step, removing outward velocity while preserving slower motion along the barrier. A small contact margin keeps wheels and body clear of the visible wall; all cosmetic models share a hitbox large enough for the widest and longest car. Contact banks the current combo and stops wall scraping from earning drift points. A conservative clearance test skips detailed collision work away from the edges.
+
+The complete checked-in bank has been regenerated. Records use `apex-drift:v3` to avoid comparing old, wider layouts with the new challenge; previous records remain untouched in their old storage entries. The separate garage save is preserved. Scheduled track cache keys also use v3, so an old cached bank cannot restore superseded layouts.

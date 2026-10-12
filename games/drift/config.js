@@ -6,9 +6,9 @@ export const GAME_CONFIG = Object.freeze({
     fixedStep: 1 / 120,
     maximumFrameTime: 0.1,
     resetPenalty: 5,
-    // Revised circuits and handling need their own personal records. Keep v1 data
+    // Revised circuits and barriers need their own personal records. Keep old data
     // untouched on the device rather than comparing times on different layouts.
-    storageKey: 'apex-drift:v2',
+    storageKey: 'apex-drift:v3',
     maximumRecords: 64,
     maximumSpeed: 32,
     acceleration: 11,
@@ -21,6 +21,20 @@ export const GAME_CONFIG = Object.freeze({
     minimumDriftAngle: 0.20,
     maximumDriftAngle: 1.45,
     comboGrace: 1.4,
+});
+
+// Rendering and collision share the same verge and wall dimensions. Cosmetic
+// cars use one generous hitbox, keeping the daily challenge fair across models.
+export const TRACK_EDGE_CONFIG = Object.freeze({
+    vergeWidth: 1,
+    barrierThickness: 0.5,
+    barrierHeight: 0.95,
+    lineWidth: 0.32,
+    carHalfWidth: 1.05,
+    carHalfLength: 2.3,
+    contactMargin: 0.12,
+    restitution: 0.08,
+    scrapeDrag: 3,
 });
 
 // A low chase view leaves the car in the lower third and makes the approaching

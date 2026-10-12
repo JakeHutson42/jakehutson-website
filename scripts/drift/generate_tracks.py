@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 320
-GENERATOR_VERSION = 2
+GENERATOR_VERSION = 3
 
 
 def distance(first, second):
@@ -49,7 +49,7 @@ def validate_geometry(points, width):
         turn = abs(math.atan2(incoming[0] * outgoing[1] - incoming[1] * outgoing[0],
                               incoming[0] * outgoing[0] + incoming[1] * outgoing[1]))
         radius = distance(point, following) / max(turn, 0.00001)
-        if radius < width * 1.7:
+        if radius < width * 1.35:
             return False
         for other_index in range(index + 1, count):
             separation = min(other_index - index, count - (other_index - index))
@@ -87,26 +87,37 @@ def corner_profile(points):
 def generate_track(track_date):
     seed = int.from_bytes(hashlib.sha256(f"apex-v{GENERATOR_VERSION}:{track_date}".encode()).digest()[:4], "big")
     rng = random.Random(seed)
-    width = 15
-    for attempt in range(300):
-        radius = rng.uniform(118, 140)
-        stretch = rng.uniform(1.08, 1.30)
-        phases = [rng.uniform(0, math.tau) for _ in range(4)]
-        # Stronger, smooth lobes create medium-radius corners and S-bends. The
-        # larger footprint retains a generous 15 m road and safe inside radii.
-        amplitudes = [rng.uniform(0.07, 0.12), rng.uniform(0.14, 0.20),
-                      rng.uniform(0.045, 0.075), rng.uniform(0.025, 0.045)]
+    width = 10
+    for attempt in range(600):
+        radius = rng.uniform(150, 180)
+        stretch = rng.uniform(1.03, 1.18)
+        phases = [rng.uniform(0, math.tau) for _ in range(5)]
+        # Mix broad corners with shorter inlets and linked switchbacks. Higher
+        # harmonics add distinct bends rather than merely stretching an oval.
+        harmonics = [2, 3, 5, 7, 9]
+        amplitudes = [rng.uniform(0.05, 0.10), rng.uniform(0.06, 0.10),
+                      rng.uniform(0.12, 0.18), rng.uniform(0.03, 0.055), rng.uniform(0.01, 0.025)]
+        # A local inlet and a pinched crest break the repeated star-shaped
+        # rhythm, adding the asymmetric technical sections in the reference.
+        inlet_angle = rng.uniform(0, math.tau)
+        crest_angle = inlet_angle + rng.uniform(1.6, 4.6)
+        inlet_depth, inlet_spread = rng.uniform(0.16, 0.26), rng.uniform(0.12, 0.18)
+        crest_height, crest_spread = rng.uniform(0.12, 0.20), rng.uniform(0.12, 0.18)
         rotation = rng.uniform(0, math.tau)
         points = []
         for index in range(960):
             angle = index / 960 * math.tau
-            radial = radius * (1 + sum(amplitude * math.sin((harmonic + 2) * angle + phase)
-                                      for harmonic, (amplitude, phase) in enumerate(zip(amplitudes, phases))))
+            radial = radius * (1 + sum(amplitude * math.sin(harmonic * angle + phase)
+                                      for harmonic, (amplitude, phase) in zip(harmonics, zip(amplitudes, phases))))
+            inlet_distance = math.atan2(math.sin(angle - inlet_angle), math.cos(angle - inlet_angle))
+            crest_distance = math.atan2(math.sin(angle - crest_angle), math.cos(angle - crest_angle))
+            radial += radius * (-inlet_depth * math.exp(-0.5 * (inlet_distance / inlet_spread) ** 2)
+                                + crest_height * math.exp(-0.5 * (crest_distance / crest_spread) ** 2))
             x, z = math.cos(angle) * radial * stretch, math.sin(angle) * radial
             points.append([x * math.cos(rotation) - z * math.sin(rotation), x * math.sin(rotation) + z * math.cos(rotation)])
         points = resample_closed_loop(points, POINT_COUNT)
         total_turn, reversals = corner_profile(points)
-        if 8.5 <= total_turn <= 11.5 and 4 <= reversals <= 8 and validate_geometry(points, width):
+        if 15.5 <= total_turn <= 21 and 10 <= reversals <= 16 and validate_geometry(points, width):
             break
     else:
         raise RuntimeError(f"Could not generate a safe circuit for {track_date}")

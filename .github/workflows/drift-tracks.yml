@@ -36,8 +36,8 @@ jobs:
         id: tracks
         with:
           path: games/drift/tracks
-          key: drift-bank-v2-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: drift-bank-v2-
+          key: drift-bank-v3-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: drift-bank-v3-
       - name: Replenish the track buffer and export the static site
         run: |
           python scripts/drift/generate_tracks.py
@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: games/drift/tracks
-          key: drift-bank-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          key: drift-bank-v3-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload reviewable static output
         uses: actions/upload-artifact@v4
         with:

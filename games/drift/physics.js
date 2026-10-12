@@ -1,8 +1,9 @@
 import { GAME_CONFIG as CONFIG } from './config.js';
 import { clamp, nearestTrackPoint, trackPose } from './math.js';
+import { resolveBarrierContacts } from './track-edges.js';
 
 export function createCar(track, progress = 0) {
-    return { ...trackPose(track, progress), vx: 0, vz: 0, speed: 0, slip: 0, steering: 0, offRoad: false };
+    return { ...trackPose(track, progress), vx: 0, vz: 0, speed: 0, slip: 0, steering: 0, offRoad: false, barrierHit: false };
 }
 
 // A small arcade model: velocity is split into forward and sideways components.
@@ -39,15 +40,12 @@ export function updateCar(car, input, track, deltaTime) {
     car.vz = nextForwardZ * forwardSpeed - nextForwardX * lateralSpeed;
     car.x += car.vx * deltaTime;
     car.z += car.vz * deltaTime;
+    resolveBarrierContacts(car, track, deltaTime);
     car.speed = Math.hypot(car.vx, car.vz);
-    car.slip = Math.abs(Math.atan2(lateralSpeed, Math.max(0.01, forwardSpeed)));
-
-    // The outer runoff acts as a soft barrier, preventing the car getting lost.
-    if (nearest.distance > track.width / 2 + 12) {
-        const ratio = (track.width / 2 + 11) / nearest.distance;
-        car.x = nearest.x + (car.x - nearest.x) * ratio;
-        car.z = nearest.z + (car.z - nearest.z) * ratio;
-        car.vx *= 0.85; car.vz *= 0.85;
-    }
-    return nearestTrackPoint(track.points, car.x, car.z);
+    const resolvedForward = car.vx * nextForwardX + car.vz * nextForwardZ;
+    const resolvedLateral = car.vx * nextForwardZ - car.vz * nextForwardX;
+    car.slip = Math.abs(Math.atan2(resolvedLateral, Math.max(0.01, resolvedForward)));
+    const finalRoad = nearestTrackPoint(track.points, car.x, car.z);
+    car.offRoad = finalRoad.distance > track.width / 2;
+    return finalRoad;
 }

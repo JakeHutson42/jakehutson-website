@@ -1,6 +1,9 @@
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { nearestTrackPoint, trackPose, wrapAngle } from './math.js';
-import { CAMERA_CONFIG } from './config.js';
+import { buildTrackBarriers } from './barrier-mesh.js';
+import { offsetTrackPoint } from './track-edges.js';
+import { TRACK_EDGE_CONFIG as EDGE, CAMERA_CONFIG } from './config.js';
+import { buildCar, disposeCar } from './car-model.js';
 
 const COLORS = { asphalt: 0x343c3e, sand: 0xb6b39a, white: 0xeae9db, yellow: 0xdfff00, red: 0xd66443 };
 
@@ -18,14 +21,9 @@ function ribbonGeometry(points, innerOffset, outerOffset, height) {
     const normals = [];
     const indices = [];
     for (let index = 0; index <= points.length; index++) {
-        const point = points[index % points.length];
-        const previous = points[(index + points.length - 1) % points.length];
-        const next = points[(index + 1) % points.length];
-        const length = Math.hypot(next[0] - previous[0], next[1] - previous[1]);
-        const normalX = (next[1] - previous[1]) / length;
-        const normalZ = -(next[0] - previous[0]) / length;
         for (const offset of [innerOffset, outerOffset]) {
-            vertices.push(point[0] + normalX * offset, height, point[1] + normalZ * offset);
+            const [x, z] = offsetTrackPoint(points, index, offset);
+            vertices.push(x, height, z);
             normals.push(0, 1, 0);
         }
         if (index < points.length) {
@@ -77,35 +75,24 @@ export class DriftWorld {
 
     material(color, extra = {}) { return new THREE.MeshStandardMaterial({ color, roughness: 0.92, ...extra }); }
 
-    buildCar() {
-        const car = new THREE.Group();
-        const bodyMaterial = this.material(COLORS.yellow, { roughness: 0.45, metalness: 0.12 });
-        const black = this.material(0x171e21);
-        const glass = this.material(0x354c50, { roughness: 0.2, metalness: 0.35 });
-        const box = (width, height, depth, material, x, y, z) => {
-            const mesh = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material);
-            mesh.position.set(x, y, z); mesh.castShadow = true; car.add(mesh);
-            return mesh;
-        };
-        box(1.85, 0.55, 4.05, bodyMaterial, 0, 0.65, 0);
-        box(1.62, 0.25, 1.3, bodyMaterial, 0, 0.96, 1.12);
-        box(1.5, 0.68, 1.7, glass, 0, 1.17, -0.24);
-        box(1.56, 0.10, 1.22, bodyMaterial, 0, 1.55, -0.35);
-        box(0.23, 0.025, 1.25, black, -0.29, 1.61, -0.35);
-        box(0.23, 0.025, 1.25, black, 0.29, 1.61, -0.35);
-        box(1.95, 0.14, 0.35, black, 0, 1.23, -1.85);
-        for (const x of [-0.64, 0.64]) {
-            box(0.46, 0.17, 0.04, this.material(0xfff7cb, { emissive: 0xffe5a0, emissiveIntensity: 0.4 }), x, 0.81, 2.05);
-            box(0.45, 0.12, 0.04, this.material(0xe74e36), x, 0.78, -2.05);
-        }
-        this.wheels = [];
-        const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.28, 12);
-        for (const x of [-0.97, 0.97]) for (const z of [-1.28, 1.25]) {
-            const wheel = new THREE.Mesh(geometry, black);
-            wheel.rotation.z = Math.PI / 2; wheel.position.set(x, 0.43, z);
-            wheel.castShadow = true; car.add(wheel); this.wheels.push(wheel);
-        }
-        return car;
+    buildCar() { return buildCar(); }
+
+    setCar(customization) {
+        const replacement = buildCar(customization);
+        replacement.position.copy(this.car.position);
+        replacement.rotation.copy(this.car.rotation);
+        this.scene.remove(this.car);
+        disposeCar(this.car);
+        this.car = replacement;
+        this.scene.add(replacement);
+    }
+
+    async prepare(race) {
+        // The lobby preview and full-screen race use different canvas bounds.
+        this.resize();
+        // Compile shaders behind the input lock, then submit the actual view.
+        await this.renderer.compileAsync(this.scene, this.camera);
+        this.render(race, 0, performance.now() / 1000);
     }
 
     buildTireMarks() {
@@ -137,30 +124,15 @@ export class DriftWorld {
         const halfWidth = track.width / 2;
         const road = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth, halfWidth, 0.08), this.material(COLORS.asphalt, { side: THREE.DoubleSide }));
         road.receiveShadow = true; this.environment.add(road);
-        const shoulder = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth - 2.2, halfWidth + 2.2, 0.025), this.material(0xcac6ae, { side: THREE.DoubleSide }));
-        shoulder.receiveShadow = true; this.environment.add(shoulder);
+        const verge = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth - EDGE.vergeWidth,
+            halfWidth + EDGE.vergeWidth, 0.025), this.material(COLORS.sand, { side: THREE.DoubleSide }));
+        verge.receiveShadow = true; this.environment.add(verge);
         for (const side of [-1, 1]) {
-            const stripe = new THREE.Mesh(ribbonGeometry(track.points, side * (halfWidth - 0.5), side * (halfWidth - 0.3), 0.10), this.material(COLORS.white, { side: THREE.DoubleSide }));
+            const stripe = new THREE.Mesh(ribbonGeometry(track.points, side * (halfWidth - EDGE.lineWidth),
+                side * halfWidth, 0.10), this.material(COLORS.white, { side: THREE.DoubleSide }));
             this.environment.add(stripe);
         }
-        const curbMaterials = [this.material(COLORS.white), this.material(COLORS.red)];
-        const curbGeometry = new THREE.BoxGeometry(0.8, 0.13, track.length / track.points.length + 0.08);
-        // Instance the repeating curbs: two draw calls instead of 640 separate meshes.
-        const curbMeshes = curbMaterials.map(material => new THREE.InstancedMesh(curbGeometry, material, track.points.length * 2));
-        const curbCounts = [0, 0];
-        const curbTransform = new THREE.Object3D();
-        for (let index = 0; index < track.points.length; index++) {
-            const pose = trackPose(track, index / track.points.length);
-            for (const side of [-1, 1]) {
-                const colorIndex = Math.floor(index / 3) % 2;
-                curbTransform.position.set(pose.x + Math.cos(pose.heading) * (halfWidth + 0.4) * side, 0.1,
-                    pose.z - Math.sin(pose.heading) * (halfWidth + 0.4) * side);
-                curbTransform.rotation.y = pose.heading;
-                curbTransform.updateMatrix();
-                curbMeshes[colorIndex].setMatrixAt(curbCounts[colorIndex]++, curbTransform.matrix);
-            }
-        }
-        curbMeshes.forEach((mesh, index) => { mesh.count = curbCounts[index]; this.environment.add(mesh); });
+        this.environment.add(buildTrackBarriers(track));
         this.buildStartLine(track);
         this.buildScenery(track);
         this.markIndex = 0; this.lastMark = null;
@@ -185,17 +157,17 @@ export class DriftWorld {
         }
         for (const side of [-1, 1]) {
             const post = new THREE.Mesh(new THREE.BoxGeometry(0.35, 7, 0.35), dark);
-            post.position.set(side * (track.width / 2 + 1), 3.5, 0); post.castShadow = true; line.add(post);
+            post.position.set(side * (track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness + 0.6), 3.5, 0); post.castShadow = true; line.add(post);
         }
-        const banner = new THREE.Mesh(new THREE.BoxGeometry(track.width + 2.4, 1, 0.4), yellow);
+        const banner = new THREE.Mesh(new THREE.BoxGeometry(track.width + 2 * (EDGE.vergeWidth + EDGE.barrierThickness + 0.8), 1, 0.4), yellow);
         banner.position.set(0, 7, 0); banner.castShadow = true; line.add(banner);
         this.environment.add(line);
         for (let index = 1; index <= 3; index++) {
             const checkpoint = trackPose(track, index / 4);
             for (const side of [-1, 1]) {
                 const marker = new THREE.Mesh(new THREE.BoxGeometry(0.45, 3.6, 0.6), yellow);
-                marker.position.set(checkpoint.x + Math.cos(checkpoint.heading) * (track.width / 2 + 1.8) * side, 1.8,
-                    checkpoint.z - Math.sin(checkpoint.heading) * (track.width / 2 + 1.8) * side);
+                marker.position.set(checkpoint.x + Math.cos(checkpoint.heading) * (track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness + 1) * side, 1.8,
+                    checkpoint.z - Math.sin(checkpoint.heading) * (track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness + 1) * side);
                 marker.rotation.y = checkpoint.heading; marker.castShadow = true; this.environment.add(marker);
             }
         }

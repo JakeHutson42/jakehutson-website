@@ -74,7 +74,8 @@ export class Race {
 
         // High-water progress means circling or repeating a bend cannot farm drift points.
         const newRoad = movingForward && nearest.progress > this.furthestProgress;
-        this.drifting = onRoad && this.car.speed >= CONFIG.minimumDriftSpeed &&
+        if (this.car.barrierHit) this.bankCombo();
+        this.drifting = !this.car.barrierHit && onRoad && this.car.speed >= CONFIG.minimumDriftSpeed &&
             this.car.slip >= CONFIG.minimumDriftAngle && this.car.slip <= CONFIG.maximumDriftAngle;
         if (this.drifting && newRoad) {
             this.driftDuration += deltaTime;

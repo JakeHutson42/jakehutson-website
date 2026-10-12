@@ -1,0 +1,139 @@
+/* Driving overlays and the stable mobile play shell. Keep lobby styles separate. */
+/* Game telemetry remains out of the driving view's center. */
+.race-hud { position: absolute; inset: 0; pointer-events: none; }
+.hud-top { display: flex; align-items: start; gap: 30px; position: absolute; top: 20px; left: 22px; right: 22px; padding-right: 265px; }
+.hud-readout { color: var(--race-ink); padding: 12px 17px; background: #0c111beb; border-top: 2px solid var(--race-accent); min-width: 100px; }
+.hud-readout > span { display: block; font: 8px var(--font-mono); letter-spacing: 0.06em; color: var(--race-muted); }
+.hud-readout strong { display: block; font: 500 26px/1.3 var(--font-mono); font-variant-numeric: tabular-nums; margin-top: 4px; }
+.hud-readout small { font-size: 13px; color: var(--race-muted); }
+.hud-score { margin-left: auto; min-width: 145px; }
+.hud-pause { pointer-events: auto; border: 0; color: var(--race-ink); background: var(--race-bg); width: 34px; height: 34px; font-size: 20px; position: absolute; right: 215px; top: 0; }
+.hud-bottom { display: flex; justify-content: space-between; align-items: end; position: absolute; bottom: 25px; left: 25px; right: 25px; }
+.combo-readout { background: #0c111be8; padding: 15px 20px; min-width: 200px; }
+.combo-readout > span { font: 8px var(--font-mono); letter-spacing: 0.1em; color: var(--race-muted); }
+.combo-readout > strong { display: flex; justify-content: space-between; gap: 35px; font: 700 47px/1.2 var(--race-display); }
+.combo-readout small { color: var(--race-accent); font-size: 30px; align-self: center; }
+.combo-readout.is-drifting > span { color: var(--race-accent); }
+.combo-track { height: 2px; background: var(--race-line); margin-top: 5px; }
+.combo-track span { display: block; height: 100%; background: var(--race-accent); transform-origin: left; }
+.speed-readout { color: var(--race-ink); background: #0c111bed; padding: 12px 20px; min-width: 140px; text-align: right; }
+.speed-readout strong { font: italic 700 62px/0.9 var(--race-display); }
+.speed-readout > span { font: 8px var(--font-mono); margin-left: 8px; }
+.speed-bars { height: 5px; margin-top: 12px; background: repeating-linear-gradient(90deg, var(--race-accent) 0 5px, transparent 5px 8px); transform-origin: left; }
+.race-notice { position: absolute; top: 125px; left: 50%; transform: translateX(-50%); color: var(--race-bg); background: var(--race-accent); font: 10px var(--font-mono); padding: 10px 18px; white-space: nowrap; }
+.race-notice:empty { display: none; }
+#raceMap { position: absolute; top: 125px; right: 22px; width: 130px; height: 104px; background: #0c111bdf; }
+.countdown { position: absolute; inset: 0; display: grid; place-items: center; font: italic 800 170px var(--race-display); color: var(--race-accent); text-shadow: 3px 3px #0c111b; pointer-events: none; }
+.stage-message { position: absolute; inset: auto 20px 20px; z-index: 8; padding: 16px 20px; background: var(--race-bg); border-left: 3px solid var(--race-accent); color: var(--race-ink); font-size: 13px; }
+.race-overlay { position: absolute; inset: 0; background: #070d1399; backdrop-filter: blur(5px); display: grid; place-items: center; z-index: 10; padding: 20px; }
+.overlay-card { width: min(100%, 390px); background: var(--race-bg); padding: 30px; border-top: 3px solid var(--race-accent); }
+.overlay-card h2 { font: italic 700 54px/1 var(--race-display); margin: 0 0 14px; }
+.overlay-card > p:not(.race-eyebrow) { color: var(--race-muted); font-size: 12px; line-height: 1.7; margin-bottom: 22px; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 18px 0; margin-bottom: 15px; border-top: 1px solid var(--race-line); }
+.result-grid span { display: block; font: 8px var(--font-mono); color: var(--race-muted); margin-bottom: 8px; }
+.result-grid strong { font: 500 20px var(--font-mono); }
+.text-button { display: block; width: 100%; border: 0; background: none; color: var(--race-muted); font: 10px var(--font-mono); text-decoration: underline; margin-top: 20px; }
+.is-playing .scene-caption { display: none; }
+.race-stage:fullscreen { height: 100dvh; width: 100vw; }
+.touch-controls { position: absolute; bottom: 18px; left: 14px; right: 14px; display: none; justify-content: space-between; }
+.touch-controls > div { display: flex; gap: 12px; position: relative; }
+.touch-control-label { position: absolute; top: -19px; left: 0; color: var(--race-ink); font: 7px var(--font-mono); letter-spacing: 0.06em; white-space: nowrap; }
+.touch-controls button { pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; width: 53px; height: 53px; border: 1px solid #f1f0e660; background: #0c111bd9; color: var(--race-ink); font: 25px var(--font-mono); }
+.touch-controls .touch-drift { width: 68px; font-size: 10px; color: var(--race-accent); }
+.touch-controls button.is-held { background: var(--race-accent); color: var(--race-bg); }
+@media (any-pointer: coarse) { .touch-controls { display: flex; } .hud-bottom { bottom: 90px; } }
+.mobile-exit-button { display: none; }
+
+
+@media (max-width: 1100px) {
+    .hud-top { gap: 12px; }
+    .hud-readout { min-width: 75px; }
+    .hud-score { min-width: 120px; }
+    .hud-readout strong { font-size: 21px; }
+}
+/* Mobile races leave the page flow. This shell covers the browser content area;
+   the measured small viewport keeps the play area stable as toolbars retract. */
+html.mobile-race-open { overflow: hidden; overscroll-behavior: none; }
+body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflow: hidden; overscroll-behavior: none; }
+.mobile-play-shell { position: fixed; inset: 0; z-index: 3000; background: var(--race-bg); overflow: hidden; isolation: isolate; }
+.race-stage.mobile-play {
+    --play-top: max(12px, calc(env(safe-area-inset-top, 0px) + 8px));
+    --play-left: max(16px, calc(env(safe-area-inset-left, 0px) + 12px));
+    --play-right: max(16px, calc(env(safe-area-inset-right, 0px) + 12px));
+    --touch-bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+    --touch-size: clamp(56px, 15vw, 72px);
+    width: 100%; height: var(--mobile-play-height, 100svh); min-height: 0; max-height: none;
+    user-select: none; -webkit-user-select: none; overscroll-behavior: none;
+}
+.race-stage.mobile-play:fullscreen { height: 100dvh; }
+.mobile-play #raceCanvas { touch-action: none; }
+.mobile-play .mobile-exit-button {
+    display: block; position: absolute; top: var(--play-top); left: var(--play-left); z-index: 5;
+    width: 54px; height: 44px; background: #0c111bed; color: var(--race-ink); border: 1px solid #75827577; font: 8px var(--font-mono);
+}
+.mobile-play .stage-tools { top: var(--play-top); right: var(--play-right); gap: 4px; }
+.mobile-play .stage-tools button { min-height: 44px; padding: 8px; }
+.mobile-play #soundButton { font-size: 0; }
+.mobile-play #soundButton::before { content: '♪'; font: 15px var(--font-mono); }
+.mobile-play #soundButton span { font: 8px var(--font-mono); margin-left: 4px; }
+.mobile-play #qualityButton { font-size: 8px; }
+.mobile-play #qualityButton span { font-size: 8px; }
+.mobile-play #fullscreenButton { width: 44px; padding: 0; }
+.mobile-play .hud-top { top: calc(var(--play-top) + 58px); left: var(--play-left); right: var(--play-right); padding: 0; gap: 6px; }
+.mobile-play .hud-pause { top: -58px; left: 62px; right: auto; width: 44px; height: 44px; border: 1px solid #75827577; }
+.mobile-play .hud-readout { min-width: 57px; padding: 8px 10px; }
+.mobile-play .hud-readout > span { font-size: 7px; }
+.mobile-play .hud-readout strong { font-size: 18px; }
+.mobile-play .hud-score { min-width: 94px; }
+.mobile-play .hud-bottom { bottom: calc(var(--touch-bottom) + 158px); left: var(--play-left); right: var(--play-right); }
+.mobile-play .combo-readout { min-width: 130px; padding: 10px 12px; }
+.mobile-play .combo-readout > strong { font-size: 34px; }
+.mobile-play .speed-readout { min-width: 85px; padding: 10px; }
+.mobile-play .speed-readout strong { font-size: 43px; }
+.mobile-play .speed-readout > span { display: inline; font-size: 7px; margin-left: 4px; }
+.mobile-play #raceMap { top: calc(var(--play-top) + 140px); right: var(--play-right); width: 86px; height: 69px; }
+.mobile-play .race-notice { top: calc(var(--play-top) + 225px); max-width: calc(100% - 32px); white-space: normal; text-align: center; font-size: 8px; }
+.mobile-play .touch-controls {
+    display: flex; bottom: var(--touch-bottom); left: var(--play-left); right: var(--play-right);
+    align-items: end; pointer-events: auto; touch-action: none; -webkit-touch-callout: none;
+}
+.mobile-play .touch-steering { display: grid; grid-template-columns: repeat(2, var(--touch-size)); gap: 12px; }
+.mobile-play .touch-pedals { display: grid; grid-template-columns: repeat(2, var(--touch-size)); gap: 8px; }
+.mobile-play .touch-controls button { width: var(--touch-size); height: 76px; border-width: 2px; font-size: 30px; -webkit-touch-callout: none; }
+.mobile-play .touch-controls .touch-drift { grid-column: 1 / -1; width: auto; height: 50px; font-size: 11px; letter-spacing: 0.12em; }
+.mobile-play .touch-controls button.is-held { border-color: var(--race-accent); }
+.mobile-play .race-overlay { padding: var(--play-top) var(--play-right) var(--touch-bottom) var(--play-left); overflow: auto; overscroll-behavior: contain; }
+.mobile-play .overlay-card { max-width: 100%; }
+.mobile-play.is-short-portrait #raceMap { display: none; }
+.mobile-play.is-short-portrait .hud-bottom { top: calc(var(--play-top) + 122px); bottom: auto; align-items: start; }
+.mobile-play.is-short-portrait .combo-readout { min-width: 110px; padding: 6px 8px; }
+.mobile-play.is-short-portrait .combo-readout > strong { font-size: 24px; gap: 20px; }
+.mobile-play.is-short-portrait .combo-readout small { font-size: 22px; }
+.mobile-play.is-short-portrait .combo-track { margin-top: 4px; }
+.mobile-play.is-short-portrait .speed-readout { min-width: 65px; padding: 6px 8px; }
+.mobile-play.is-short-portrait .speed-readout strong { font-size: 30px; }
+.mobile-play.is-short-portrait .speed-bars { margin-top: 4px; }
+.mobile-play.is-short-portrait .race-notice { top: calc(var(--play-top) + 190px); }
+
+@media (orientation: landscape) {
+    .mobile-play .hud-score { margin-left: 0; }
+    .mobile-play .hud-bottom { bottom: var(--touch-bottom); left: calc(var(--play-left) + 165px); right: calc(var(--play-right) + 165px); }
+    .mobile-play .combo-readout { min-width: 105px; padding: 8px; }
+    .mobile-play .combo-readout > strong { font-size: 26px; gap: 12px; }
+    .mobile-play .combo-readout small { font-size: 23px; }
+    .mobile-play .speed-readout { min-width: 65px; padding: 8px; }
+    .mobile-play .speed-readout strong { font-size: 32px; }
+    .mobile-play #raceMap { display: none; }
+    .mobile-play .race-notice { top: calc(var(--play-top) + 135px); }
+}
+@media (prefers-reduced-motion: reduce) { .drift-page * { scroll-behavior: auto; } }
+
+/* Menu typography can grow without moving any driving controls. */
+.overlay-card > p:not(.race-eyebrow) { font-size: 14px; }
+.text-button { font-size: 12px; min-height: 40px; margin-top: 12px; }
+/* Short screens scroll the pause menu from its beginning instead of centering
+   an oversized card above the viewport where its heading cannot be reached. */
+.mobile-play .race-overlay { align-items: safe center; }
+/* Reserve room for the larger desktop utility buttons without overlapping pause. */
+.race-stage:not(.mobile-play) .hud-top { padding-right: 320px; }
+.race-stage:not(.mobile-play) .hud-pause { right: 260px; width: 44px; height: 40px; top: -2px; }
