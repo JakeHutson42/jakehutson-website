@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#151917">
+    <title>Apex Drift — A new line every day | Jake Hutson</title>
+    <meta name="description" content="A daily browser drifting game. Three laps, one shared circuit, and your own perfect line. Play Apex Drift free, with no account needed.">
+    <link rel="stylesheet" href="lib/fonts/fonts.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/racing-nav.css">
+    <link rel="stylesheet" href="css/drift.css">
+</head>
+<body class="drift-page">
+    <!-- Navigation is kept identical to partials/navbar.html and the existing static pages. -->
+    <nav class="site-nav" id="navbar" aria-label="Primary navigation">
+        <div class="site-shell nav-shell">
+            <a href="index.html" class="nav-brand" aria-label="Jake Hutson home"><span class="nav-monogram" aria-hidden="true">JH</span><span class="nav-brand-name">Jake Hutson</span></a>
+            <div class="nav-links desktop-navigation">
+                <a href="index.html#work">Work</a><a href="index.html#about">About</a><a href="droidframe.html">DroidFrame</a><a href="browser-device.html">Diagnostics</a>
+                <a href="drift.html" class="nav-racing" aria-current="page"><span>Apex Drift</span><span class="racing-link-arrow" aria-hidden="true">↗</span></a>
+                <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+            </div>
+            <button class="nav-menu-toggle" type="button" aria-controls="mobileNavigation" aria-expanded="false" aria-label="Toggle navigation"><span></span><span></span></button>
+        </div>
+        <div class="mobile-navigation" hidden id="mobileNavigation"><div class="site-shell mobile-navigation-inner">
+            <a href="index.html#work"><span>Work</span><span>01</span></a><a href="index.html#about"><span>About</span><span>02</span></a><a href="droidframe.html"><span>DroidFrame</span><span>03</span></a><a href="browser-device.html"><span>Diagnostics</span><span>04</span></a>
+            <a href="drift.html" class="nav-racing" aria-current="page"><span>Apex Drift</span><span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer"><span>GitHub</span><span aria-hidden="true">↗</span></a>
+        </div></div>
+    </nav>
+
+    <main class="drift-shell">
+        <div class="drift-masthead"><a href="drift.html" class="game-wordmark" aria-label="Apex Drift home"><span class="apex-symbol" aria-hidden="true">⫽</span> APEX<span>DRIFT</span><sup>01</sup></a><span class="masthead-note">A JAKE HUTSON EXPERIMENT <span aria-hidden="true">/</span> PLAY IN YOUR BROWSER</span></div>
+        <header class="drift-intro">
+            <div><p class="race-eyebrow"><span class="live-dot" aria-hidden="true"></span> ONE CIRCUIT. EVERYONE. EVERY DAY.</p><h1>TAKE THE<br><em>LONG WAY.</em><span class="heading-period">↗</span></h1></div>
+            <div class="intro-aside"><p>A little less grip.<br>A lot more possibility.</p><div class="intro-actions"><button type="button" id="helpButton">How to drive <span aria-hidden="true">↗</span></button><button type="button" id="recordsButton">Your records <span aria-hidden="true">↗</span></button></div></div>
+        </header>
+
+        <section class="circuit-section" aria-label="Daily drifting game">
+            <div class="circuit-toolbar"><div class="circuit-label"><span class="live-dot" aria-hidden="true"></span><strong id="circuitMode">THE DAILY CIRCUIT</strong><span class="toolbar-divider" aria-hidden="true">/</span><time id="circuitDate">LOADING</time></div><div class="archive-field"><label for="trackSelect">THE ARCHIVE</label><select id="trackSelect" disabled aria-label="Choose today's circuit or a previous circuit"><option>Loading circuits…</option></select></div></div>
+
+            <!-- The canvas is focusable so keyboard controls do not hijack page navigation. -->
+            <div class="race-stage" id="raceStage" aria-label="Drifting game">
+                <canvas id="raceCanvas" tabindex="0" aria-label="3D driving circuit. Use W A S D or arrow keys to drive, Space to drift, Escape to pause, and R to reset."></canvas>
+                <div class="scene-caption" aria-hidden="true"><span>HIGH DESERT</span><span>35° N / 116° W · FICTIONAL CIRCUIT</span></div>
+                <div class="stage-tools"><button id="soundButton" type="button" aria-label="Enable engine sound" aria-pressed="false">SOUND <span id="soundState">OFF</span></button><button id="qualityButton" type="button" aria-label="Enable performance mode" aria-pressed="false">LITE <span id="qualityState">OFF</span></button><button id="fullscreenButton" type="button" aria-label="Enter fullscreen">⛶</button></div>
+
+                <aside class="starting-card" id="startingCard">
+                    <div class="card-index"><span id="trackEdition">DAILY / 001</span><span class="small-checkers" aria-hidden="true"></span></div>
+                    <h2 id="trackName">FINDING<br>YOUR LINE.</h2><p class="track-description">Three laps. Find the angle.<br>Keep the slide alive.</p>
+                    <canvas id="trackMap" width="520" height="230" aria-label="Map of the selected circuit"></canvas>
+                    <div class="track-specs"><div><span>DISTANCE</span><strong id="trackLength">—</strong></div><div><span>FORMAT</span><strong>3 LAPS</strong></div></div>
+                    <button class="race-button primary" id="startButton" disabled>BUILDING CIRCUIT <span aria-hidden="true">↗</span></button>
+                    <p class="start-hint">W A S D / ARROWS TO DRIVE · SPACE TO SLIDE</p>
+                </aside>
+
+                <div class="race-hud" id="raceHud" hidden>
+                    <div class="hud-top"><div class="hud-readout"><span>LAP</span><strong><span id="lapValue">1</span><small> / 3</small></strong></div><div class="hud-readout hud-time"><span>RUN TIME</span><strong id="timeValue">00:00.00</strong></div><div class="hud-readout hud-score"><span>DRIFT POINTS</span><strong id="scoreValue">0</strong></div><button type="button" id="pauseButton" class="hud-pause" aria-label="Pause run">Ⅱ</button></div>
+                    <div class="race-notice" id="raceNotice" role="status"></div>
+                    <div class="hud-bottom"><div class="combo-readout" id="comboReadout"><span id="driftLabel">FIND YOUR LINE</span><strong><span id="comboValue">0</span><small id="multiplierValue">×1</small></strong><div class="combo-track"><span id="comboBar"></span></div></div><div class="speed-readout"><strong id="speedValue">0</strong><span>KM/H</span><div class="speed-bars" id="speedBars" aria-hidden="true"></div></div></div>
+                    <canvas id="raceMap" width="200" height="160" aria-label="Circuit map and car position"></canvas>
+                    <div class="touch-controls" aria-label="Touch driving controls"><div><button type="button" data-drive="left" aria-label="Steer left">←</button><button type="button" data-drive="right" aria-label="Steer right">→</button></div><div><button type="button" data-drive="handbrake" class="touch-drift" aria-label="Handbrake">SLIDE</button><button type="button" data-drive="brake" aria-label="Brake or reverse">↓</button><button type="button" data-drive="throttle" aria-label="Accelerate">↑</button></div></div>
+                </div>
+                <div class="countdown" id="countdown" hidden aria-live="polite">3</div>
+                <div class="stage-message" id="stageMessage" role="status" hidden></div>
+                <div class="race-overlay" id="raceOverlay" role="dialog" aria-modal="true" aria-labelledby="overlayTitle" hidden><div class="overlay-card"><p class="race-eyebrow" id="overlayEyebrow">TAKE A BREATHER</p><h2 id="overlayTitle">PARKED UP.</h2><p id="overlayDescription">Your run is paused.</p><div class="result-grid" id="resultGrid" hidden><div><span>DRIFT POINTS</span><strong id="resultScore">0</strong></div><div><span>RUN TIME</span><strong id="resultTime">00:00.00</strong></div></div><button type="button" class="race-button primary" id="resumeButton">BACK TO IT <span aria-hidden="true">↗</span></button><button type="button" class="race-button secondary" id="restartButton">START AGAIN <span aria-hidden="true">↗</span></button><button type="button" class="text-button" id="exitButton">Return to circuit preview</button></div></div>
+            </div>
+
+            <div class="circuit-bottom"><span><span class="live-dot" aria-hidden="true"></span> NEXT DAILY CIRCUIT <strong id="nextTrackTime">—</strong></span><span id="storageStatus">PERSONAL RECORDS SAVED ON THIS DEVICE</span></div>
+        </section>
+
+        <section class="paddock" aria-label="Driving tips and your best run"><article><span class="paddock-number">01 / THE THROTTLE</span><h2>GET A LITTLE LOST.</h2><p>W or ↑ to accelerate. S or ↓ to brake.<br>Three laps, three checkpoints per lap.</p></article><article><span class="paddock-number">02 / THE GOOD BIT</span><h2>LET THE REAR GO.</h2><p>Steer with A / D. Tap Space to start a slide.<br>Link your drifts to build a ×5 multiplier.</p></article><article class="personal-best"><span class="paddock-number">03 / YOUR BENCHMARK</span><h2 id="personalBest">SET THE STANDARD.</h2><p id="personalBestNote">Finish a run to put your best on the board.<br>No account. Just you and the next corner.</p></article></section>
+        <footer class="drift-footer"><span>BUILT FOR TAKING THE SCENIC ROUTE.</span><span>APEX DRIFT © <span id="year">2026</span> <span aria-hidden="true">/</span> <a href="privacy.html">PRIVACY</a></span></footer>
+    </main>
+
+    <dialog id="helpDialog" class="drift-dialog" aria-labelledby="helpTitle"><div class="dialog-heading"><span class="race-eyebrow">THE DRIVER'S BRIEFING</span><button type="button" data-close-dialog aria-label="Close instructions">×</button></div><h2 id="helpTitle">FIND YOUR FLOW.</h2><p>Complete three laps, passing the three yellow checkpoint pairs in order before crossing the checkered finish line.</p><dl class="controls-list"><div><dt><kbd>W</kbd> <kbd>↑</kbd></dt><dd>Accelerate</dd></div><div><dt><kbd>S</kbd> <kbd>↓</kbd></dt><dd>Brake, then reverse</dd></div><div><dt><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd></dt><dd>Steer and countersteer</dd></div><div><dt><kbd>SPACE</kbd></dt><dd>Handbrake: tap while turning to kick the rear out</dd></div><div><dt><kbd>R</kbd> / <kbd>ESC</kbd></dt><dd>Reset to your last checkpoint (+5s) / pause</dd></div></dl><p>Carry speed, turn, then ease off the handbrake to hold a slide. New forward progress on the road earns drift points. Link slides within 1.4 seconds to keep your combo; your multiplier grows to ×5. Repeating the same section earns no extra points.</p><p class="dialog-note">The daily circuit changes at midnight UTC. Previous ten circuits are available in the archive. Records stay in this browser; clearing site data removes them. Sound is optional. Touch controls appear on touch devices.</p><button type="button" class="race-button primary" data-close-dialog>GOT IT. LET'S DRIVE <span aria-hidden="true">↗</span></button></dialog>
+    <dialog id="recordsDialog" class="drift-dialog" aria-labelledby="recordsTitle"><div class="dialog-heading"><span class="race-eyebrow">YOUR PERSONAL PADDOCK</span><button type="button" data-close-dialog aria-label="Close records">×</button></div><h2 id="recordsTitle">THE RUNS THAT STUCK.</h2><p>Best drift score and fastest finish for each circuit. These may come from different runs.</p><div id="recordsList"></div><p class="dialog-note">Stored on this device only. No account or online leaderboard.</p></dialog>
+    <noscript><p class="no-script">Apex Drift needs JavaScript and WebGL2 to run. Enable JavaScript to hit the circuit.</p></noscript>
+    <script src="js/main.js"></script>
+    <script type="module" src="games/drift/main.js"></script>
+</body>
+</html>

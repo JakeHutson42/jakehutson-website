@@ -1,0 +1,5 @@
+{
+  "archive_days": 10,
+  "minimum_future_tracks": 7,
+  "refill_future_tracks": 30
+}

@@ -17,3 +17,7 @@ obj/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Python tooling and the allowlisted Cloudflare deployment output
+__pycache__/
+dist/

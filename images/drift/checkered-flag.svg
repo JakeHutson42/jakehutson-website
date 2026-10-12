@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+  <!-- The displaced checks and traveling light model folds in a waving fabric. -->
+  <defs>
+    <pattern id="checks" width="36" height="36" patternUnits="userSpaceOnUse">
+      <rect width="36" height="36" fill="#f2f0e9"/>
+      <path d="M0 0h18v18H0zM18 18h18v18H18z" fill="#151917"/>
+    </pattern>
+    <filter id="cloth" x="-20%" y="-50%" width="140%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency=".008 .035" numOctaves="2" seed="8" result="folds">
+        <animate attributeName="baseFrequency" values=".008 .035;.012 .028;.008 .035" dur="2.6s" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="folds" scale="17" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <linearGradient id="light" x1="0" x2="1">
+      <stop offset="0" stop-color="#000" stop-opacity=".4"/>
+      <stop offset=".23" stop-color="#fff" stop-opacity=".2"/>
+      <stop offset=".48" stop-color="#000" stop-opacity=".4"/>
+      <stop offset=".73" stop-color="#fff" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".3"/>
+      <animateTransform attributeName="gradientTransform" type="translate" values="-.2 0;.2 0;-.2 0" dur="2.6s" repeatCount="indefinite"/>
+    </linearGradient>
+  </defs>
+  <g filter="url(#cloth)">
+    <rect x="-30" y="-30" width="460" height="200" fill="url(#checks)"/>
+    <rect x="-30" y="-30" width="460" height="200" fill="url(#light)"/>
+  </g>
+</svg>

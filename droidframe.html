@@ -6,10 +6,9 @@
     <meta name="theme-color" content="#f2f0e9">
     <title>DroidFrame — A closer look | Jake Hutson</title>
     <meta name="description" content="Inside DroidFrame: an Android workspace for Windows, with an app library, device profiles and editable recording sequences. A product study by Jake Hutson.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="lib/fonts/fonts.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/racing-nav.css">
     <link rel="stylesheet" href="css/droidframe-story.css?v=2">
 </head>
 <body class="df-page">
@@ -26,6 +25,7 @@
             <a href="index.html#about">About</a>
             <a href="droidframe.html" aria-current="page">DroidFrame</a>
             <a href="browser-device.html">Diagnostics</a>
+            <a href="drift.html" class="nav-racing"><span>Apex Drift</span><span class="racing-link-arrow" aria-hidden="true">↗</span></a>
             <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer">GitHub <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>
 
@@ -40,6 +40,7 @@
             <a href="index.html#about"><span>About</span><span>02</span></a>
             <a href="droidframe.html" aria-current="page"><span>DroidFrame</span><span>03</span></a>
             <a href="browser-device.html"><span>Diagnostics</span><span>04</span></a>
+            <a href="drift.html" class="nav-racing"><span>Apex Drift</span><span aria-hidden="true">↗</span></a>
             <a href="https://github.com/JakeHutson42" target="_blank" rel="noopener noreferrer"><span>GitHub</span><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
         </div>
     </div>
@@ -163,8 +164,8 @@
     </main>
     <footer class="df-footer site-shell df-mono"><span>© <span id="year">2026</span> Jake Hutson</span><a href="index.html">Personal portfolio</a><a href="privacy.html">Privacy</a></footer>
     <dialog class="df-image-dialog" aria-labelledby="dfDialogCaption"><button type="button" class="df-dialog-close" aria-label="Close enlarged screenshot">Close <span aria-hidden="true">×</span></button><img alt=""><p id="dfDialogCaption" class="df-mono"></p></dialog>
-    <script src="js/vendor/gsap.min.js"></script>
-    <script src="js/vendor/ScrollTrigger.min.js"></script>
+    <script src="lib/gsap/3.13.0/gsap.min.js"></script>
+    <script src="lib/gsap/3.13.0/ScrollTrigger.min.js"></script>
     <script src="js/main.js"></script>
     <script src="js/droidframe-story.js?v=2"></script>
 </body>

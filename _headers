@@ -1,0 +1,5 @@
+# Revalidate the small schedule file; dated track files are deterministic.
+/games/drift/tracks/manifest.json
+  Cache-Control: public, max-age=0, must-revalidate
+/games/drift/tracks/*.json
+  Cache-Control: public, max-age=0, must-revalidate

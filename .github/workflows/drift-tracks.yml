@@ -1,0 +1,75 @@
+name: Refresh daily circuits
+
+# Circuits are prepared well ahead of midnight. The future buffer handles delays.
+# Enable deployment with the repository variable DRIFT_AUTO_DEPLOY=true after setup.
+on:
+  schedule:
+    - cron: '43 22 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: drift-track-deployment
+  cancel-in-progress: false
+
+jobs:
+  prepare-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify the generator and racing rules
+        run: |
+          python -m unittest discover -s tests/drift -p 'test_*.py'
+          node --test tests/drift/race.test.mjs tests/drift/gameplay.test.mjs
+      - name: Restore the generated track bank
+        uses: actions/cache/restore@v4
+        id: tracks
+        with:
+          path: games/drift/tracks
+          key: drift-bank-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: drift-bank-v1-
+      - name: Replenish the track buffer and export the static site
+        run: |
+          python scripts/drift/generate_tracks.py
+          python scripts/drift/build_static.py
+          python scripts/validate_static_assets.py dist
+      - name: Retain the track bank for the next refresh
+        uses: actions/cache/save@v4
+        with:
+          path: games/drift/tracks
+          key: drift-bank-v1-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Upload reviewable static output
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-site
+          path: dist
+          retention-days: 7
+      - name: Check deployment configuration
+        if: vars.DRIFT_AUTO_DEPLOY == 'true'
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT }}
+          CF_BRANCH: ${{ vars.CLOUDFLARE_PRODUCTION_BRANCH }}
+        run: |
+          test -n "$CF_TOKEN" || { echo 'Missing CLOUDFLARE_API_TOKEN secret'; exit 1; }
+          test -n "$CF_ACCOUNT" || { echo 'Missing CLOUDFLARE_ACCOUNT_ID secret'; exit 1; }
+          test -n "$CF_PROJECT" || { echo 'Missing CLOUDFLARE_PAGES_PROJECT variable'; exit 1; }
+          test -n "$CF_BRANCH" || { echo 'Missing CLOUDFLARE_PRODUCTION_BRANCH variable'; exit 1; }
+      - name: Deploy to the existing Cloudflare Pages project
+        if: vars.DRIFT_AUTO_DEPLOY == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT }} --branch=${{ vars.CLOUDFLARE_PRODUCTION_BRANCH }}
