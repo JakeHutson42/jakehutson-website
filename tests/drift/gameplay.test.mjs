@@ -7,8 +7,9 @@ import { nearestTrackPoint, trackPose, wrapAngle, clamp } from '../../games/drif
 test('a driver can complete generated circuits with the actual driving model', () => {
     const directory = new URL('../../games/drift/tracks/', import.meta.url);
     const manifest = JSON.parse(readFileSync(new URL('manifest.json', directory)));
-    // Exercise three different circuit shapes without depending on a fixed calendar date.
-    for (const date of [manifest.dates[0], manifest.dates[10], manifest.dates.at(-1)]) {
+    // Every published layout must remain drivable after changing corner complexity
+    // or handling. The controller receives only the same input values as a player.
+    for (const date of manifest.dates) {
         const track = JSON.parse(readFileSync(new URL(`${date}.json`, directory)));
         const race = new Race(track); race.start();
         for (let step = 0; step < 120 * 240 && race.state !== 'finished'; step++) {

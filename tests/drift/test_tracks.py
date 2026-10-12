@@ -25,6 +25,24 @@ class TrackTests(unittest.TestCase):
             segments = [generator.distance(points[index], points[(index + 1) % len(points)]) for index in range(len(points))]
             self.assertLess(max(segments) / min(segments), 1.03)
             self.assertAlmostEqual(sum(segments), track["length"], places=1)
+            total_turn, reversals = generator.corner_profile(points)
+            self.assertGreaterEqual(total_turn, 8.5)
+            self.assertLessEqual(total_turn, 11.5)
+            self.assertGreaterEqual(reversals, 4, "Each circuit needs linked left/right bends")
+            self.assertLessEqual(reversals, 8, "Keep the daily circuit approachable")
+
+    def test_bank_replaces_old_layouts_and_repairs_corrupt_files(self):
+        today = date(2026, 10, 12)
+        config = {"archive_days": 0, "minimum_future_tracks": 1, "refill_future_tracks": 1}
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent) as temporary:
+            directory = Path(temporary)
+            generator.maintain_bank(today, directory, config)
+            old_layout = json.loads((directory / f"{today}.json").read_text())
+            old_layout.pop("generatorVersion")
+            generator.write_json(directory / f"{today}.json", old_layout)
+            (directory / f"{today + timedelta(days=1)}.json").write_text("incomplete")
+            self.assertEqual(generator.maintain_bank(today, directory, config), (2, 2))
+            self.assertEqual(json.loads((directory / f"{today}.json").read_text())["generatorVersion"], 2)
 
     def test_bank_is_idempotent_repairs_gaps_and_refills_at_threshold(self):
         today = date(2026, 10, 12)

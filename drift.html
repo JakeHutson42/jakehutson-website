@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#151917">
     <title>Apex Drift — A new line every day | Jake Hutson</title>
     <meta name="description" content="A daily browser drifting game. Three laps, one shared circuit, and your own perfect line. Play Apex Drift free, with no account needed.">
@@ -45,6 +45,7 @@
                 <canvas id="raceCanvas" tabindex="0" aria-label="3D driving circuit. Use W A S D or arrow keys to drive, Space to drift, Escape to pause, and R to reset."></canvas>
                 <div class="scene-caption" aria-hidden="true"><span>HIGH DESERT</span><span>35° N / 116° W · FICTIONAL CIRCUIT</span></div>
                 <div class="stage-tools"><button id="soundButton" type="button" aria-label="Enable engine sound" aria-pressed="false">SOUND <span id="soundState">OFF</span></button><button id="qualityButton" type="button" aria-label="Enable performance mode" aria-pressed="false">LITE <span id="qualityState">OFF</span></button><button id="fullscreenButton" type="button" aria-label="Enter fullscreen">⛶</button></div>
+                <button id="mobileExitButton" class="mobile-exit-button" type="button" aria-label="Exit run and return to circuit preview">↙ EXIT</button>
 
                 <aside class="starting-card" id="startingCard">
                     <div class="card-index"><span id="trackEdition">DAILY / 001</span><span class="small-checkers" aria-hidden="true"></span></div>
@@ -60,7 +61,12 @@
                     <div class="race-notice" id="raceNotice" role="status"></div>
                     <div class="hud-bottom"><div class="combo-readout" id="comboReadout"><span id="driftLabel">FIND YOUR LINE</span><strong><span id="comboValue">0</span><small id="multiplierValue">×1</small></strong><div class="combo-track"><span id="comboBar"></span></div></div><div class="speed-readout"><strong id="speedValue">0</strong><span>KM/H</span><div class="speed-bars" id="speedBars" aria-hidden="true"></div></div></div>
                     <canvas id="raceMap" width="200" height="160" aria-label="Circuit map and car position"></canvas>
-                    <div class="touch-controls" aria-label="Touch driving controls"><div><button type="button" data-drive="left" aria-label="Steer left">←</button><button type="button" data-drive="right" aria-label="Steer right">→</button></div><div><button type="button" data-drive="handbrake" class="touch-drift" aria-label="Handbrake">SLIDE</button><button type="button" data-drive="brake" aria-label="Brake or reverse">↓</button><button type="button" data-drive="throttle" aria-label="Accelerate">↑</button></div></div>
+                    <!-- Each finger owns one group. Steering can slide through the
+                         neutral centre without requiring a lift and a second press. -->
+                    <div class="touch-controls" aria-label="Touch driving controls">
+                        <div class="touch-steering" data-control-group="steering" aria-label="Steering pad"><span class="touch-control-label" aria-hidden="true">STEER · SLIDE THUMB</span><button type="button" data-drive="left" aria-label="Steer left" aria-pressed="false">←</button><button type="button" data-drive="right" aria-label="Steer right" aria-pressed="false">→</button></div>
+                        <div class="touch-pedals" data-control-group="pedals"><span class="touch-control-label" aria-hidden="true">THROTTLE / BRAKE</span><button type="button" data-drive="handbrake" class="touch-drift" aria-label="Handbrake" aria-pressed="false">SLIDE</button><button type="button" data-drive="brake" aria-label="Brake or reverse" aria-pressed="false">↓</button><button type="button" data-drive="throttle" aria-label="Accelerate" aria-pressed="false">↑</button></div>
+                    </div>
                 </div>
                 <div class="countdown" id="countdown" hidden aria-live="polite">3</div>
                 <div class="stage-message" id="stageMessage" role="status" hidden></div>

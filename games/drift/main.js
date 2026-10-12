@@ -1,6 +1,7 @@
 import { GAME_CONFIG } from './config.js';
 import { formatTime, clamp } from './math.js';
 import { DrivingInput } from './input.js';
+import { MobilePlayView } from './mobile-play-view.js';
 import { LocalRecords } from './storage.js';
 import { Race } from './race.js';
 import { EngineAudio } from './audio.js';
@@ -31,6 +32,11 @@ const input = new DrivingInput(stage, command => {
         if (race?.state === 'paused') resumeRun();
         else pauseRun();
     } else if (command === 'blur') pauseRun();
+});
+
+const mobileView = new MobilePlayView(stage, () => {
+    input.clear();
+    pauseRun();
 });
 
 function showStageMessage(message) {
@@ -143,7 +149,8 @@ function showPreview() {
     element('raceHud').hidden = true;
     element('countdown').hidden = true;
     element('raceOverlay').hidden = true;
-    input.active = false; input.clear();
+    input.active = false; input.suspended = false; input.clear();
+    mobileView.exit();
     element('trackSelect').disabled = false;
     simulationRemainder = 0;
     finishHandled = false;
@@ -156,21 +163,22 @@ function startRun() {
     race.start(); finishHandled = false;
     world.lastMark = null;
     simulationRemainder = 0;
-    input.clear(); input.active = true;
+    input.clear(); input.suspended = false; input.active = true;
     element('startingCard').hidden = true;
     element('raceHud').hidden = false;
     element('raceOverlay').hidden = true;
     element('trackSelect').disabled = true;
     stage.classList.add('is-playing');
+    mobileView.enter();
     element('raceCanvas').focus({ preventScroll: true });
-    stage.scrollIntoView({ behavior: 'instant', block: 'center' });
+    if (!mobileView.active) stage.scrollIntoView({ behavior: 'instant', block: 'center' });
     // A stored sound preference is applied only inside this deliberate user gesture.
     if (records.data.sound && !audio.enabled) enableSound(true);
 }
 
 function pauseRun() {
     if (!race || !['racing', 'countdown'].includes(race.state)) return;
-    race.pause(); input.clear();
+    race.pause(); input.suspended = true; input.clear();
     // Silence immediately: background tabs can suspend requestAnimationFrame entirely.
     audio.update(race.car, false);
     element('overlayEyebrow').textContent = 'TAKE A BREATHER';
@@ -186,7 +194,7 @@ function pauseRun() {
 
 function resumeRun() {
     if (race?.state !== 'paused') return;
-    race.resume(); simulationRemainder = 0; input.clear();
+    race.resume(); simulationRemainder = 0; input.clear(); input.suspended = false;
     element('raceOverlay').hidden = true;
     element('raceCanvas').focus({ preventScroll: true });
 }
@@ -310,7 +318,7 @@ element('startButton').addEventListener('click', startRun);
 element('pauseButton').addEventListener('click', pauseRun);
 element('resumeButton').addEventListener('click', resumeRun);
 element('restartButton').addEventListener('click', startRun);
-element('exitButton').addEventListener('click', async () => {
+async function exitRun() {
     const dates = availableTrackDates(manifest);
     const nextDate = pendingDailyDate || (dates.includes(race.track.date) ? race.track.date : dates[0]);
     pendingDailyDate = null;
@@ -318,7 +326,9 @@ element('exitButton').addEventListener('click', async () => {
     populateTrackSelector(nextDate);
     if (nextDate !== race.track.date) await selectTrack(nextDate);
     element('startButton').focus({ preventScroll: true });
-});
+}
+element('exitButton').addEventListener('click', exitRun);
+element('mobileExitButton').addEventListener('click', exitRun);
 element('trackSelect').addEventListener('change', event => selectTrack(event.target.value));
 element('soundButton').addEventListener('click', () => {
     enableSound(!audio.enabled);

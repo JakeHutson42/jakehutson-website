@@ -1,5 +1,6 @@
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
-import { nearestTrackPoint, trackPose } from './math.js';
+import { nearestTrackPoint, trackPose, wrapAngle } from './math.js';
+import { CAMERA_CONFIG } from './config.js';
 
 const COLORS = { asphalt: 0x343c3e, sand: 0xb6b39a, white: 0xeae9db, yellow: 0xdfff00, red: 0xd66443 };
 
@@ -50,7 +51,7 @@ export class DriftWorld {
         this.scene.background = new THREE.Color(0xc5cfc7);
         this.scene.fog = new THREE.Fog(0xc5cfc7, 420, 850);
         // A one-metre near plane preserves depth precision in the wide circuit preview.
-        this.camera = new THREE.PerspectiveCamera(42, 1, 1, 1100);
+        this.camera = new THREE.PerspectiveCamera(CAMERA_CONFIG.fieldOfView, 1, 1, 1100);
         this.scene.add(new THREE.HemisphereLight(0xeaf4ff, 0x7e7656, 2.2));
         this.sun = new THREE.DirectionalLight(0xffe7bc, 3.1);
         this.sun.position.set(-110, 180, 75);
@@ -60,6 +61,8 @@ export class DriftWorld {
         this.sun.shadow.normalBias = 0.15;
         this.scene.add(this.sun);
         this.cameraTarget = new THREE.Vector3();
+        this.cameraHeading = 0;
+        this.followingCar = false;
         this.car = this.buildCar();
         this.scene.add(this.car);
         this.tireMarks = this.buildTireMarks();
@@ -269,13 +272,30 @@ export class DriftWorld {
         const car = race.car;
         this.car.position.set(car.x, 0.1, car.z); this.car.rotation.y = car.heading;
         const playing = race.state !== 'ready';
+        // A tall mobile play area otherwise crops the chase view around an
+        // oversized car. Preserve the desktop horizontal view in portrait,
+        // without changing the camera's position or its driving angle.
+        this.camera.fov = playing && this.camera.aspect < 1 ? Math.min(94,
+            THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(CAMERA_CONFIG.fieldOfView / 2)) / this.camera.aspect))) :
+            CAMERA_CONFIG.fieldOfView;
         if (playing) {
             this.camera.filmOffset = 0;
-            const forward = new THREE.Vector3(Math.sin(car.heading), 0, Math.cos(car.heading));
-            const desiredPosition = new THREE.Vector3(car.x - forward.x * 23, 20, car.z - forward.z * 23);
-            const smoothing = 1 - Math.exp(-4 * deltaTime);
-            this.camera.position.lerp(desiredPosition, smoothing);
-            this.cameraTarget.lerp(new THREE.Vector3(car.x + forward.x * 9, 0, car.z + forward.z * 9), smoothing);
+            // Let the body rotate into a drift before the camera catches up. Angle
+            // wrapping prevents a full camera spin when crossing +/- pi.
+            if (!this.followingCar) this.cameraHeading = car.heading;
+            else this.cameraHeading += wrapAngle(car.heading - this.cameraHeading) *
+                (1 - Math.exp(-CAMERA_CONFIG.headingResponse * deltaTime));
+            const forward = new THREE.Vector3(Math.sin(this.cameraHeading), 0, Math.cos(this.cameraHeading));
+            const desiredPosition = new THREE.Vector3(car.x - forward.x * CAMERA_CONFIG.followDistance,
+                CAMERA_CONFIG.followHeight, car.z - forward.z * CAMERA_CONFIG.followDistance);
+            const desiredTarget = new THREE.Vector3(car.x + forward.x * CAMERA_CONFIG.lookAhead,
+                CAMERA_CONFIG.targetHeight, car.z + forward.z * CAMERA_CONFIG.lookAhead);
+            // Follow position directly, smoothing only the view direction. A
+            // world-position lerp falls farther behind as speed rises, shrinking
+            // the car and changing the apparent pace. This also enters the chase
+            // view immediately at countdown and after recovering the car.
+            this.camera.position.copy(desiredPosition);
+            this.cameraTarget.copy(desiredTarget);
         } else {
             // Orbit only on the start screen; reduced motion keeps this view stationary.
             const angle = this.reducedMotion ? 0.8 : 0.8 + Math.sin(time * 0.045) * 0.12;
@@ -285,6 +305,7 @@ export class DriftWorld {
             this.cameraTarget.set(0, 0, 0);
             this.camera.filmOffset = portrait ? 0 : -6;
         }
+        this.followingCar = playing;
         this.camera.updateProjectionMatrix();
         this.camera.lookAt(this.cameraTarget);
         if (race.state === 'racing' && race.drifting) this.addTireMarks(car);

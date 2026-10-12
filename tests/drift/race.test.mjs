@@ -84,6 +84,29 @@ test('fixed-step simulation matches at 30, 60, and 144 Hz and remains finite', (
     assert.ok(Math.hypot(normal.x - fast.x, normal.z - fast.z) < 2);
 });
 
+test('acceleration is progressive, speed is capped, and lower-speed handbrake drifts still score', () => {
+    // A long straight isolates pacing from runoff drag and corner geometry.
+    const straight = { width: 15, points: [[0, -1000], [0, 1000], [1000, 1000], [1000, -1000]] };
+    const car = { x: 0, z: 0, heading: 0, vx: 0, vz: 0, speed: 0, steering: 0 };
+    let speedAfterTwoSeconds;
+    for (let step = 0; step < 120 * 10; step++) {
+        updateCar(car, { ...noInput, throttle: true }, straight, GAME_CONFIG.fixedStep);
+        if (step === 239) speedAfterTwoSeconds = car.speed;
+    }
+    assert.ok(speedAfterTwoSeconds > 17 && speedAfterTwoSeconds < 20, 'Allow time to read the approaching corner');
+    assert.ok(car.speed >= 31 && car.speed <= 32.01, 'Cruising pace should stay near 115 km/h');
+
+    const race = new Race(track); race.state = 'racing';
+    race.car.vx = Math.sin(race.car.heading) * 16;
+    race.car.vz = Math.cos(race.car.heading) * 16;
+    let scoredDrift = false;
+    for (let step = 0; step < 60; step++) {
+        race.update({ ...noInput, throttle: true, steer: -0.6, handbrake: true }, GAME_CONFIG.fixedStep);
+        if (race.drifting && race.combo > 0) scoredDrift = true;
+    }
+    assert.ok(scoredDrift, 'A cornering slide at about 60 km/h must remain rewarding');
+});
+
 test('records persist highest score and fastest time independently', () => {
     let saved = null;
     const storage = { getItem: () => saved, setItem: (_key, value) => { saved = value; } };

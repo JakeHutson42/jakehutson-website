@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 320
-GENERATOR_VERSION = 1
+GENERATOR_VERSION = 2
 
 
 def distance(first, second):
@@ -58,15 +58,44 @@ def validate_geometry(points, width):
     return True
 
 
+def corner_profile(points):
+    """Measure meaningful direction changes, ignoring nearly straight sections.
+
+    A circuit can pass every safety check and still be almost an oval. Requiring
+    alternating curvature creates linked bends without adding abrupt zigzags.
+    """
+    turns = []
+    directions = []
+    count = len(points)
+    for index, point in enumerate(points):
+        before, after = points[(index - 4) % count], points[(index + 4) % count]
+        incoming = (point[0] - before[0], point[1] - before[1])
+        outgoing = (after[0] - point[0], after[1] - point[1])
+        turn = math.atan2(incoming[0] * outgoing[1] - incoming[1] * outgoing[0],
+                          incoming[0] * outgoing[0] + incoming[1] * outgoing[1])
+        turns.append(turn / 4)
+        # Ignore broad inflection zones rather than counting rounding noise as a bend.
+        if abs(turn) > 0.035:
+            direction = 1 if turn > 0 else -1
+            if not directions or directions[-1] != direction:
+                directions.append(direction)
+    reversals = sum(directions[index] != directions[(index + 1) % len(directions)]
+                    for index in range(len(directions)))
+    return sum(abs(turn) for turn in turns), reversals
+
+
 def generate_track(track_date):
     seed = int.from_bytes(hashlib.sha256(f"apex-v{GENERATOR_VERSION}:{track_date}".encode()).digest()[:4], "big")
     rng = random.Random(seed)
     width = 15
-    for attempt in range(100):
-        radius = rng.uniform(87, 108)
-        stretch = rng.uniform(1.05, 1.35)
-        phases = [rng.uniform(0, math.tau) for _ in range(3)]
-        amplitudes = [rng.uniform(0.06, 0.13), rng.uniform(0.025, 0.07), rng.uniform(0.01, 0.035)]
+    for attempt in range(300):
+        radius = rng.uniform(118, 140)
+        stretch = rng.uniform(1.08, 1.30)
+        phases = [rng.uniform(0, math.tau) for _ in range(4)]
+        # Stronger, smooth lobes create medium-radius corners and S-bends. The
+        # larger footprint retains a generous 15 m road and safe inside radii.
+        amplitudes = [rng.uniform(0.07, 0.12), rng.uniform(0.14, 0.20),
+                      rng.uniform(0.045, 0.075), rng.uniform(0.025, 0.045)]
         rotation = rng.uniform(0, math.tau)
         points = []
         for index in range(960):
@@ -76,7 +105,8 @@ def generate_track(track_date):
             x, z = math.cos(angle) * radial * stretch, math.sin(angle) * radial
             points.append([x * math.cos(rotation) - z * math.sin(rotation), x * math.sin(rotation) + z * math.cos(rotation)])
         points = resample_closed_loop(points, POINT_COUNT)
-        if validate_geometry(points, width):
+        total_turn, reversals = corner_profile(points)
+        if 8.5 <= total_turn <= 11.5 and 4 <= reversals <= 8 and validate_geometry(points, width):
             break
     else:
         raise RuntimeError(f"Could not generate a safe circuit for {track_date}")
@@ -92,7 +122,9 @@ def generate_track(track_date):
     points = points[start:] + points[:start]
     length = sum(distance(points[index], points[(index + 1) % POINT_COUNT]) for index in range(POINT_COUNT))
     locations = ["Salt Flats", "Copper Basin", "Juniper Ridge", "Dry Creek", "Sierra Loop", "Sunstone Valley"]
-    return {"version": GENERATOR_VERSION, "date": str(track_date), "seed": seed,
+    # File schema and layout generation are separate versions: the browser can
+    # read the same format while the bank replaces superseded circuit layouts.
+    return {"version": 1, "generatorVersion": GENERATOR_VERSION, "date": str(track_date), "seed": seed,
             "name": locations[seed % len(locations)], "environment": "HIGH DESERT", "width": width,
             "length": round(length, 2), "points": points}
 
@@ -120,7 +152,13 @@ def maintain_bank(today, directory=TRACK_DIRECTORY, config=None):
     for offset in range((last - first).days + 1):
         track_date = first + timedelta(days=offset)
         path = directory / f"{track_date}.json"
-        if not path.exists():
+        existing_version = None
+        if path.exists():
+            try:
+                existing_version = json.loads(path.read_text(encoding="utf-8")).get("generatorVersion", 1)
+            except (ValueError, AttributeError):
+                pass  # Repair an incomplete/corrupt generated file on the next build.
+        if existing_version != GENERATOR_VERSION:
             write_json(path, generate_track(track_date))
             created += 1
     # Only individual, date-named generated files are pruned; no recursive deletion.

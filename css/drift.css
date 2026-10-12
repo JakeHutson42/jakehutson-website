@@ -129,11 +129,13 @@
 .is-playing .scene-caption { display: none; }
 .race-stage:fullscreen { height: 100dvh; width: 100vw; }
 .touch-controls { position: absolute; bottom: 18px; left: 14px; right: 14px; display: none; justify-content: space-between; }
-.touch-controls > div { display: flex; gap: 7px; }
+.touch-controls > div { display: flex; gap: 12px; position: relative; }
+.touch-control-label { position: absolute; top: -19px; left: 0; color: var(--race-ink); font: 7px var(--font-mono); letter-spacing: 0.06em; white-space: nowrap; }
 .touch-controls button { pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; width: 53px; height: 53px; border: 1px solid #f1f0e660; background: #151917d9; color: var(--race-ink); font: 25px var(--font-mono); }
 .touch-controls .touch-drift { width: 68px; font-size: 10px; color: var(--race-accent); }
 .touch-controls button.is-held { background: var(--race-accent); color: var(--race-bg); }
-@media (pointer: coarse) { .touch-controls { display: flex; } .hud-bottom { bottom: 90px; } }
+@media (any-pointer: coarse) { .touch-controls { display: flex; } .hud-bottom { bottom: 90px; } }
+.mobile-exit-button { display: none; }
 
 /* Native dialogs provide focus trapping, Escape dismissal, and keyboard accessibility. */
 .drift-dialog { width: min(580px, calc(100% - 32px)); max-height: 85dvh; overflow: auto; border: 1px solid var(--race-line); border-top: 3px solid var(--race-accent); border-radius: 0; background: var(--race-bg); color: var(--race-ink); padding: 30px; }
@@ -240,5 +242,81 @@ kbd { display: inline-block; border: 1px solid #697367; padding: 3px 5px; font: 
     .overlay-card .race-eyebrow { margin-bottom: 8px; }
     .result-grid { padding: 8px 0; margin-bottom: 7px; }
     .text-button { margin-top: 10px; }
+}
+
+/* Mobile races leave the page flow. This shell covers the browser content area;
+   the measured small viewport keeps the play area stable as toolbars retract. */
+html.mobile-race-open { overflow: hidden; overscroll-behavior: none; }
+body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflow: hidden; overscroll-behavior: none; }
+.mobile-play-shell { position: fixed; inset: 0; z-index: 3000; background: var(--race-bg); overflow: hidden; isolation: isolate; }
+.race-stage.mobile-play {
+    --play-top: max(12px, calc(env(safe-area-inset-top, 0px) + 8px));
+    --play-left: max(16px, calc(env(safe-area-inset-left, 0px) + 12px));
+    --play-right: max(16px, calc(env(safe-area-inset-right, 0px) + 12px));
+    --touch-bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 12px));
+    --touch-size: clamp(56px, 15vw, 72px);
+    width: 100%; height: var(--mobile-play-height, 100svh); min-height: 0; max-height: none;
+    user-select: none; -webkit-user-select: none; overscroll-behavior: none;
+}
+.race-stage.mobile-play:fullscreen { height: 100dvh; }
+.mobile-play #raceCanvas { touch-action: none; }
+.mobile-play .mobile-exit-button {
+    display: block; position: absolute; top: var(--play-top); left: var(--play-left); z-index: 5;
+    width: 54px; height: 44px; background: #151917ed; color: var(--race-ink); border: 1px solid #75827577; font: 8px var(--font-mono);
+}
+.mobile-play .stage-tools { top: var(--play-top); right: var(--play-right); gap: 4px; }
+.mobile-play .stage-tools button { min-height: 44px; padding: 8px; }
+.mobile-play #soundButton { font-size: 0; }
+.mobile-play #soundButton::before { content: '♪'; font: 15px var(--font-mono); }
+.mobile-play #soundButton span { font: 8px var(--font-mono); margin-left: 4px; }
+.mobile-play #qualityButton { font-size: 8px; }
+.mobile-play #qualityButton span { font-size: 8px; }
+.mobile-play #fullscreenButton { width: 44px; padding: 0; }
+.mobile-play .hud-top { top: calc(var(--play-top) + 58px); left: var(--play-left); right: var(--play-right); padding: 0; gap: 6px; }
+.mobile-play .hud-pause { top: -58px; left: 62px; right: auto; width: 44px; height: 44px; border: 1px solid #75827577; }
+.mobile-play .hud-readout { min-width: 57px; padding: 8px 10px; }
+.mobile-play .hud-readout > span { font-size: 7px; }
+.mobile-play .hud-readout strong { font-size: 18px; }
+.mobile-play .hud-score { min-width: 94px; }
+.mobile-play .hud-bottom { bottom: calc(var(--touch-bottom) + 158px); left: var(--play-left); right: var(--play-right); }
+.mobile-play .combo-readout { min-width: 130px; padding: 10px 12px; }
+.mobile-play .combo-readout > strong { font-size: 34px; }
+.mobile-play .speed-readout { min-width: 85px; padding: 10px; }
+.mobile-play .speed-readout strong { font-size: 43px; }
+.mobile-play .speed-readout > span { display: inline; font-size: 7px; margin-left: 4px; }
+.mobile-play #raceMap { top: calc(var(--play-top) + 140px); right: var(--play-right); width: 86px; height: 69px; }
+.mobile-play .race-notice { top: calc(var(--play-top) + 225px); max-width: calc(100% - 32px); white-space: normal; text-align: center; font-size: 8px; }
+.mobile-play .touch-controls {
+    display: flex; bottom: var(--touch-bottom); left: var(--play-left); right: var(--play-right);
+    align-items: end; pointer-events: auto; touch-action: none; -webkit-touch-callout: none;
+}
+.mobile-play .touch-steering { display: grid; grid-template-columns: repeat(2, var(--touch-size)); gap: 12px; }
+.mobile-play .touch-pedals { display: grid; grid-template-columns: repeat(2, var(--touch-size)); gap: 8px; }
+.mobile-play .touch-controls button { width: var(--touch-size); height: 76px; border-width: 2px; font-size: 30px; -webkit-touch-callout: none; }
+.mobile-play .touch-controls .touch-drift { grid-column: 1 / -1; width: auto; height: 50px; font-size: 11px; letter-spacing: 0.12em; }
+.mobile-play .touch-controls button.is-held { border-color: var(--race-accent); }
+.mobile-play .race-overlay { padding: var(--play-top) var(--play-right) var(--touch-bottom) var(--play-left); overflow: auto; overscroll-behavior: contain; }
+.mobile-play .overlay-card { max-width: 100%; }
+.mobile-play.is-short-portrait #raceMap { display: none; }
+.mobile-play.is-short-portrait .hud-bottom { top: calc(var(--play-top) + 122px); bottom: auto; align-items: start; }
+.mobile-play.is-short-portrait .combo-readout { min-width: 110px; padding: 6px 8px; }
+.mobile-play.is-short-portrait .combo-readout > strong { font-size: 24px; gap: 20px; }
+.mobile-play.is-short-portrait .combo-readout small { font-size: 22px; }
+.mobile-play.is-short-portrait .combo-track { margin-top: 4px; }
+.mobile-play.is-short-portrait .speed-readout { min-width: 65px; padding: 6px 8px; }
+.mobile-play.is-short-portrait .speed-readout strong { font-size: 30px; }
+.mobile-play.is-short-portrait .speed-bars { margin-top: 4px; }
+.mobile-play.is-short-portrait .race-notice { top: calc(var(--play-top) + 190px); }
+
+@media (orientation: landscape) {
+    .mobile-play .hud-score { margin-left: 0; }
+    .mobile-play .hud-bottom { bottom: var(--touch-bottom); left: calc(var(--play-left) + 165px); right: calc(var(--play-right) + 165px); }
+    .mobile-play .combo-readout { min-width: 105px; padding: 8px; }
+    .mobile-play .combo-readout > strong { font-size: 26px; gap: 12px; }
+    .mobile-play .combo-readout small { font-size: 23px; }
+    .mobile-play .speed-readout { min-width: 65px; padding: 8px; }
+    .mobile-play .speed-readout strong { font-size: 32px; }
+    .mobile-play #raceMap { display: none; }
+    .mobile-play .race-notice { top: calc(var(--play-top) + 135px); }
 }
 @media (prefers-reduced-motion: reduce) { .drift-page * { scroll-behavior: auto; } }

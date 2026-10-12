@@ -30,14 +30,14 @@ jobs:
       - name: Verify the generator and racing rules
         run: |
           python -m unittest discover -s tests/drift -p 'test_*.py'
-          node --test tests/drift/race.test.mjs tests/drift/gameplay.test.mjs
+          node --test tests/drift/*.test.mjs
       - name: Restore the generated track bank
         uses: actions/cache/restore@v4
         id: tracks
         with:
           path: games/drift/tracks
-          key: drift-bank-v1-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: drift-bank-v1-
+          key: drift-bank-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: drift-bank-v2-
       - name: Replenish the track buffer and export the static site
         run: |
           python scripts/drift/generate_tracks.py
@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: games/drift/tracks
-          key: drift-bank-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          key: drift-bank-v2-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload reviewable static output
         uses: actions/upload-artifact@v4
         with:

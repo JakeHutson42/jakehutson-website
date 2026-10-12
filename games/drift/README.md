@@ -18,7 +18,7 @@ Open `http://localhost:8000/drift.html`. ES modules and track fetching require H
 opening the HTML directly as a `file:` URL is unsupported.
 
 ```sh
-node --test tests/drift/race.test.mjs tests/drift/gameplay.test.mjs
+node --test tests/drift/*.test.mjs
 python -m unittest discover -s tests/drift -p 'test_*.py'
 python scripts/drift/build_static.py
 ```
@@ -42,6 +42,8 @@ Using the existing root-directory deployment also works with the checked-in bank
 | `games/drift/race.js` | Countdown, checkpoints, laps, drift combos, reset penalties |
 | `games/drift/world.js` | Three.js track, car, scenery, camera, tire marks |
 | `games/drift/input.js` | Keyboard and multi-touch input, focus-loss handling |
+| `games/drift/touch-controls.js` | Per-finger ownership, sliding pads, pointer capture and cleanup |
+| `games/drift/mobile-play-view.js` | Stable phone play area, page locking/restoration, rotation |
 | `games/drift/audio.js` | Optional synthesized engine audio |
 | `games/drift/storage.js` | Versioned, defensive local-storage adapter |
 | `games/drift/track-loader.js` | Track files, validation, UTC archive filtering |
@@ -58,10 +60,13 @@ update all copies when adding links, as there is no server-side template include
 
 ## Daily circuits and the archive
 
-The generator uses a SHA-256 seed of the UTC date and generator version. It samples
-a smooth closed curve, rejects tight or overlapping road sections, resamples it to
-320 evenly spaced points, and places the start on a gentle section. World scenery
+The generator uses a SHA-256 seed of the UTC date and generator version. Version 2
+adds smooth linked S-bends and medium-radius corners, requiring four to eight
+meaningful curvature reversals per lap. It rejects tight or overlapping road
+sections, resamples to 320 evenly spaced points, and places the start on a gentle section. World scenery
 uses the same published seed. Generation does not depend on machine-local randomness.
+`generatorVersion` identifies the layout independently of the JSON schema version;
+bank maintenance replaces outdated generated layouts and repairs incomplete files.
 
 The checked-in bank initially covers 2026-10-02 through 2026-11-11. The browser
 offers **today plus the previous ten dates**, never future circuits. Midnight UTC
@@ -114,6 +119,25 @@ tap while turning, then release and countersteer. R resets to the last checkpoin
 with a five-second penalty; Escape pauses. Losing window focus also pauses. Touch
 devices receive independent steering, throttle, brake, and handbrake buttons.
 
+On coarse-pointer devices and phone-width windows, starting a race opens a fixed
+mobile play view and locks page scrolling. Exit restores the original page position.
+The play area reserves space for expanded browser toolbars using the small viewport;
+toolbar retraction does not move held buttons. Safe-area padding protects the home
+indicator and cutouts. Rotation, fullscreen changes, and a smaller usable viewport
+pause the run and release all inputs before rebuilding the layout. Pause and results
+stay in the play view; background page controls are inert until exit.
+
+Touch controls have larger targets and independent pointer ownership. A steering
+thumb can slide left through a neutral centre into right without lifting. Leaving
+a pad releases its action, while returning resumes it. Pedal gaps are neutral, and
+lifting/cancelling one finger never releases another. Interrupted capture, focus
+loss, pause, and exit clear the appropriate inputs. Desktop keyboard mappings are
+unchanged. Portrait play widens the camera lens to keep the road visible around
+the floating controls. No auto-throttle or joystick is enabled.
+
+Browser previews verify layout and pointer handling, but physical iOS Safari and
+Android Chrome checks are still needed for OS edge gestures and actual browser bars.
+
 Three ordered quarter-track checkpoints must be passed on asphalt each lap. A run
 finishes after three laps. Drift points require speed, a slide angle, and new forward
 progress. Repeating a bend cannot farm points. Linked slides retain a combo for 1.4
@@ -124,14 +148,24 @@ The simulation uses metres, seconds, and a 120 Hz fixed update. The render loop 
 the screen refresh rate, while HUD updates are throttled. Frame time is clamped after
 stalls; long background gaps never fast-forward the car.
 
+Top forward speed is 32 m/s (about 115 km/h), with gentler acceleration and steering
+than the initial prototype. Throttle slides still work at the lower cornering pace.
+`CAMERA_CONFIG` in `config.js` controls a low chase camera: 10 m behind, 4.8 m high,
+52-degree vertical field of view. Its heading follows smoothly through slides while
+its position stays attached to the car, keeping the view scale stable at speed.
+This was tuned by playing DailyDrift; it approximates the observed framing and feel
+rather than claiming identical physics or copying its implementation.
+
 ## Records, privacy, and future backend
 
-The `apex-drift:v1` local-storage entry holds sound preference and up to 64 dated
+The `apex-drift:v2` local-storage entry holds sound preference and up to 64 dated
 records: best drift score, fastest finish (which may be from a different run), and
 completed-run count. There is no tracking or data upload. If storage is inaccessible,
 records stay in memory for the current visit and the page clearly says so. Clearing
 site data removes saved records. Libraries, icons, and fonts are served locally from
 the shared `lib/` directory; there are no browser requests to third-party CDNs.
+The original `apex-drift:v1` records remain untouched, but are not compared with
+times and scores on the revised layouts and handling.
 
 To add a C# API, replace the storage adapter and add authentication/score validation.
 Keep the driving loop in JavaScript. Three.js remains self-hosted, pinned, and licensed.
