@@ -97,12 +97,17 @@ button, select { border-radius: 4px; }
 .section-heading > p { color: var(--race-muted); font-size: 14px; margin: 0; }
 .guide-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
 .guide-tabs button { min-height: 46px; padding: 12px 22px; background: var(--race-panel); color: var(--race-muted); border: 1px solid var(--race-line); font-weight: 600; font-size: 14px; }
-.guide-tabs button[aria-selected=true] { background: var(--race-accent); border-color: var(--race-accent); color: #171c26; }
+.guide-tabs button { transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease; }
+.guide-tabs button[aria-selected=true] { background: var(--race-bg); border-color: var(--race-accent); color: var(--race-accent); }
+.guide-tabs button:hover { color: var(--race-ink); border-color: var(--race-accent); }
 .guide-controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.control-tile { padding: 24px; background: var(--race-panel); border: 1px solid var(--race-line); border-radius: 6px; }
+.control-tile { padding: 24px; background: var(--race-panel); border: 1px solid var(--race-line); border-radius: 0; transition: border-color 180ms ease; }
+.control-tile:hover { border-color: #8194b8; }
 .key-pair { display: flex; align-items: center; gap: 6px; min-height: 52px; margin-bottom: 22px; flex-wrap: wrap; }
 .key-pair > span { font-size: 11px; color: var(--race-muted); }
-kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 44px; padding: 0 8px; border: 1px solid #fff; border-bottom: 4px solid #9daabd; border-radius: 5px; background: #e8eef6; color: #172236; font: 500 18px var(--font-mono); }
+kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; height: 54px; padding: 0 8px; border: 1px solid #8194b8; border-radius: 5px; background: var(--race-bg); color: var(--race-ink); font: 500 18px var(--font-mono); transition: border-color 180ms ease, color 180ms ease, transform 180ms ease; }
+.control-tile:hover kbd { border-color: var(--race-accent); color: var(--race-accent); transform: translateY(-2px); }
+.key-pair kbd.wide-key { color: var(--race-accent); font-size: 13px; letter-spacing: .08em; }
 kbd.wide-key { min-width: 132px; }
 .control-tile h3, .drift-steps h3 { font-size: 16px; margin: 0 0 8px; }
 .control-tile p, .drift-steps p { font-size: 14px; line-height: 1.8; color: var(--race-muted); margin: 0; }
@@ -118,6 +123,16 @@ kbd.wide-key { min-width: 132px; }
 .drift-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--race-line); }
 .drift-steps article { display: flex; align-items: start; gap: 14px; }
 .drift-steps article > span { color: var(--race-accent); font: 500 13px var(--font-mono); padding-top: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+    .guide-controls:not([hidden]) { animation: guide-in 220ms ease-out both; }
+    .drift-steps article > span { transition: transform 180ms ease; }
+    .drift-steps article:hover > span { transform: translateX(3px); }
+    @keyframes guide-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media (prefers-reduced-motion: reduce) {
+    .guide-tabs button, .control-tile, kbd { transition: none; }
+    .control-tile:hover kbd { transform: none; }
+}
 /* Native dialogs provide focus trapping. Only the content scrolls; close and
    confirmation actions stay reachable on short and landscape phone screens. */
 .drift-dialog { width: min(860px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow: auto; border: 1px solid var(--race-line); border-radius: 8px; background: var(--race-bg); color: var(--race-ink); padding: 28px; box-shadow: 0 24px 100px #0008; }

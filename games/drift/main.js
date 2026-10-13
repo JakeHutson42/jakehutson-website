@@ -72,13 +72,13 @@ function showNotice(message) {
 }
 
 function updateStorageStatus() {
-    element('storageStatus').textContent = records.available ? 'PERSONAL RECORDS SAVED ON THIS DEVICE' : 'STORAGE UNAVAILABLE · RECORDS LAST FOR THIS VISIT';
+    element('storageStatus').textContent = records.available ? 'YOUR BEST RUNS STAY ON THIS DEVICE' : 'SAVING IS OFF · THESE RUNS LAST THIS VISIT';
 }
 
 function displayPersonalBest() {
     const best = race && records.get(race.track.date);
-    element('personalBest').textContent = best ? `${best.score.toLocaleString()} POINTS.` : 'Set your first benchmark.';
-    element('personalBestNote').textContent = best ? `Fastest finish ${formatTime(best.time)} · ${best.runs} completed ${best.runs === 1 ? 'run' : 'runs'} on this circuit.` : 'Finish a run to save your best score and time on this device.';
+    element('personalBest').textContent = best ? `${best.score.toLocaleString()} POINTS.` : 'No score yet. Your move.';
+    element('personalBestNote').textContent = best ? `Quickest run ${formatTime(best.time)} · ${best.runs} ${best.runs === 1 ? 'run' : 'runs'} on this circuit.` : 'Finish three laps. Your best score and quickest time stay here.';
     updateStorageStatus();
 }
 
@@ -480,7 +480,7 @@ setInterval(async () => {
     const now = new Date();
     const midnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
     const seconds = Math.floor((midnight - now.getTime()) / 1000);
-    element('nextTrackTime').textContent = `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor(seconds / 60) % 60).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')} UTC`;
+    element('nextTrackTime').textContent = `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor(seconds / 60) % 60).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     const today = utcDate(now);
     if (today !== currentDate && world) {
         try {
