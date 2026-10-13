@@ -1,4 +1,6 @@
-import { roadSamples, offsetSurface, roadHeight, surfacePose } from './road-surface.js';
+import { driftIntensity } from './driving-feedback.js';
+import { roadObstacles } from './obstacles.js';
+import { roadSamples, offsetSurface, roadHeight, surfacePose, surfaceFrame, loopChaseView } from './road-surface.js';
 import { smokeVelocity } from './smoke-motion.js';
 import { CircuitFlythrough } from './preview-camera.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
@@ -63,6 +65,7 @@ export class DriftWorld {
         this.markIndex = 0;
         this.lastMark = null;
         this.buildSmoke();
+        this.buildSparks();
         this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.resizeObserver = new ResizeObserver(() => this.resize());
         this.resizeObserver.observe(canvas.parentElement);
@@ -124,21 +127,24 @@ export class DriftWorld {
             puff.sprite.position.x += puff.vx * deltaTime;
             puff.sprite.position.z += puff.vz * deltaTime;
             puff.sprite.position.y += 0.9 * deltaTime;
-            const size = 0.6 + (1.5 - puff.life) * 2.8;
+            const size = puff.initialSize + (puff.duration - puff.life) * puff.growth;
             puff.sprite.scale.setScalar(size);
-            puff.sprite.material.opacity = 0.5 * Math.min(1, puff.life / 0.65);
+            puff.sprite.material.opacity = puff.opacity * Math.min(1, puff.life / 0.65);
         }
         if (race.state !== 'racing' || !race.drifting) { this.smokeRemainder = 0; return; }
         this.smokeRemainder += deltaTime;
         const velocity = smokeVelocity(car);
-        while (this.smokeRemainder >= 1 / 24) {
-            this.smokeRemainder -= 1 / 24;
+        const intensity = driftIntensity(car);
+        const interval = 1 / ((12 + intensity * 28) * (this.performanceMode ? 0.6 : 1));
+        while (this.smokeRemainder >= interval) {
+            this.smokeRemainder -= interval;
             for (const side of [-0.8, 0.8]) {
                 const puff = this.smoke[this.smokeIndex++ % this.smoke.length];
-                puff.life = 1.5; puff.vx = velocity.x; puff.vz = velocity.z;
+                puff.duration = 1.2 + intensity * 0.5; puff.life = puff.duration;
+                puff.opacity = 0.3 + intensity * 0.35; puff.initialSize = 0.45 + intensity * 0.3; puff.growth = 1.8 + intensity * 2.4; puff.vx = velocity.x; puff.vz = velocity.z;
                 puff.sprite.position.set(car.x - Math.sin(car.heading) * 1.6 + Math.cos(car.heading) * side,
                     (car.y || 0) + 0.35, car.z - Math.cos(car.heading) * 1.6 - Math.sin(car.heading) * side);
-                puff.sprite.scale.setScalar(0.6); puff.sprite.material.opacity = 0.5;
+                puff.sprite.scale.setScalar(puff.initialSize); puff.sprite.material.opacity = puff.opacity;
                 puff.sprite.material.rotation = Math.random() * Math.PI;
                 puff.sprite.visible = true;
             }
@@ -189,6 +195,7 @@ export class DriftWorld {
         this.buildStartLine(track);
         this.buildLoopEntry(track);
         this.buildScenery(track);
+        this.buildRoadObstacles(track);
         this.buildBridgeSupports(track);
         this.markIndex = 0; this.lastMark = null;
         this.tireMarks.geometry.attributes.position.array.fill(0);
@@ -311,6 +318,73 @@ export class DriftWorld {
         });
     }
 
+    buildRoadObstacles(track) {
+        const orange = this.material(0xff9b32, { emissive: 0xff6a15, emissiveIntensity: 0.25 });
+        const white = this.material(0xd8e3e9), dark = this.material(0x172331);
+        const box = new THREE.BoxGeometry(1,1,1);
+        for (const obstacle of roadObstacles(track)) {
+            const group = new THREE.Group(); group.name = 'near-miss-' + obstacle.type;
+            group.position.set(obstacle.x, obstacle.y + 0.1, obstacle.z); group.rotation.y = obstacle.heading;
+            if (obstacle.type === 'parked-car') {
+                group.add(buildCar({ model: 'coupe', paint: '#64758e', wheels: 'silver', stripes: false, spoiler: false }));
+            } else {
+                const add = (w,h,d,x,y,z,material) => {
+                    const mesh = new THREE.Mesh(box,material); mesh.scale.set(w,h,d); mesh.position.set(x,y,z);
+                    mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh);
+                };
+                add(1.9,0.75,4.6,0,0.42,0,orange);
+                for (const z of [-1.65,-0.55,0.55,1.65]) add(1.92,0.16,0.45,0,0.65,z,white);
+                for (const z of [-1.7,1.7]) {
+                    add(0.18,0.8,0.18,0,1.1,z,dark);
+                    add(0.35,0.17,0.35,0,1.5,z,orange);
+                }
+            }
+            this.environment.add(group);
+        }
+    }
+
+    buildSparks() {
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(72 * 3),3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(72 * 3),3));
+        this.sparkMesh = new THREE.Points(geometry, new THREE.PointsMaterial({ size: 0.11,
+            vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+        this.sparkMesh.frustumCulled = false; this.scene.add(this.sparkMesh);
+        this.sparks = Array.from({ length: 72 }, () => ({ life: 0 }));
+        this.sparkIndex = 0; this.sparkRemainder = 0;
+    }
+
+    updateSparks(race, dt) {
+        const car = race.car;
+        if (this.sparkCar !== car || race.state === 'ready') {
+            this.sparks.forEach(p => { p.life = 0; }); this.sparkCar = car; this.sparkRemainder = 0;
+        }
+        if (race.state === 'paused') return;
+        if (race.state === 'racing' && car.barrierHit && car.speed > 6 && !this.reducedMotion) {
+            this.sparkRemainder += dt * Math.min(55, car.speed * 2);
+            while (this.sparkRemainder >= 1) {
+                this.sparkRemainder--;
+                const puff = this.sparks[this.sparkIndex++ % this.sparks.length];
+                const side = car.scrapeSide || 1;
+                Object.assign(puff, { life: 0.35 + Math.random()*0.25,
+                    x: car.x + Math.cos(car.heading)*side*1.05, y: (car.y || 0)+0.45,
+                    z: car.z - Math.sin(car.heading)*side*1.05,
+                    vx: -Math.sin(car.heading)*(4+car.speed*0.12)+(Math.random()-0.5)*3,
+                    vz: -Math.cos(car.heading)*(4+car.speed*0.12)+(Math.random()-0.5)*3,
+                    vy: 1+Math.random()*3 });
+            }
+        } else this.sparkRemainder = 0;
+        const positions = this.sparkMesh.geometry.attributes.position, colors = this.sparkMesh.geometry.attributes.color;
+        this.sparks.forEach((p,index) => {
+            if (p.life>0) {
+                p.life = Math.max(0,p.life-dt); p.x += p.vx*dt; p.z += p.vz*dt; p.y += p.vy*dt; p.vy -= 9*dt;
+                positions.setXYZ(index,p.x,p.y,p.z);
+            }
+            const fade = Math.min(1,p.life/0.3); colors.setXYZ(index,fade,fade*0.5,fade*0.08);
+        });
+        positions.needsUpdate = true; colors.needsUpdate = true;
+    }
+
     buildBridgeSupports(track) {
         const material = this.material(0x30394a, { roughness: 0.7 });
         const box = new THREE.BoxGeometry(1, 1, 1);
@@ -344,6 +418,7 @@ export class DriftWorld {
     }
 
     setPerformanceMode(enabled) {
+        this.performanceMode = enabled;
         this.renderer.setPixelRatio(enabled ? 1 : Math.min(window.devicePixelRatio, 1.75));
         this.renderer.shadowMap.enabled = !enabled;
         this.resize();
@@ -366,9 +441,14 @@ export class DriftWorld {
 
     render(race, deltaTime, time) {
         const car = race.car;
-        this.car.position.set(car.x, (car.y || 0) + 0.1, car.z);
-        this.car.rotation.set(-(car.pitch || 0), car.heading, 0, 'YXZ');
+        this.car.position.fromArray(offsetSurface(car,0,0.1));
+        if(car.loopT != null) {
+            const frame=surfaceFrame(car);
+            this.car.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(
+                new THREE.Vector3(...frame.right),new THREE.Vector3(...frame.up),new THREE.Vector3(...frame.forward)));
+        } else this.car.rotation.set(-(car.pitch || 0),car.heading,0,'YXZ');
         const playing = race.state !== 'ready';
+        this.camera.up.set(0,1,0);
         const focus = playing ? car : this.camera.position;
         this.sun.position.set(focus.x - 110, (car.y || 0) + 180, focus.z + 75);
         this.sun.target.position.set(focus.x, car.y || 0, focus.z);
@@ -399,18 +479,12 @@ export class DriftWorld {
                 (car.y || 0) + CAMERA_CONFIG.followHeight - 0.55 * pace, car.z - forward.z * CAMERA_CONFIG.followDistance);
             const desiredTarget = new THREE.Vector3(car.x + forward.x * CAMERA_CONFIG.lookAhead,
                 (car.y || 0) + CAMERA_CONFIG.targetHeight, car.z + forward.z * CAMERA_CONFIG.lookAhead);
-            if (car.loopT != null) {
-                // Stay upright beside the circle, on the car's side of the road
-                // surface. A normal chase camera would hide it behind the roof
-                // of the loop when upside down.
-                const blend = Math.min(1, car.loopT / 0.2, (1 - car.loopT) / 0.2);
-                const pitch = car.pitch || 0;
-                const sideView = new THREE.Vector3(
-                    car.x + Math.cos(car.heading) * 34 - Math.sin(car.heading) * (10 + Math.sin(pitch) * 8),
-                    (car.y || 0) + Math.cos(pitch) * 8,
-                    car.z - Math.sin(car.heading) * 34 - Math.cos(car.heading) * (10 + Math.sin(pitch) * 8));
-                desiredPosition.lerp(sideView, blend);
-                desiredTarget.lerp(new THREE.Vector3(car.x, (car.y || 0) + Math.cos(pitch), car.z), blend);
+            this.camera.up.set(0,1,0);
+            if(car.loopT != null) {
+                const view=loopChaseView(car,CAMERA_CONFIG.followDistance,CAMERA_CONFIG.followHeight-0.55*pace,
+                    CAMERA_CONFIG.lookAhead,CAMERA_CONFIG.targetHeight);
+                desiredPosition.fromArray(view.position); desiredTarget.fromArray(view.target);
+                this.camera.up.fromArray(view.up); this.cameraHeading=car.heading;
             }
             // Follow position directly, smoothing only the view direction. A
             // world-position lerp falls farther behind as speed rises, shrinking
@@ -437,6 +511,10 @@ export class DriftWorld {
         if (race.state === 'racing' && race.drifting) this.addTireMarks(car);
         else this.lastMark = null;
         this.updateSmoke(race, deltaTime);
+        this.updateSparks(race, deltaTime);
+        const heat = car.brakeHeat || 0;
+        if (this.car.userData.brakeDiscMaterial) this.car.userData.brakeDiscMaterial.emissiveIntensity = heat * heat * 3;
+        if (this.car.userData.tailLightMaterial) this.car.userData.tailLightMaterial.emissiveIntensity = car.braking ? 2 : 0.5;
         this.renderer.render(this.scene, this.camera);
     }
 }

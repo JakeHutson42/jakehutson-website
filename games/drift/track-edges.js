@@ -72,5 +72,9 @@ export function resolveBarrierContacts(car, track, deltaTime) {
     }
     // A sustained scrape must not become a way to farm drift points along a wall.
     car.barrierHit = contact;
+    if (contact) {
+        const road = nearestRoadPoint(track, car.x, car.z, car.progress);
+        car.scrapeSide = (car.x-road.x)*Math.cos(car.heading)-(car.z-road.z)*Math.sin(car.heading) >= 0 ? 1 : -1;
+    }
     return { contact, impactSpeed };
 }

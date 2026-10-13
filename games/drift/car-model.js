@@ -35,19 +35,26 @@ export function buildCar(customization) {
         box(spec.width + 0.1, 0.12, 0.35, trim, 0, 1.25, -front + 0.2);
     }
     const headlights = material('#fff7cb', { emissive: '#ffe5a0', emissiveIntensity: 0.4 });
-    const taillights = material('#e74e36');
+    const taillights = material('#e74e36', { emissive: '#e72914', emissiveIntensity: 0.5 });
+    car.userData.tailLightMaterial = taillights;
     for (const x of [-spec.width * 0.34, spec.width * 0.34]) {
         box(0.44, 0.16, 0.04, headlights, x, 0.81, front + 0.02);
         box(0.44, 0.12, 0.04, taillights, x, 0.78, -front - 0.02);
     }
     const tireGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.28, 16);
     const rimGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.3, 8);
+    const discGeometry = new THREE.RingGeometry(0.255, 0.32, 20);
+    const discs = material('#56616a', { metalness: 0.55, roughness: 0.35, emissive: '#ff4208', emissiveIntensity: 0, side: THREE.DoubleSide });
+    car.userData.brakeDiscMaterial = discs;
     for (const x of [-spec.width / 2 - 0.03, spec.width / 2 + 0.03]) for (const z of [-spec.length * 0.31, spec.length * 0.31]) {
         for (const [geometry, surface] of [[tireGeometry, rubber], [rimGeometry, rim]]) {
             const wheel = new THREE.Mesh(geometry, surface);
             wheel.rotation.z = Math.PI / 2; wheel.position.set(x, 0.43, z);
             wheel.castShadow = true; car.add(wheel);
         }
+        const disc = new THREE.Mesh(discGeometry, discs); disc.name = 'brake-disc';
+        disc.rotation.y = Math.PI / 2; disc.position.set(Math.sign(x)*(spec.width/2+0.19), 0.43, z);
+        car.add(disc);
     }
     return car;
 }

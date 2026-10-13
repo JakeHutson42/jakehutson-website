@@ -137,3 +137,38 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 /* Reserve room for the larger desktop utility buttons without overlapping pause. */
 .race-stage:not(.mobile-play) .hud-top { padding-right: 320px; }
 .race-stage:not(.mobile-play) .hud-pause { right: 260px; width: 44px; height: 40px; top: -2px; }
+
+/* Shared RPM drives the engine sound, rev strip and automatic gear display. */
+.speed-readout.instrument-cluster { display: flex; align-items: center; gap: 12px; width: 244px; min-width: 0; padding: 10px 14px; border-radius: 8px; border: 1px solid #36e6ed44; background: linear-gradient(135deg,#101c2df2,#080e18f2); text-align: center; }
+.speed-dial { position: relative; width: 128px; height: 128px; flex-shrink: 0; }
+.speed-dial-face { display: block; width: 100%; height: 100%; overflow: visible; }
+.dial-track, .dial-fill { fill: none; stroke-width: 4; transform: rotate(135deg); transform-origin: 60px 60px; }
+.dial-track { stroke: #2c3d54; stroke-dasharray: 226.2 301.6; }
+.dial-fill { stroke: #36e6ed; stroke-dasharray: 0 301.6; stroke-linecap: round; }
+.dial-redline { fill: none; stroke: #f36b69; stroke-width: 2; }
+.speed-dial-face text { fill: #a9b7c9; font: 6px var(--font-mono); }
+.dial-needle { transform-origin: 60px 60px; transform: rotate(-135deg); fill: #ffbb68; filter: drop-shadow(0 0 2px #ffa43877); }
+.dial-speed { position: absolute; top: 64%; left: 50%; transform: translateX(-50%); display: grid; }
+.speed-readout .dial-speed strong { font: italic 700 34px/.9 var(--race-display); font-variant-numeric: tabular-nums; }
+.dial-speed span { margin-top: 4px; font: 7px var(--font-mono); color: var(--race-muted); }
+.engine-instruments { flex: 1; min-width: 0; }
+.gear-readout { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.gear-readout > span { color: var(--race-muted); font: 8px var(--font-mono); }
+.speed-readout .gear-readout strong { font: 700 36px/1 var(--race-display); color: var(--race-accent); }
+.rpm-readout { text-align: right; margin-top: 9px; }
+.speed-readout .rpm-readout strong { font: 500 16px var(--font-mono); }
+.rpm-readout > span { margin-left: 4px; color: var(--race-muted); font: 7px var(--font-mono); }
+.speed-bars.rev-bars { height: 7px; margin-top: 8px; background: repeating-linear-gradient(90deg,#36e6ed 0 4px,transparent 4px 6px); }
+.rev-scale { display: flex; justify-content: space-between; color: var(--race-muted); font: 7px var(--font-mono); margin-top: 5px; white-space: nowrap; }
+.is-redlining .rev-bars { background: repeating-linear-gradient(90deg,#ff7863 0 4px,transparent 4px 6px); }
+.mobile-play .speed-readout.instrument-cluster { width: 185px; gap: 6px; padding: 6px 8px; }
+.mobile-play .speed-dial { width: 96px; height: 96px; }
+.mobile-play .speed-readout .dial-speed strong { font-size: 27px; }
+.mobile-play .speed-readout .gear-readout strong { font-size: 28px; }
+.mobile-play .speed-readout .rpm-readout strong { font-size: 12px; }
+.mobile-play .gear-readout > span { font-size: 7px; }
+.mobile-play .rpm-readout { margin-top: 5px; }
+.mobile-play.is-short-portrait .speed-readout.instrument-cluster { width: 160px; padding: 4px 6px; }
+.mobile-play.is-short-portrait .speed-dial { width: 80px; height: 80px; }
+.mobile-play.is-short-portrait .speed-readout .dial-speed strong { font-size: 24px; }
+@media (max-width: 420px) { .mobile-play .combo-readout { min-width: 105px; padding: 8px; } .mobile-play .combo-readout > strong { gap: 12px; font-size: 29px; } }

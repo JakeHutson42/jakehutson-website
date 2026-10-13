@@ -8,7 +8,7 @@ export const GAME_CONFIG = Object.freeze({
     resetPenalty: 5,
     // Redesigned layouts and elevation need their own records. Preserve earlier
     // device data rather than comparing runs on different circuits.
-    storageKey: 'apex-drift:v6',
+    storageKey: 'apex-drift:v8',
     maximumRecords: 64,
     maximumSpeed: 40,
     acceleration: 15,

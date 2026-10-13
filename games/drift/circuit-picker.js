@@ -1,3 +1,4 @@
+import { miles } from './units.js';
 export class CircuitPicker {
     constructor(select, loadTrack) {
         this.select = select;
@@ -92,7 +93,7 @@ export class CircuitPicker {
             const number = document.createElement('span'); number.className = 'picker-number'; number.textContent = String(index + 1).padStart(2, '0');
             const details = document.createElement('span'); details.className = 'picker-details';
             const name = document.createElement('strong'); name.textContent = track?.name || date;
-            const note = document.createElement('small'); note.textContent = `${date} / ${track ? `${((track.drivingLength || track.length) / 1000).toFixed(2)} KM · ${track.loop ? 'VERTICAL LOOP' : 'BRIDGE RUN'}` : 'CITY CIRCUIT'}`;
+            const note = document.createElement('small'); note.textContent = `${date} / ${track ? `${miles(track.drivingLength || track.length).toFixed(2)} MI · ${track.loop ? 'VERTICAL LOOP' : 'BRIDGE RUN'}` : 'CITY CIRCUIT'}`;
             const badge = document.createElement('span'); badge.className = 'picker-badge';
             badge.textContent = date === new Date().toISOString().slice(0, 10) ? 'DAILY' : 'ARCHIVE';
             const status = document.createElement('span'); status.className = 'picker-row-status'; status.setAttribute('aria-hidden', 'true'); status.textContent = selected ? '✓' : '↗';

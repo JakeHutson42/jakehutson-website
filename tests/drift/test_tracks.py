@@ -20,12 +20,19 @@ class TrackTests(unittest.TestCase):
     def test_many_dates_produce_safe_evenly_spaced_circuits(self):
         for offset in range(60):
             track = generator.generate_track(date(2026, 10, 1) + timedelta(days=offset))
-            self.assertEqual(track["width"], 17)
+            self.assertEqual(track["width"], 14)
             points = track["points"]
             self.assertTrue(generator.validate_geometry(points, track["width"], track["elevations"]))
             segments = [generator.distance(points[index], points[(index + 1) % len(points)]) for index in range(len(points))]
-            self.assertLess(max(segments) / min(segments), 1.03)
+            evenly_spaced = segments
+            if "loop" in track:
+                loop=track["loop"]
+                evenly_spaced=[length for i,length in enumerate(segments) if not loop["start"]-0.01 <= i/len(points) <= loop["end"]+140/track["length"]]
+                self.assertLess(max(segments)/min(segments),2, "Offset loop exit must blend without a geometry jump")
+            self.assertLess(max(evenly_spaced) / min(evenly_spaced), 1.03)
             self.assertAlmostEqual(sum(segments), track["length"], places=1)
+            self.assertGreaterEqual(track["drivingLength"],1609.344)
+            self.assertLessEqual(track["drivingLength"],3218.688)
             total_turn, reversals = generator.corner_profile(points)
             self.assertGreaterEqual(generator.hairpin_count(points), 1, "Keep at least one returning drift corner")
             self.assertGreaterEqual(total_turn, 20)
@@ -46,6 +53,7 @@ class TrackTests(unittest.TestCase):
                 lower = round(bridge["lower"]*len(track["points"])) % len(track["points"])
                 self.assertGreaterEqual(track["elevations"][upper]-track["elevations"][lower], 10)
         self.assertEqual(tracks[2]["loop"]["minimumSpeed"], 20)
+        self.assertGreater(tracks[2]["loop"]["offset"],tracks[2]["width"]+4)
 
     def test_development_bank_shrinks_a_previously_larger_bank(self):
         today = date(2026, 10, 13)

@@ -1,5 +1,6 @@
 import { GAME_CONFIG as CONFIG } from './config.js';
 import { createCar, updateCar } from './physics.js';
+import { NearMissChallenges } from './obstacles.js';
 
 export class Race {
     constructor(track) {
@@ -19,6 +20,8 @@ export class Race {
         this.drifting = false;
         this.countdown = 3;
         this.message = '';
+        this.challenges = new NearMissChallenges(track);
+        this.nearMisses = 0; this.nearMissBonus = 0;
     }
 
     start() { this.state = 'countdown'; }
@@ -29,6 +32,7 @@ export class Race {
         if (this.state !== 'racing') return;
         const progress = this.checkpoint / 4;
         this.car = createCar(this.track, progress);
+        this.challenges.resetEncounter();
         this.previousProgress = progress;
         this.elapsed += CONFIG.resetPenalty;
         this.bankCombo();
@@ -74,8 +78,10 @@ export class Race {
 
         // High-water progress means circling or repeating a bend cannot farm drift points.
         const newRoad = movingForward && nearest.progress > this.furthestProgress;
-        if (this.car.barrierHit) this.bankCombo();
-        this.drifting = !this.car.barrierHit && onRoad && this.car.speed >= CONFIG.minimumDriftSpeed &&
+        const bonus = this.challenges.update(this.car, this.lap);
+        if (bonus) { this.score += bonus; this.nearMissBonus += bonus; this.nearMisses += bonus / 250; this.message = `NEAR MISS · +${bonus} POINTS`; }
+        if (this.car.barrierHit || this.car.obstacleHit) this.bankCombo();
+        this.drifting = !this.car.barrierHit && !this.car.obstacleHit && onRoad && this.car.speed >= CONFIG.minimumDriftSpeed &&
             this.car.slip >= CONFIG.minimumDriftAngle && this.car.slip <= CONFIG.maximumDriftAngle;
         if (this.drifting && newRoad) {
             this.driftDuration += deltaTime;

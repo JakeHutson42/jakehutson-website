@@ -1,7 +1,9 @@
 import { GAME_CONFIG as CONFIG } from './config.js';
 import { clamp, trackPose } from './math.js';
 import { resolveBarrierContacts } from './track-edges.js';
-import { nearestRoadPoint, roadHeight, surfacePose, loopPose } from './road-surface.js';
+import { nearestRoadPoint, roadHeight, surfacePose, loopPose, advanceLoop } from './road-surface.js';
+import { updateDrivingFeedback } from './driving-feedback.js';
+import { resolveObstacleContacts } from './obstacles.js';
 
 export function createCar(track, progress = 0) {
     const pose = surfacePose(track, progress);
@@ -14,6 +16,12 @@ export function createCar(track, progress = 0) {
 // The handbrake lowers sideways grip, making countersteering a useful part of driving.
 // A fixed update interval keeps grip and scoring consistent across refresh rates.
 export function updateCar(car, input, track, deltaTime) {
+    const nearest = stepCar(car, input, track, deltaTime);
+    updateDrivingFeedback(car, input, deltaTime);
+    return nearest;
+}
+
+function stepCar(car, input, track, deltaTime) {
     if (car.loopT != null) return updateLoop(car, input, track, deltaTime);
     const forwardX = Math.sin(car.heading);
     const forwardZ = Math.cos(car.heading);
@@ -45,6 +53,7 @@ export function updateCar(car, input, track, deltaTime) {
     car.vz = nextForwardZ * forwardSpeed - nextForwardX * lateralSpeed;
     car.x += car.vx * deltaTime;
     car.z += car.vz * deltaTime;
+    resolveObstacleContacts(car, track);
     resolveBarrierContacts(car, track, deltaTime);
     car.speed = Math.hypot(car.vx, car.vz);
     const resolvedForward = car.vx * nextForwardX + car.vz * nextForwardZ;
@@ -55,7 +64,7 @@ export function updateCar(car, input, track, deltaTime) {
     if (track.loop && nearest.progress < track.loop.start && finalRoad.progress >= track.loop.start &&
         forwardSpeed > 0 && !car.offRoad) {
         car.loopT = 0;
-        // The entry pad supplies a minimum 72 km/h, then magnetic arcade grip
+        // The entry pad supplies a minimum 45 mph, then magnetic arcade grip
         // keeps the car attached. No uphill gravity penalty or inverted stalls.
         car.speed = Math.max(track.loop.minimumSpeed, car.speed);
         const remaining = deltaTime * clamp((finalRoad.progress - track.loop.start) /
@@ -72,16 +81,10 @@ function updateLoop(car, input, track, deltaTime) {
     const minimum = track.loop.minimumSpeed;
     car.speed = clamp(Math.max(minimum, car.speed) + (input.throttle ? CONFIG.acceleration : 0) * deltaTime -
         (input.brake ? CONFIG.brakeForce * deltaTime : 0), minimum, CONFIG.maximumSpeed);
-    const t = car.loopT;
-    const start = trackPose(track, track.loop.start), end = trackPose(track, track.loop.end);
-    const span = Math.hypot(end.x - start.x, end.z - start.z), circle = 2 * Math.PI * track.loop.radius;
-    const distance = (t < 0.25 ? t * span * 2 : t <= 0.75 ? span / 2 + (t - 0.25) * circle * 2 :
-        span / 2 + circle + (t - 0.75) * span * 2) + car.speed * deltaTime;
-    car.loopT = Math.min(1, distance < span / 2 ? distance / (span * 2) : distance <= span / 2 + circle ?
-        0.25 + (distance - span / 2) / (circle * 2) : 0.75 + (distance - span / 2 - circle) / (span * 2));
+    car.loopT = advanceLoop(track,car.loopT,car.speed*deltaTime);
     const pose = loopPose(track, car.loopT);
-    Object.assign(car, pose, { vx: Math.sin(pose.heading) * car.speed,
-        vz: Math.cos(pose.heading) * car.speed, steering: 0, slip: 0, barrierHit: false, offRoad: false });
-    if (car.loopT >= 1) { car.loopT = null; car.pitch = 0; }
+    Object.assign(car, pose, { vx: pose.frame.forward[0] * car.speed,
+        vz: pose.frame.forward[2] * car.speed, steering: 0, slip: 0, barrierHit: false, obstacleHit: false, offRoad: false });
+    if (car.loopT >= 1) { car.loopT = null; car.pitch = 0; delete car.frame; }
     return { x: car.x, z: car.z, progress: pose.progress, distance: 0 };
 }

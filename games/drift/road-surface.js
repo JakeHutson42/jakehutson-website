@@ -10,20 +10,63 @@ export function roadHeight(track, progress) {
 export function loopPose(track, t) {
     const loop = track.loop;
     const start = trackPose(track, loop.start), end = trackPose(track, loop.end);
-    const dx = end.x - start.x, dz = end.z - start.z, span = Math.hypot(dx, dz);
+    const heading = loop.heading ?? Math.atan2(end.x-start.x,end.z-start.z);
+    const fx = Math.sin(heading), fz = Math.cos(heading), rx = fz, rz = -fx;
+    const span = (end.x-start.x)*fx+(end.z-start.z)*fz;
+    const shift = loop.offset ?? 0;
     const r = loop.radius;
-    // A complete circle between tangent-matched entry and exit straights.
-    // Spreading the circle along the straight would make a self-crossing teardrop.
+    // One full turn with a smooth left-to-right lane shift: the two feet of the
+    // loop no longer occupy the same road. Lateral slope is zero at both feet.
     const circle = t >= 0.25 && t <= 0.75;
     const angle = clamp((t - 0.25) * 2, 0, 1) * Math.PI * 2;
     const along = circle ? span / 2 + r * Math.sin(angle) : t < 0.25 ? span * t * 2 : span * (t * 2 - 1);
     const tangent = circle ? r * Math.PI * 4 * Math.cos(angle) : span * 2;
     const vertical = circle ? r * Math.PI * 4 * Math.sin(angle) : 0;
-    const pitch = Math.atan2(vertical, tangent);
-    return { x: start.x + dx / span * along, z: start.z + dz / span * along,
+    const u = clamp((t-0.25)*2,0,1);
+    const across = shift*(u-Math.sin(angle)/(2*Math.PI));
+    const lateral = circle ? shift*2*(1-Math.cos(angle)) : 0;
+    const metric = Math.hypot(tangent,vertical,lateral);
+    const forward = [(fx*tangent+rx*lateral)/metric,vertical/metric,(fz*tangent+rz*lateral)/metric];
+    const dot = rx*forward[0]+rz*forward[2];
+    const right = [rx-dot*forward[0],-dot*forward[1],rz-dot*forward[2]];
+    const norm = Math.hypot(...right); for(let i=0;i<3;i++) right[i]/=norm;
+    const up = [forward[1]*right[2]-forward[2]*right[1],forward[2]*right[0]-forward[0]*right[2],forward[0]*right[1]-forward[1]*right[0]];
+    return { x: start.x + fx*along+rx*across, z: start.z + fz*along+rz*across,
         y: roadHeight(track, loop.start) + r * (1 - Math.cos(angle)),
-        heading: Math.atan2(dx, dz), pitch,
-        metric: Math.hypot(tangent, vertical), progress: loop.start + (loop.end - loop.start) * t };
+        heading: Math.atan2(forward[0],forward[2]), pitch: Math.atan2(forward[1],Math.hypot(forward[0],forward[2])),
+        frame: { forward,right,up }, metric, progress: loop.start + (loop.end - loop.start) * t };
+}
+
+const loopPaths = new WeakMap();
+function loopPath(track) {
+    if (loopPaths.has(track)) return loopPaths.get(track);
+    const distances = [0]; let previous = loopPose(track,0);
+    for(let i=1;i<=240;i++) {
+        const pose=loopPose(track,i/240);
+        distances.push(distances.at(-1)+Math.hypot(pose.x-previous.x,pose.y-previous.y,pose.z-previous.z)); previous=pose;
+    }
+    loopPaths.set(track,distances); return distances;
+}
+
+export function advanceLoop(track,t,distance) {
+    const path=loopPath(track), p=clamp(t,0,1)*240, i=Math.min(239,Math.floor(p));
+    const target=path[i]+(path[i+1]-path[i])*(p-i)+distance;
+    if(target>=path[240]) return 1;
+    let lo=0,hi=240;
+    while(hi-lo>1){const mid=Math.floor((lo+hi)/2);if(path[mid]<target)lo=mid;else hi=mid;}
+    return (lo+(target-path[lo])/(path[hi]-path[lo]))/240;
+}
+
+export function surfaceFrame(pose) {
+    if(pose.frame) return pose.frame;
+    const s=Math.sin(pose.heading),c=Math.cos(pose.heading),p=pose.pitch||0;
+    return { forward:[s*Math.cos(p),Math.sin(p),c*Math.cos(p)], right:[c,0,-s], up:[-s*Math.sin(p),Math.cos(p),-c*Math.sin(p)] };
+}
+
+export function loopChaseView(car, distance, height, ahead, targetHeight) {
+    const {forward,up}=surfaceFrame(car), origin=[car.x,car.y||0,car.z];
+    return { position:origin.map((v,i)=>v-forward[i]*distance+up[i]*height),
+        target:origin.map((v,i)=>v+forward[i]*ahead+up[i]*targetHeight), up };
 }
 
 export function surfacePose(track, progress) {
@@ -69,8 +112,6 @@ export function roadSamples(track) {
 }
 
 export function offsetSurface(pose, across, height = 0) {
-    const sine = Math.sin(pose.heading), cosine = Math.cos(pose.heading);
-    return [pose.x + cosine * across - sine * Math.sin(pose.pitch) * height,
-        pose.y + Math.cos(pose.pitch) * height,
-        pose.z - sine * across - cosine * Math.sin(pose.pitch) * height];
+    const {right,up}=surfaceFrame(pose);
+    return [pose.x+right[0]*across+up[0]*height,(pose.y||0)+right[1]*across+up[1]*height,pose.z+right[2]*across+up[2]*height];
 }

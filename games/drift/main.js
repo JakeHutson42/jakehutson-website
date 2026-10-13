@@ -1,3 +1,4 @@
+import { miles, mph, SPEEDOMETER_MAX_MPH } from './units.js';
 import { CircuitPicker } from './circuit-picker.js';
 import { initialiseDrivingGuides } from './tutorial.js';
 import { LoadingOverlay } from './loading-overlay.js';
@@ -75,7 +76,7 @@ function updateStorageStatus() {
 
 function displayPersonalBest() {
     const best = race && records.get(race.track.date);
-    element('personalBest').textContent = best ? `${best.score.toLocaleString()} DRIFT POINTS.` : 'Set your first benchmark.';
+    element('personalBest').textContent = best ? `${best.score.toLocaleString()} POINTS.` : 'Set your first benchmark.';
     element('personalBestNote').textContent = best ? `Fastest finish ${formatTime(best.time)} · ${best.runs} completed ${best.runs === 1 ? 'run' : 'runs'} on this circuit.` : 'Finish a run to save your best score and time on this device.';
     updateStorageStatus();
 }
@@ -159,9 +160,9 @@ async function selectTrackContent(date) {
         dateElement.textContent = new Date(`${date}T12:00:00Z`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase();
         element('trackEdition').textContent = `${isDaily ? 'DAILY' : 'ARCHIVE'} / ${date.replaceAll('-', '.')}`;
         element('trackName').textContent = track.name.toUpperCase();
-        element('trackDescription').textContent = track.loop ? 'Sweeping drifts, a raised crossover and a full vertical loop. Accelerate in; steering assist carries you through.' :
-            'Wide city streets, linked drift corners and a raised crossover. Find your line.';
-        element('trackLength').textContent = `${((track.drivingLength || track.length) / 1000).toFixed(2)} KM`;
+        element('trackDescription').textContent = track.loop ? 'Sweeping drifts, a raised crossover and a full vertical loop. Accelerate into the assisted loop. Clean near-misses: +250 points.' :
+            'Wide city streets, linked drift corners and a raised crossover. Clean near-misses: +250 points.';
+        element('trackLength').textContent = `${miles(track.drivingLength || track.length).toFixed(2)} MI`;
         drawMap(element('trackMap'), track);
         displayPersonalBest();
         await world.prepare(race);
@@ -263,6 +264,7 @@ function finishRun() {
     element('overlayEyebrow').textContent = newBest ? 'A NEW PERSONAL BENCHMARK' : 'THREE LAPS. ONE GOOD TIME.';
     element('overlayTitle').textContent = 'THAT’S YOUR LINE.';
     element('overlayDescription').textContent = records.available ? 'Run complete. Your record is saved on this device.' : 'Run complete. Your record is kept for this visit; browser storage is unavailable.';
+    if (race.nearMisses) element('overlayDescription').textContent += ` ${race.nearMisses} clean near-misses earned ${race.nearMissBonus} bonus points.`;
     element('resultScore').textContent = race.score.toLocaleString();
     element('resultTime').textContent = formatTime(race.elapsed);
     element('resultGrid').hidden = false;
@@ -272,17 +274,27 @@ function finishRun() {
     element('restartButton').focus({ preventScroll: true });
 }
 
+function updateInstruments() {
+    const car = race.car, speed = clamp(mph(car.speed) / SPEEDOMETER_MAX_MPH, 0, 1), rpm = car.rpm || 950;
+    element('speedNeedle').style.transform = 'rotate(' + (-135 + speed * 270) + 'deg)';
+    element('speedArc').style.strokeDasharray = (speed * 226.2) + ' 301.6';
+    element('speedBars').style.transform = 'scaleX(' + clamp(rpm / 8000, 0.03, 1) + ')';
+    element('instrumentCluster').classList.toggle('is-redlining', rpm > 6500);
+    element('gearValue').textContent = car.gearLabel || 'N';
+    element('rpmValue').textContent = String(Math.round(rpm / 50) * 50);
+}
+
 function updateHud() {
     element('lapValue').textContent = race.lap;
     element('timeValue').textContent = formatTime(race.elapsed);
     element('scoreValue').textContent = race.score.toLocaleString();
     element('comboValue').textContent = Math.floor(race.combo).toLocaleString();
     element('multiplierValue').textContent = `×${race.multiplier}`;
-    element('speedValue').textContent = Math.round(race.car.speed * 3.6);
+    element('speedValue').textContent = Math.round(mph(race.car.speed));
     element('driftLabel').textContent = race.car.offRoad ? 'OFF ROAD · FIND THE ASPHALT' : race.drifting ? 'HOLD THAT SLIDE' : race.combo ? 'LINK THE NEXT CORNER' : 'FIND YOUR LINE';
     element('comboReadout').classList.toggle('is-drifting', race.drifting);
     element('comboBar').style.transform = `scaleX(${race.combo ? clamp(1 - race.comboIdle / GAME_CONFIG.comboGrace, 0, 1) : 0})`;
-    element('speedBars').style.transform = `scaleX(${clamp(race.car.speed / GAME_CONFIG.maximumSpeed, 0.03, 1)})`;
+
     drawMap(element('raceMap'), race.track, race.car);
     if (race.message) { showNotice(race.message); race.message = ''; }
     const counting = race.state === 'countdown';
@@ -307,6 +319,7 @@ function animate(timeMilliseconds) {
         }
     } else simulationRemainder = 0;
     world.render(race, deltaTime, seconds);
+    updateInstruments();
     audio.update(race.car, race.state === 'racing');
     // Simulation/rendering run every frame; text and the minimap only need 12 Hz.
     if (seconds - lastHudTime > 1 / 12) { updateHud(); lastHudTime = seconds; }
@@ -318,7 +331,7 @@ async function enableSound(enabled) {
         const active = await audio.setEnabled(enabled);
         records.setSound(active);
         element('soundButton').setAttribute('aria-pressed', String(active));
-        element('soundButton').setAttribute('aria-label', active ? 'Mute engine sound' : 'Enable engine sound');
+        element('soundButton').setAttribute('aria-label', active ? 'Mute game sound' : 'Enable game sound');
         element('soundState').textContent = active ? 'ON' : 'OFF';
         updateStorageStatus();
     } catch { showStageMessage('Sound could not start in this browser. You can still play.'); }

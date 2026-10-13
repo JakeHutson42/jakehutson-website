@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 640
-GENERATOR_VERSION = 6
+GENERATOR_VERSION = 8
 
 
 def distance(first, second):
@@ -184,8 +184,13 @@ def generate_track(track_date):
         x, z = (x-490)*sx*mirror, (z-650)*sz
         transformed.append([x*math.cos(angle)-z*math.sin(angle), x*math.sin(angle)+z*math.cos(angle)])
     points = resample_closed_loop(transformed, POINT_COUNT)
+    # Shorter 1–2 mile laps; smooth at the final scale so road-width corner
+    # clearance is retained instead of shrinking already validated bends.
+    raw_length = sum(distance(points[i], points[(i+1) % POINT_COUNT]) for i in range(POINT_COUNT))
+    scale = [2600, 3700, 3050][variant] / raw_length
+    points = [[x*scale,z*scale] for x,z in points]
     # Round the sketch's pen kinks until the complete road width fits each bend.
-    for _ in range(400):
+    for _ in range(1200):
         radii = []
         for i, point in enumerate(points):
             before, after = points[i-1], points[(i+1) % POINT_COUNT]
@@ -193,7 +198,7 @@ def generate_track(track_date):
             bx, bz = after[0]-point[0], after[1]-point[1]
             turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
             radii.append(distance(point,after)/max(turn,1e-6))
-        if min(radii) >= 24:
+        if min(radii) >= 20:
             break
         points = resample_closed_loop([[(points[i-1][a]+2*point[a]+points[(i+1)%POINT_COUNT][a])/4 for a in range(2)] for i,point in enumerate(points)], POINT_COUNT)
     points = resample_closed_loop(points, POINT_COUNT)
@@ -216,7 +221,7 @@ def generate_track(track_date):
         bridges.append({"upper": upper/POINT_COUNT, "lower": lower/POINT_COUNT, "clearance": 12})
     track = {"version": 1, "generatorVersion": GENERATOR_VERSION, "date": str(track_date), "seed": seed,
         "name": ["After Hours — Sketch Run", "Neon Borough", "Skyline Stunt Run"][variant],
-        "layout": ["sketch", "borough", "stunt"][variant], "environment": "NIGHT CITY", "width": 17,
+        "layout": ["sketch", "borough", "stunt"][variant], "environment": "NIGHT CITY", "width": 14,
         "length": round(length, 2), "points": points, "elevations": elevations, "bridges": bridges}
     if variant == 2:
         # Pick a straight, level section away from the bridge, not a corner apex.
@@ -230,14 +235,46 @@ def generate_track(track_date):
             path = sum(distance(points[j],points[j+1]) for j in range(i,i+span))
             candidates.append((direct/path, i))
         _, i = max(candidates)
+        a,b=points[i],points[i+span]
+        heading=math.atan2(b[0]-a[0],b[1]-a[1])
+        rx,rz=math.cos(heading),-math.sin(heading)
+        shift=24
+        return_span=max(20,round(120/spacing))
+        for j in range(i,i+span+return_span+1):
+            if j>=POINT_COUNT:
+                break
+            if j<=i+span:
+                u=(j-i)/span
+                lateral=shift*(u-math.sin(math.tau*u)/math.tau)
+            else:
+                u=(j-i-span)/return_span
+                lateral=shift*(0.5+0.5*math.cos(math.pi*u))
+            points[j]=[round(points[j][0]+rx*lateral,3),round(points[j][1]+rz*lateral,3)]
         track["loop"] = {"start": i/POINT_COUNT, "end": (i+span)/POINT_COUNT,
-                          "radius": 18, "minimumSpeed": 20}
-    if not validate_geometry(points, 17, elevations):
+                          "heading":heading,"offset":shift,"radius": 18, "minimumSpeed": 20}
+        # Keep geometry-distance progress and public centreline length consistent
+        # after moving the exit lane and easing it back into the city route.
+        track["length"]=round(sum(distance(points[j],points[(j+1)%POINT_COUNT]) for j in range(POINT_COUNT)),2)
+    if not validate_geometry(points, 14, elevations):
         raise RuntimeError(f"Unsafe generated circuit: {track_date}")
-    track["drivingLength"] = round(sum(math.hypot(
+    driving_length = sum(math.hypot(
         distance(points[i], points[(i+1) % POINT_COUNT]),
-        elevations[i]-elevations[(i+1) % POINT_COUNT]) for i in range(POINT_COUNT)) +
-        (math.tau*track["loop"]["radius"] if "loop" in track else 0), 2)
+        elevations[i]-elevations[(i+1) % POINT_COUNT]) for i in range(POINT_COUNT))
+    if "loop" in track:
+        loop=track["loop"]
+        start,end=round(loop["start"]*POINT_COUNT),round(loop["end"]*POINT_COUNT)
+        dx,dz=points[end][0]-points[start][0],points[end][1]-points[start][1]
+        forward_span=dx*math.sin(loop["heading"])+dz*math.cos(loop["heading"])
+        poses=[]
+        for step in range(241):
+            t=step/240
+            u=max(0,min(1,(t-0.25)*2)); angle=math.tau*u
+            along=forward_span/2+loop["radius"]*math.sin(angle) if 0.25<=t<=0.75 else forward_span*t*2 if t<0.25 else forward_span*(t*2-1)
+            poses.append((along,loop["radius"]*(1-math.cos(angle)),loop["offset"]*(u-math.sin(angle)/math.tau)))
+        driving_length += sum(math.dist(a,b) for a,b in zip(poses,poses[1:]))-sum(distance(points[j],points[j+1]) for j in range(start,end))
+    track["drivingLength"] = round(driving_length,2)
+    if not 1609.344 <= track["drivingLength"] <= 3218.688:
+        raise RuntimeError(f"Circuit is outside the 1–2 mile target: {track_date}")
     return track
 
 

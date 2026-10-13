@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { roadHeight, nearestRoadPoint, loopPose, offsetSurface } from '../../games/drift/road-surface.js';
+import { roadHeight, nearestRoadPoint, loopPose, offsetSurface, loopChaseView } from '../../games/drift/road-surface.js';
+import { miles, mph } from '../../games/drift/units.js';
 import { trackPose } from '../../games/drift/math.js';
 import { createCar, updateCar } from '../../games/drift/physics.js';
 import { Race } from '../../games/drift/race.js';
@@ -28,7 +29,7 @@ test('overlapping roads retain their own progress and vertical clearance', () =>
 test('vertical loop joins the road and carries its barrier normal upside down', () => {
     const start = loopPose(track, 0), end = loopPose(track, 1), top = loopPose(track, 0.5);
     assert.ok(Math.abs(top.y - start.y - track.loop.radius * 2) < 0.001);
-    assert.ok(Math.cos(top.pitch) < -0.99, 'Car and road turn upside down at the apex');
+    assert.ok(top.frame.up[1] < -0.99, 'Car and road turn upside down at the apex');
     assert.ok(offsetSurface(top, 0, 1)[1] < top.y, 'Loop barriers point toward the inside of the circle');
     for (const [pose, progress] of [[start, track.loop.start], [end, track.loop.end]]) {
         const road = trackPose(track, progress);
@@ -44,13 +45,43 @@ test('slow entry gets enough speed to complete a loop without throttle or gravit
     for (let i = 0; i < 120 * 15; i++) {
         updateCar(car, noInput, track, 1 / 120);
         if (car.loopT != null) {
-            entered = true; inverted ||= Math.cos(car.pitch) < -0.9;
+            entered = true; inverted ||= car.frame.up[1] < -0.9;
             assert.ok(car.speed >= track.loop.minimumSpeed);
         } else if (entered) { exited = true; break; }
     }
     assert.ok(entered && inverted && exited);
     assert.ok(Math.abs(car.progress - track.loop.end) < 0.001);
     assert.equal(car.pitch, 0);
+});
+
+test('loop enters left and exits right with the same forward direction', () => {
+    const start=loopPose(track,0),end=loopPose(track,1);
+    const lateral=(end.x-start.x)*Math.cos(start.heading)-(end.z-start.z)*Math.sin(start.heading);
+    assert.ok(Math.abs(lateral-track.loop.offset)<0.01);
+    assert.ok(lateral>track.width+4,'Entry and exit lanes must be separate');
+    assert.ok(Math.abs(start.heading-end.heading)<0.001);
+    assert.ok(start.frame.up[1]>0.99 && end.frame.up[1]>0.99);
+});
+
+test('loop camera remains behind the car and follows its road-relative up vector', () => {
+    for(let i=0;i<=120;i++) {
+        const car=loopPose(track,i/120),view=loopChaseView(car,10,4.8,10,1);
+        const displacement=view.position.map((v,a)=>v-[car.x,car.y,car.z][a]);
+        const dot=axis=>displacement.reduce((sum,v,a)=>sum+v*axis[a],0);
+        assert.ok(Math.abs(dot(car.frame.forward)+10)<0.001);
+        assert.ok(Math.abs(dot(car.frame.right))<0.001,'Never switch to a side camera');
+        assert.ok(Math.abs(dot(car.frame.up)-4.8)<0.001);
+        assert.deepEqual(view.up,car.frame.up);
+    }
+});
+
+test('published laps are 1–2 miles and speed conversions use imperial units', () => {
+    assert.ok(Math.abs(mph(40)-89.47745168)<0.0001);
+    assert.equal(miles(1609.344),1);
+    for(const day of ['11','12','13','14']) {
+        const t=JSON.parse(readFileSync(new URL(`../../games/drift/tracks/2026-10-${day}.json`,import.meta.url)));
+        assert.ok(miles(t.drivingLength)>=1 && miles(t.drivingLength)<=2);
+    }
 });
 
 test('loop travel is consistent across frame rates and pause/reset are safe', () => {

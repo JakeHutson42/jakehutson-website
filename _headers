@@ -3,3 +3,7 @@
   Cache-Control: public, max-age=0, must-revalidate
 /games/drift/tracks/*.json
   Cache-Control: public, max-age=0, must-revalidate
+/games/drift/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+/css/drift*.css
+  Cache-Control: public, max-age=0, must-revalidate

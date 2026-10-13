@@ -41,6 +41,8 @@ test('all three models have distinct bodies and use the selected paint and rims'
 
 test('cosmetic options remove stripes and spoiler and shared GPU assets dispose once', () => {
     const full = buildCar(DEFAULT_CUSTOMIZATION);
+    assert.equal(full.children.filter(mesh => mesh.name === 'brake-disc').length, 4);
+    assert.equal(full.userData.brakeDiscMaterial.emissiveIntensity, 0);
     const plain = buildCar({ ...DEFAULT_CUSTOMIZATION, stripes: false, spoiler: false });
     assert.equal(full.children.length - plain.children.length, 7);
     const resources = new Set(full.children.flatMap(mesh => [mesh.geometry, mesh.material]));

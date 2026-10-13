@@ -32,10 +32,12 @@ export async function loadTrack(date) {
         track.loop.start > 0.03 && track.loop.end < 0.97 && track.loop.end > track.loop.start &&
         track.loop.end - track.loop.start < 0.1 && track.loop.radius >= 12 && track.loop.radius <= 40 &&
         track.loop.minimumSpeed >= 10 && track.loop.minimumSpeed <= GAME_CONFIG.maximumSpeed);
+    const offsetValid = !track.loop || (Number.isFinite(track.loop.heading) && Number.isFinite(track.loop.offset) &&
+        track.loop.offset >= track.width + 4 && track.loop.offset <= 40);
     if (track.version !== 1 || track.date !== date || !Array.isArray(track.points) || track.points.length < 64 ||
         track.points.length > 1024 || !track.points.every(point => Array.isArray(point) && point.length === 2 && point.every(value => Number.isFinite(value) && Math.abs(value) < 10000)) ||
         track.points.some((point, index) => Math.hypot(point[0] - track.points[(index + 1) % track.points.length][0], point[1] - track.points[(index + 1) % track.points.length][1]) < 0.1) ||
-        !elevationsValid || !loopValid || typeof track.name !== 'string' || !Number.isInteger(track.seed) ||
+        !elevationsValid || !loopValid || !offsetValid || typeof track.name !== 'string' || !Number.isInteger(track.seed) ||
         !Number.isFinite(track.width) || track.width < 8 || track.width > 30 || !Number.isFinite(track.length) || track.length <= 0) {
         throw new Error('This circuit file is invalid.');
     }
