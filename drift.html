@@ -36,7 +36,7 @@
             <!-- The canvas is focusable so keyboard controls do not hijack page navigation. -->
             <div class="race-stage" id="raceStage" aria-label="Drifting game">
                 <div class="scene-view"><canvas id="raceCanvas" tabindex="0" aria-label="3D driving circuit. Use W A S D or arrow keys to drive, Space to drift, Escape to pause, and R to reset."></canvas></div>
-                <div class="scene-caption" aria-hidden="true"><span>HIGH DESERT</span><span>YOUR NEXT LINE STARTS HERE</span></div>
+                <div class="scene-caption" aria-hidden="true"><span>HIGH DESERT</span><span>CIRCUIT FLY-THROUGH</span></div>
                 <div class="stage-tools"><button id="soundButton" type="button" aria-label="Enable engine sound" aria-pressed="false">SOUND <span id="soundState">OFF</span></button><button id="qualityButton" type="button" aria-label="Enable performance mode" aria-pressed="false">LITE <span id="qualityState">OFF</span></button><button id="fullscreenButton" type="button" aria-label="Enter fullscreen">⛶</button></div>
                 <button id="mobileExitButton" class="mobile-exit-button" type="button" aria-label="Exit run and return to circuit preview">↙ EXIT</button>
 
@@ -82,7 +82,14 @@
         <div class="garage-footer"><p data-garage-status role="status"></p><button type="button" class="race-button primary" data-garage-apply>USE THIS BUILD <span aria-hidden="true">↗</span></button></div>
     </dialog>
     <dialog id="loadingDialog" class="game-loading" aria-label="Preparing Apex Drift">
-        <div class="loading-card" role="status" aria-live="polite"><span class="loading-wordmark">APEX / DRIFT</span><div class="loading-track" aria-hidden="true"><span></span></div><strong data-loading-label>Preparing your circuit</strong><small>GETTING EVERYTHING ON THE GRID</small></div>
+        <div class="loading-flag" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="loading-content" role="status" aria-live="polite">
+            <span class="loading-wordmark">APEX / DRIFT</span>
+            <strong class="loading-title">LOADING<span aria-hidden="true">.</span></strong>
+            <span class="loading-label" data-loading-label>Preparing your circuit</span>
+            <div class="loading-track" aria-hidden="true"><span></span></div>
+            <small>GETTING YOU ON THE GRID</small>
+        </div>
     </dialog>
     <dialog id="helpDialog" class="drift-dialog help-dialog" aria-labelledby="helpTitle"><div class="dialog-heading"><div><p class="race-eyebrow">THE DRIVER'S BRIEFING</p><h2 id="helpTitle">How to play.</h2></div><button type="button" data-close-dialog aria-label="Close instructions">×</button></div><div class="dialog-content"><p class="guide-intro">Complete three laps. Pass the three yellow checkpoint pairs in order, then cross the checkered finish line.</p><div class="driving-guide" data-guide>
     <div class="guide-tabs" role="tablist" aria-label="Driving controls"><button type="button" role="tab" id="help-guide-keyboard-tab" aria-controls="help-guide-keyboard" aria-selected="true" data-guide-tab="keyboard">Keyboard</button><button type="button" role="tab" id="help-guide-touch-tab" aria-controls="help-guide-touch" aria-selected="false" tabindex="-1" data-guide-tab="touch">Touch controls</button></div>
@@ -106,7 +113,7 @@
             <div class="circuit-bottom"><span><span class="live-dot" aria-hidden="true"></span> NEXT DAILY CIRCUIT <strong id="nextTrackTime">—</strong></span><span id="storageStatus">PERSONAL RECORDS SAVED ON THIS DEVICE</span></div>
         </section>
 
-        <div class="lobby-info"><p><span aria-hidden="true">↻</span> A new circuit every midnight UTC. Replay the previous ten in the archive.</p><div class="personal-best"><span class="race-eyebrow">YOUR BEST ON THIS CIRCUIT</span><h2 id="personalBest">Set your first benchmark.</h2><p id="personalBestNote">Finish a run to save your best score and time on this device.</p></div></div>
+        <div class="lobby-info"><p><span aria-hidden="true">↻</span> A new circuit every midnight UTC. Try the recent development circuits in the archive.</p><div class="personal-best"><span class="race-eyebrow">YOUR BEST ON THIS CIRCUIT</span><h2 id="personalBest">Set your first benchmark.</h2><p id="personalBestNote">Finish a run to save your best score and time on this device.</p></div></div>
         <section class="driving-school" id="driving-school" aria-labelledby="drivingSchoolTitle">
             <div class="section-heading"><div><p class="race-eyebrow">THE DRIVER'S BRIEFING</p><h2 id="drivingSchoolTitle">A little less grip.<br><em>A lot more control.</em></h2></div><p>Easy to pick up. Plenty to master.<br>Start here, then find your own rhythm.</p></div>
             <div class="driving-guide" data-guide>

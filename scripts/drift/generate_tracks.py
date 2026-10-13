@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 320
-GENERATOR_VERSION = 3
+GENERATOR_VERSION = 4
 
 
 def distance(first, second):
@@ -84,40 +84,93 @@ def corner_profile(points):
     return sum(abs(turn) for turn in turns), reversals
 
 
+def hairpin_count(points):
+    """Count sustained same-direction corners turning at least 155 degrees.
+
+    Unlike total curvature, this cannot be satisfied by lots of shallow wiggles.
+    Grouping the real centreline turns also verifies the resampled road, not just
+    the control points that were intended to become hairpins.
+    """
+    groups = []
+    for index, point in enumerate(points):
+        before, after = points[index - 1], points[(index + 1) % len(points)]
+        ax, az = point[0] - before[0], point[1] - before[1]
+        bx, bz = after[0] - point[0], after[1] - point[1]
+        turn = math.atan2(ax * bz - az * bx, ax * bx + az * bz)
+        if abs(turn) < 0.003:
+            continue
+        if groups and groups[-1] * turn > 0:
+            groups[-1] += turn
+        else:
+            groups.append(turn)
+    if len(groups) > 1 and groups[0] * groups[-1] > 0:
+        groups[0] += groups.pop()
+    return sum(abs(turn) >= math.radians(155) for turn in groups)
+
+
+def hairpin_layout(rng):
+    """Build linked esses separated by explicit semicircular 180-degree turns.
+
+    A radial outline cannot reliably form a proper returning hairpin. This route
+    uses tangent-matched lanes and half circles, then varies lane lengths, bend
+    amplitudes, radii, reflection and rotation to give each date its own rhythm.
+    """
+    points = []
+    radii = [rng.uniform(29, 37) for _ in range(3)]
+    levels = [0]
+    for radius in radii:
+        levels.append(levels[-1] + radius * 2)
+    outer_x = rng.uniform(-200, -185)
+    left_x = rng.uniform(-110, -90)
+    right_x = [rng.uniform(100, 135), rng.uniform(90, 125)]
+    ends = [(outer_x, right_x[0]), (right_x[0], left_x),
+            (left_x, right_x[1]), (right_x[1], outer_x)]
+    for lane, (start_x, end_x) in enumerate(ends):
+        amplitude = rng.uniform(17, 25) if lane in (0, 3) else rng.uniform(13, 20)
+        cycles = 2 if lane in (0, 3) else 1.5
+        bend_side = rng.choice([-1, 1])
+        for step in range(240):
+            fraction = step / 240
+            # The envelope flattens the lane ends so every hairpin meets the
+            # preceding and following road tangentially, without a sharp kink.
+            offset = bend_side * amplitude * math.sin(math.tau * cycles * fraction) * math.sin(math.pi * fraction) ** 2
+            points.append([start_x + (end_x - start_x) * fraction, levels[lane] + offset])
+        if lane < 3:
+            radius = radii[lane]
+            turn_side = 1 if lane % 2 == 0 else -1
+            for step in range(120):
+                angle = math.pi * step / 120
+                points.append([end_x + turn_side * radius * math.sin(angle),
+                               levels[lane] + radius * (1 - math.cos(angle))])
+    # A sweeping return leg closes the circuit outside the three switchbacks.
+    # Its lateral clearance is independent of the internal hairpin radii.
+    vertical_radius = levels[-1] / 2
+    horizontal_radius = rng.uniform(85, 115)
+    for step in range(240):
+        angle = math.pi * step / 240
+        points.append([outer_x - horizontal_radius * math.sin(angle),
+                       vertical_radius * (1 + math.cos(angle))])
+    center_x = (min(point[0] for point in points) + max(point[0] for point in points)) / 2
+    center_z = levels[-1] / 2
+    rotation = rng.uniform(0, math.tau)
+    reflection = rng.choice([-1, 1])
+    transformed = []
+    for x, z in points:
+        x = (x - center_x) * reflection
+        z -= center_z
+        transformed.append([x * math.cos(rotation) - z * math.sin(rotation),
+                            x * math.sin(rotation) + z * math.cos(rotation)])
+    return resample_closed_loop(transformed, POINT_COUNT)
+
+
 def generate_track(track_date):
     seed = int.from_bytes(hashlib.sha256(f"apex-v{GENERATOR_VERSION}:{track_date}".encode()).digest()[:4], "big")
     rng = random.Random(seed)
-    width = 10
+    width = 14
     for attempt in range(600):
-        radius = rng.uniform(150, 180)
-        stretch = rng.uniform(1.03, 1.18)
-        phases = [rng.uniform(0, math.tau) for _ in range(5)]
-        # Mix broad corners with shorter inlets and linked switchbacks. Higher
-        # harmonics add distinct bends rather than merely stretching an oval.
-        harmonics = [2, 3, 5, 7, 9]
-        amplitudes = [rng.uniform(0.05, 0.10), rng.uniform(0.06, 0.10),
-                      rng.uniform(0.12, 0.18), rng.uniform(0.03, 0.055), rng.uniform(0.01, 0.025)]
-        # A local inlet and a pinched crest break the repeated star-shaped
-        # rhythm, adding the asymmetric technical sections in the reference.
-        inlet_angle = rng.uniform(0, math.tau)
-        crest_angle = inlet_angle + rng.uniform(1.6, 4.6)
-        inlet_depth, inlet_spread = rng.uniform(0.16, 0.26), rng.uniform(0.12, 0.18)
-        crest_height, crest_spread = rng.uniform(0.12, 0.20), rng.uniform(0.12, 0.18)
-        rotation = rng.uniform(0, math.tau)
-        points = []
-        for index in range(960):
-            angle = index / 960 * math.tau
-            radial = radius * (1 + sum(amplitude * math.sin(harmonic * angle + phase)
-                                      for harmonic, (amplitude, phase) in zip(harmonics, zip(amplitudes, phases))))
-            inlet_distance = math.atan2(math.sin(angle - inlet_angle), math.cos(angle - inlet_angle))
-            crest_distance = math.atan2(math.sin(angle - crest_angle), math.cos(angle - crest_angle))
-            radial += radius * (-inlet_depth * math.exp(-0.5 * (inlet_distance / inlet_spread) ** 2)
-                                + crest_height * math.exp(-0.5 * (crest_distance / crest_spread) ** 2))
-            x, z = math.cos(angle) * radial * stretch, math.sin(angle) * radial
-            points.append([x * math.cos(rotation) - z * math.sin(rotation), x * math.sin(rotation) + z * math.cos(rotation)])
-        points = resample_closed_loop(points, POINT_COUNT)
+        points = hairpin_layout(rng)
         total_turn, reversals = corner_profile(points)
-        if 15.5 <= total_turn <= 21 and 10 <= reversals <= 16 and validate_geometry(points, width):
+        if total_turn >= 23 and reversals >= 18 and hairpin_count(points) >= 3 and validate_geometry(points, width):
             break
     else:
         raise RuntimeError(f"Could not generate a safe circuit for {track_date}")
@@ -157,7 +210,8 @@ def maintain_bank(today, directory=TRACK_DIRECTORY, config=None):
     remaining = 0
     while (directory / f"{today + timedelta(days=remaining + 1)}.json").exists():
         remaining += 1
-    horizon = future_days if remaining < threshold else remaining
+    # Respect a smaller configured development bank even when a larger bank exists.
+    horizon = future_days if remaining < threshold else min(remaining, future_days)
     last = today + timedelta(days=horizon)
     created = 0
     for offset in range((last - first).days + 1):

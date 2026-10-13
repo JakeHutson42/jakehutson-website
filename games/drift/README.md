@@ -45,6 +45,7 @@ Using the existing root-directory deployment also works with the checked-in bank
 | `games/drift/physics.js` | Arcade acceleration, grip, steering, handbrake, runoff |
 | `games/drift/race.js` | Countdown, checkpoints, laps, drift combos, reset penalties |
 | `games/drift/world.js` | Three.js track, car, scenery, camera, tire marks |
+| `games/drift/preview-camera.js` | Distance-based cinematic circuit fly-through |
 | `games/drift/input.js` | Keyboard and multi-touch input, focus-loss handling |
 | `games/drift/touch-controls.js` | Per-finger ownership, sliding pads, pointer capture and cleanup |
 | `games/drift/mobile-play-view.js` | Stable phone play area, page locking/restoration, rotation |
@@ -65,37 +66,36 @@ update all copies when adding links, as there is no server-side template include
 
 ## Daily circuits and the archive
 
-The generator uses a SHA-256 seed of the UTC date and generator version. Version 3
-uses a 10-metre road, stronger linked bends, asymmetric inlets and pinched crests.
-It requires 10–16 meaningful curvature reversals and 15.5–21 radians of accumulated
-absolute turning per lap; these are validation metrics, not a displayed corner count.
-Inside radii below 13.5 metres and nearby overlapping road sections are rejected.
-It resamples to 320 evenly spaced points and places the start on a gentle section. World scenery
-uses the same published seed. Generation does not depend on machine-local randomness.
-`generatorVersion` identifies the layout independently of the JSON schema version;
-bank maintenance replaces outdated generated layouts and repairs incomplete files.
+The generator uses a SHA-256 seed of the UTC date and generator version. Version 4
+uses a **14-metre road**, explicit 180-degree switchbacks and alternating S-bends.
+Each layout must have at least three sustained corners turning 155 degrees or more,
+at least 18 meaningful curvature reversals, and at least 23 radians of accumulated
+absolute turning. These are geometry checks, not a displayed corner count.
+Centreline radii below 18.9 metres and nearby overlapping road sections are rejected.
+The loop is resampled to 320 evenly spaced points, then its start is moved to a
+gentle section. Seeded reflection, rotation, lane lengths, bend amplitudes and
+hairpin radii vary the rhythm while keeping joins tangent and roads separated.
 
-The checked-in bank initially covers 2026-10-02 through 2026-11-11. The browser
-offers **today plus the previous ten dates**, never future circuits. Midnight UTC
-changes the daily circuit between races. A race already underway stays attached to
-its original date. A missed daily file is explicitly shown as unavailable rather
-than silently presenting an archive circuit as today's track.
+The development bank contains **four circuits**, initially dated 2026-10-11 through
+2026-10-14: two recent dates, today and tomorrow. The browser exposes only dates
+up to today; the upcoming circuit unlocks at midnight UTC. A race already underway
+stays attached to its original date. A missing daily file is shown as unavailable.
 
-Change `scripts/drift/track-bank.json` to configure the bank:
+Change `scripts/drift/track-bank.json` to configure the rolling bank:
 
-- `archive_days`: previous dates retained (default 10).
-- `minimum_future_tracks`: refill if fewer consecutive future dates remain (default 7).
-- `refill_future_tracks`: days to prepare when refilling (default 30).
+- `archive_days`: previous dates retained (development setting 2).
+- `minimum_future_tracks`: refill below this future count (development setting 1).
+- `refill_future_tracks`: future dates prepared (development setting 1).
 
-Keep `archiveDays` in `games/drift/config.js` aligned with `archive_days` when changing
-the archive. Instructions should also reflect the selected archive size. `--today
-YYYY-MM-DD` provides a reproducible reference date for development.
+Bank maintenance also prunes excess dates when these settings are reduced.
+The browser still supports up to ten archive dates via `archiveDays` in
+`games/drift/config.js`; raise the bank settings again when development is complete.
+`--today YYYY-MM-DD` provides a reproducible reference date for development.
 
-The workflow runs at **22:43 UTC daily** and also supports manual dispatch. It caches
-the generated bank, tops it up below the threshold, and creates a static-site
-artifact. The 30-day buffer means the game does not rely on a job running at an
-exact instant. GitHub scheduled workflows can run late or become disabled after
-repository inactivity; monitor the job and ensure it remains enabled.
+The workflow runs at **22:43 UTC daily** and supports manual dispatch. It caches
+the bank and exports a static-site artifact. The small development buffer needs
+regular generation; restore a larger future buffer before relying on scheduled
+production refreshes. Publication remains separately configurable below.
 
 ### Enable automatic publication on your existing Cloudflare Pages site
 
@@ -165,7 +165,7 @@ rather than claiming identical physics or copying its implementation.
 
 ## Records, privacy, and future backend
 
-The `apex-drift:v3` local-storage entry holds sound preference and up to 64 dated
+The `apex-drift:v4` local-storage entry holds sound preference and up to 64 dated
 records: best drift score, fastest finish (which may be from a different run), and
 completed-run count. There is no tracking or data upload. If storage is inaccessible,
 records stay in memory for the current visit and the page clearly says so. Clearing
@@ -201,4 +201,13 @@ Road edges have a 0.32-metre white line, a one-metre desert verge, then a red/wh
 
 The physics resolves body corners, bumper centres and side midpoints against the corridor after each fixed step, removing outward velocity while preserving slower motion along the barrier. A small contact margin keeps wheels and body clear of the visible wall; all cosmetic models share a hitbox large enough for the widest and longest car. Contact banks the current combo and stops wall scraping from earning drift points. A conservative clearance test skips detailed collision work away from the edges.
 
-The complete checked-in bank has been regenerated. Records use `apex-drift:v3` to avoid comparing old, wider layouts with the new challenge; previous records remain untouched in their old storage entries. The separate garage save is preserved. Scheduled track cache keys also use v3, so an old cached bank cannot restore superseded layouts.
+The complete checked-in bank has been regenerated. Records use `apex-drift:v4` to avoid comparing previous layouts with the new challenge; previous records remain untouched in their old storage entries. The separate garage save is preserved. Scheduled track cache keys also use v4, so an old cached bank cannot restore superseded layouts.
+
+## Cinematic lobby preview
+
+The start-screen camera follows a closed Catmull–Rom spline eight metres per second,
+5.2 metres above the centreline, looking 18 metres ahead. It loops continuously
+without changing the car or race clock. Desaturation, darkening and a vignette
+apply only to the preview canvas and disappear immediately on Start. Reduced-motion
+users receive a stationary overview; off-screen and hidden previews stop animating.
+The existing driving camera, handling, scenery and mobile play lock are preserved.

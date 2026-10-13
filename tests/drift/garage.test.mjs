@@ -58,6 +58,7 @@ test('nested loading blocks once, cannot be cancelled, and releases after failur
     globalThis.requestAnimationFrame = callback => queueMicrotask(callback);
     let locks = 0; let opens = 0; let closes = 0;
     const loader = new LoadingOverlay({ addEventListener: (event, callback) => events.set(event, callback), querySelector: () => label,
+        setAttribute: (key, value) => attributes.set(key, value), removeAttribute: key => attributes.delete(key),
         open: false, showModal() { opens++; this.open = true; }, close() { closes++; this.open = false; } }, () => locks++);
     try {
         await assert.rejects(loader.run('Circuit', async () => {
@@ -65,6 +66,9 @@ test('nested loading blocks once, cannot be cancelled, and releases after failur
             assert.equal(attributes.get('aria-busy'), 'true');
             let prevented = false; events.get('cancel')({ preventDefault: () => { prevented = true; } });
             assert.equal(prevented, true);
+            let escapeBlocked = false;
+            events.get('keydown')({ key: 'Escape', preventDefault: () => { escapeBlocked = true; }, stopPropagation() {} });
+            assert.equal(escapeBlocked, true);
             await loader.run('Car', async () => { assert.equal(label.textContent, 'Car'); });
             assert.equal(loader.active, true);
             assert.equal(closes, 0);
@@ -75,5 +79,6 @@ test('nested loading blocks once, cannot be cancelled, and releases after failur
         assert.equal(locks, 1); assert.equal(opens, 1); assert.equal(closes, 1);
         await loader.run('Retry', async () => {});
         assert.equal(closes, 2);
+        assert.equal(attributes.get('data-complete'), '');
     } finally { globalThis.document = oldDocument; globalThis.requestAnimationFrame = oldRaf; }
 });

@@ -1,3 +1,4 @@
+import { CircuitFlythrough } from './preview-camera.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { nearestTrackPoint, trackPose, wrapAngle } from './math.js';
 import { buildTrackBarriers } from './barrier-mesh.js';
@@ -117,6 +118,7 @@ export class DriftWorld {
             materials.forEach(material => material.dispose());
         }
         this.track = track;
+        this.flythrough = new CircuitFlythrough(track);
         this.environment = new THREE.Group();
         this.scene.add(this.environment);
         const floor = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), this.material(COLORS.sand));
@@ -244,6 +246,7 @@ export class DriftWorld {
         const car = race.car;
         this.car.position.set(car.x, 0.1, car.z); this.car.rotation.y = car.heading;
         const playing = race.state !== 'ready';
+        this.car.visible = playing;
         // A tall mobile play area otherwise crops the chase view around an
         // oversized car. Preserve the desktop horizontal view in portrait,
         // without changing the camera's position or its driving angle.
@@ -269,13 +272,17 @@ export class DriftWorld {
             this.camera.position.copy(desiredPosition);
             this.cameraTarget.copy(desiredTarget);
         } else {
-            // Orbit only on the start screen; reduced motion keeps this view stationary.
-            const angle = this.reducedMotion ? 0.8 : 0.8 + Math.sin(time * 0.045) * 0.12;
-            const portrait = this.camera.aspect < 1.15;
-            const distance = portrait ? 390 : 245;
-            this.camera.position.set(Math.sin(angle) * distance, portrait ? 365 : 230, Math.cos(angle) * distance);
-            this.cameraTarget.set(0, 0, 0);
-            this.camera.filmOffset = portrait ? 0 : -6;
+            this.camera.filmOffset = 0;
+            if (this.reducedMotion) {
+                // A stationary overview remains available for motion-sensitive players.
+                this.camera.position.set(300, 410, 300);
+                this.cameraTarget.set(0, 0, 0);
+            } else {
+                const view = this.flythrough.advance(deltaTime);
+                this.camera.position.copy(view.position);
+                this.cameraTarget.copy(view.target);
+                this.camera.fov = 62;
+            }
         }
         this.followingCar = playing;
         this.camera.updateProjectionMatrix();

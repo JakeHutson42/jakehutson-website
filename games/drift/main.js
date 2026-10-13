@@ -32,6 +32,12 @@ let noticeTimeout;
 let finishHandled = false;
 let performanceMode = false;
 let pendingDailyDate = null;
+let previewVisible = true;
+// Stop the lobby fly-through while the player reads below it, saving GPU/battery.
+const previewObserver = new IntersectionObserver(entries => {
+    previewVisible = entries[0].isIntersecting;
+});
+previewObserver.observe(stage);
 
 const input = new DrivingInput(stage, command => {
     if (command === 'blur') { pauseRun(); return; }
@@ -276,6 +282,7 @@ function animate(timeMilliseconds) {
     const deltaTime = Math.min(GAME_CONFIG.maximumFrameTime, seconds - (lastFrameTime || seconds));
     lastFrameTime = seconds;
     if (!race || !world || document.hidden || loader.active) return;
+    if (race.state === 'ready' && !previewVisible) return;
     if (['racing', 'countdown'].includes(race.state)) {
         simulationRemainder += deltaTime;
         const controls = input.read();

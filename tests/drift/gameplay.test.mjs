@@ -12,7 +12,7 @@ test('a driver can complete generated circuits with the actual driving model', (
     for (const date of manifest.dates) {
         const track = JSON.parse(readFileSync(new URL(`${date}.json`, directory)));
         const race = new Race(track); race.start();
-        for (let step = 0; step < 120 * 240 && race.state !== 'finished'; step++) {
+        for (let step = 0; step < 120 * 360 && race.state !== 'finished'; step++) {
             const car = race.car;
             const nearest = nearestTrackPoint(track.points, car.x, car.z);
             const target = trackPose(track, nearest.progress + 13 / track.length);

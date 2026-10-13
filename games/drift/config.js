@@ -8,7 +8,7 @@ export const GAME_CONFIG = Object.freeze({
     resetPenalty: 5,
     // Revised circuits and barriers need their own personal records. Keep old data
     // untouched on the device rather than comparing times on different layouts.
-    storageKey: 'apex-drift:v3',
+    storageKey: 'apex-drift:v4',
     maximumRecords: 64,
     maximumSpeed: 32,
     acceleration: 11,
