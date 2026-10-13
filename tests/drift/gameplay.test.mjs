@@ -27,7 +27,8 @@ test('a driver can complete generated circuits with the actual driving model', (
         }
         assert.equal(race.state, 'finished', `The driving model must allow three laps on ${date}; reached lap ${race.lap}, gate ${race.checkpoint}`);
         assert.ok(race.elapsed > 50, 'A run must involve driving the full circuit');
-        assert.ok(droveBridge, 'The driver must cross the elevated bridge');
+        if (track.bridges.length) assert.ok(droveBridge, 'The driver must cross the elevated bridge');
+        assert.equal(track.loop, undefined, 'Published circuits must not contain a vertical loop');
         if (track.loop) assert.ok(droveLoop, 'The driver must traverse the vertical loop');
     }
 });

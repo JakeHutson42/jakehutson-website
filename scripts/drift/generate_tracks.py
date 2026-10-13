@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 640
-GENERATOR_VERSION = 9
+GENERATOR_VERSION = 10
 
 
 def distance(first, second):
@@ -109,21 +109,30 @@ def hairpin_count(points):
     return sum(abs(turn) >= math.radians(155) for turn in groups)
 
 
-# Hand-traced from the supplied sketch; the right-hand lobe crosses the return leg.
-SKETCH = [(540,140),(590,155),(620,205),(620,260),(600,295),(605,335),
-          (650,348),(695,345),(723,385),(727,445),(683,477),(646,500),
-          (635,544),(666,590),(710,631),(760,646),(817,645),(855,611),
-          (868,575),(858,544),(819,535),(741,535),(713,540),(681,578),
-          (667,620),(670,675),(694,732),(741,785),(790,834),(815,891),
-          (818,955),(800,983),(749,1009),(685,1019),(640,1005),(608,970),
-          (575,961),(547,974),(515,1014),(490,1070),(460,1101),(416,1120),
-          (374,1132),(361,1123),(361,1087),(329,1098),(306,1124),(281,1155),
-          (261,1143),(244,1104),(224,1088),(203,1100),(173,1136),(151,1132),
-          (140,1090),(144,1049),(185,1020),(226,1004),(276,992),(307,970),
-          (319,932),(317,878),(305,856),(263,839),(213,825),(197,811),
-          (186,770),(182,718),(193,683),(233,651),(268,610),(269,575),
-          (243,550),(218,519),(204,480),(204,422),(235,382),(273,356),
-          (318,337),(355,330),(392,309),(421,276),(439,222),(466,175),(501,150)]
+# Perimeter trace of the twist-heavy reference: linked chicanes and returning
+# corners distributed around the entire lap, with space for a 14-metre road.
+SKETCH = [(365,185),(410,163),(445,175),(465,210),(460,270),(480,282),
+ (510,260),(510,180),(525,163),(555,163),(570,185),(568,270),
+ (590,270),(615,255),(615,205),(635,175),(675,173),(708,192),
+ (700,240),(687,300),(690,330),(735,330),(755,310),(775,265),
+ (800,260),(850,260),(875,280),(895,320),(898,375),(870,405),
+ (845,450),(840,495),(850,540),(880,580),(910,630),(922,680),
+ (915,730),(890,745),(868,738),(847,700),(820,690),(795,695),
+ (792,735),(810,755),(840,770),(845,805),(840,838),(812,850),
+ (750,848),(733,860),(735,880),(758,901),(724,902),(705,920),
+ (707,970),(696,1003),(664,1020),(643,1010),(632,985),(632,960),
+ (603,958),(560,970),(556,918),(540,896),(494,894),(450,905),
+ (419,927),(396,966),(374,974),(360,950),(355,912),(358,896),
+ (390,885),(412,862),(417,833),(403,816),(352,805),(350,780),
+ (362,750),(337,746),(309,763),(287,795),(274,810),(264,784),
+ (260,754),(281,733),(306,722),(325,740),(350,740),(372,720),
+ (385,675),(400,663),(440,663),(460,674),(465,700),(480,708),
+ (495,687),(500,650),(488,625),(454,597),(425,588),(406,593),
+ (384,611),(368,588),(360,557),(365,527),(390,480),(378,465),
+ (350,463),(330,481),(310,519),(298,540),(285,535),(270,506),
+ (266,473),(270,445),(299,416),(321,405),(356,415),(378,410),
+ (381,385),(355,375),(340,363),(340,340),(361,315),(383,300),
+ (400,275),(401,248),(383,225)]
 
 
 def smooth_outline(controls):
@@ -157,160 +166,80 @@ def crossing_pairs(points):
     return hits
 
 
-def generate_track(track_date):
-    seed = int.from_bytes(hashlib.sha256(f"apex-v{GENERATOR_VERSION}:{track_date}".encode()).digest()[:4], "big")
-    rng = random.Random(seed)
-    variant = (track_date - date(2026, 10, 11)).days % 3
-    controls = list(SKETCH)
-    # Break up the long western and northern runs with linked, broad S bends.
-    # Keep the crossover and southern hairpins intact; final smoothing still
-    # enforces the full road-width corner clearance.
-    controls[63:85] = [(263,839),(213,825),(182,790),(205,750),
-        (180,710),(193,683),(233,651),(268,610),(269,575),
-        (243,550),(210,520),(204,480),(225,450),(204,422),
-        (235,382),(273,356),(318,337),(355,330),(392,309),
-        (421,276),(415,240),(450,210),(466,175),(501,150)]
-    if variant == 1:
-        # Replace the southern switchbacks with a wide westward chicane district.
-        controls[38:56] = [(505,1010),(454,1025),(411,1077),(352,1104),
-            (302,1080),(267,1025),(212,1040),(158,1080),(110,1100),(120,1045)]
-        controls[1:6] = [(615,150),(657,203),(650,269),(614,303),(620,350)]
-    elif variant == 2:
-        # Longer southern sweep and two generous returning drift corners.
-        controls[38:56] = [(505,1010),(460,1080),(400,1120),(330,1120),
-            (295,1080),(290,1018),(251,995),(206,1014),(178,1070),(129,1092),(95,1090),(115,1040)]
-        controls[29:35] = [(840,879),(850,951),(818,1008),(760,1040),(690,1040),(638,1010)]
-    points = smooth_outline(controls)
-    # The drawing's small bottom kinks become generous drift corners at this scale.
-    variation = 1 if str(track_date) == "2026-10-11" else rng.uniform(0.96, 1.05)
-    sx = [1.12, 1.4, 1.2][variant] * variation
-    sz = [1.12, 0.92, 1.22][variant] * variation
-    angle = 0 if variant == 0 else rng.uniform(-0.45, 0.45)
-    mirror = -1 if variant == 1 else 1
-    transformed = []
-    for x, z in points:
-        x, z = (x-490)*sx*mirror, (z-650)*sz
-        transformed.append([x*math.cos(angle)-z*math.sin(angle), x*math.sin(angle)+z*math.cos(angle)])
-    points = resample_closed_loop(transformed, POINT_COUNT)
-    # Shorter 1–2 mile laps; smooth at the final scale so road-width corner
-    # clearance is retained instead of shrinking already validated bends.
-    raw_length = sum(distance(points[i], points[(i+1) % POINT_COUNT]) for i in range(POINT_COUNT))
-    scale = [2600, 3700, 3050][variant] / raw_length
-    points = [[x*scale,z*scale] for x,z in points]
-    # Round the sketch's pen kinks until the complete road width fits each bend.
-    for _ in range(1200):
-        radii = []
-        for i, point in enumerate(points):
-            before, after = points[i-1], points[(i+1) % POINT_COUNT]
-            ax, az = point[0]-before[0], point[1]-before[1]
-            bx, bz = after[0]-point[0], after[1]-point[1]
-            turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
-            radii.append(distance(point,after)/max(turn,1e-6))
-        if min(radii) >= 20:
-            break
-        points = resample_closed_loop([[(points[i-1][a]+2*point[a]+points[(i+1)%POINT_COUNT][a])/4 for a in range(2)] for i,point in enumerate(points)], POINT_COUNT)
-    points = resample_closed_loop(points, POINT_COUNT)
-    # Turn sustained flat runs into smooth S bends. A zero-slope envelope joins
-    # the original road without a steering kink at either end.
-    runs, run = [], []
-    for i, point in enumerate(points):
-        before, after = points[i-4], points[(i+4) % POINT_COUNT]
+def longest_flat_run(points):
+    """Length of the longest road run with a turning radius over 180 metres."""
+    run = longest = 0.0
+    count = len(points)
+    for i in range(count*2):
+        j = i % count
+        before, point, after = points[j-4], points[j], points[(j+4)%count]
         ax, az = point[0]-before[0], point[1]-before[1]
         bx, bz = after[0]-point[0], after[1]-point[1]
         turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
-        if turn / max(math.hypot(ax, az), 0.001) < 1/180:
-            run.append(i)
-        elif run:
-            runs.append(run)
-            run = []
-    if run:
-        runs.append(run)
-    for run in runs:
-        span = sum(distance(points[i-1], points[i]) for i in run[1:])
-        if span < 110:
-            continue
-        first, last = points[run[0]], points[run[-1]]
-        dx, dz = last[0]-first[0], last[1]-first[1]
-        chord = math.hypot(dx, dz)
-        for step, i in enumerate(run):
-            t = step / (len(run)-1)
-            offset = min(28, span*0.04) * math.sin(math.tau*t) * math.sin(math.pi*t)**2
-            points[i] = [points[i][0]-dz/chord*offset, points[i][1]+dx/chord*offset]
-    points = resample_closed_loop(points, POINT_COUNT)
-    # Move the start to the sweeping left flank, clear of the crossover and stunt.
-    start = min(range(len(points)), key=lambda i: distance(points[i], transformed[int(0.83*POINT_COUNT)]))
-    points = points[start:] + points[:start]
-    length = sum(distance(points[i], points[(i+1) % POINT_COUNT]) for i in range(POINT_COUNT))
-    spacing = length / POINT_COUNT
-    crossings = crossing_pairs(points)
-    elevations = [0.0] * POINT_COUNT
-    bridges = []
-    for upper, lower in crossings:
-        # 12 m deck clearance and eased 120 m approaches on each side.
-        for i in range(POINT_COUNT):
-            separation = abs(i-upper)
-            separation = min(separation, POINT_COUNT-separation)*spacing
-            if separation < 140:
-                h = 12 if separation <= 35 else 12*(0.5+0.5*math.cos(math.pi*(separation-35)/105))
-                elevations[i] = round(max(elevations[i], h), 3)
-        bridges.append({"upper": upper/POINT_COUNT, "lower": lower/POINT_COUNT, "clearance": 12})
-    track = {"version": 1, "generatorVersion": GENERATOR_VERSION, "date": str(track_date), "seed": seed,
-        "name": ["After Hours — Sketch Run", "Neon Borough", "Skyline Stunt Run"][variant],
-        "layout": ["sketch", "borough", "stunt"][variant], "environment": "NIGHT CITY", "width": 14,
-        "length": round(length, 2), "points": points, "elevations": elevations, "bridges": bridges}
-    if variant == 2:
-        # Pick a straight, level section away from the bridge, not a corner apex.
-        span = max(6, round(48/spacing))
-        candidates = []
-        for i in range(20, POINT_COUNT-span-20):
-            if max(elevations[i:i+span+1]) > 0:
-                continue
-            a, b = points[i], points[i+span]
-            direct = distance(a,b)
-            path = sum(distance(points[j],points[j+1]) for j in range(i,i+span))
-            candidates.append((direct/path, i))
-        _, i = max(candidates)
-        a,b=points[i],points[i+span]
-        heading=math.atan2(b[0]-a[0],b[1]-a[1])
-        rx,rz=math.cos(heading),-math.sin(heading)
-        shift=24
-        return_span=max(20,round(120/spacing))
-        for j in range(i,i+span+return_span+1):
-            if j>=POINT_COUNT:
+        run = run + distance(point, points[(j+1)%count]) if turn/max(math.hypot(ax,az),0.001) < 1/180 else 0
+        longest = max(longest,run)
+    return longest
+
+
+def generate_track(track_date):
+    seed = int.from_bytes(hashlib.sha256(f"apex-v{GENERATOR_VERSION}:{track_date}".encode()).digest()[:4], "big")
+    rng = random.Random(seed)
+    for attempt in range(80):
+        # Each date changes individual corner positions, proportions and driving
+        # direction. Deterministic retries reject unsafe or overly bland routes.
+        phase = rng.uniform(0, math.tau)
+        sx, sz = rng.uniform(0.9, 1.15), rng.uniform(0.9, 1.15)
+        outline = list(SKETCH)
+        # Exchange entire corner sequences, so dates can have different bend
+        # counts as well as different corner depths and positions.
+        northern_routes = [outline[6:18],
+            [(505,260),(510,180),(530,165),(548,180),(550,260),
+             (568,278),(588,260),(590,180),(610,165),(630,180),
+             (632,260),(650,278),(675,260),(682,195)],
+            [(505,260),(520,220),(550,210),(575,230),(580,285),
+             (605,300),(630,282),(640,220),(650,175),(675,173)]]
+        outline[6:18] = rng.choice(northern_routes)
+        controls = []
+        for i, (x, z) in enumerate(outline):
+            wobble = math.sin(i*0.53 + phase)
+            controls.append([(x-590)*sx + wobble*12 + 55*math.sin(z/150+phase) + rng.uniform(-7,7),
+                             (z-590)*sz + math.cos(i*0.41+phase)*12 + 35*math.sin(x/130+phase) + rng.uniform(-7,7)])
+        if rng.random() < 0.5:
+            controls.reverse()
+        points = smooth_outline(controls)
+        length = sum(distance(points[i-1], p) for i, p in enumerate(points))
+        scale = rng.uniform(4050, 4350)/length
+        points = [[x*scale, z*scale] for x,z in points]
+        # Smooth only tight corners and their neighbours. Global smoothing was
+        # erasing nearby chicanes while fixing an unrelated tight corner.
+        for _ in range(700):
+            tight = set()
+            for i, point in enumerate(points):
+                before, after = points[i-1], points[(i+1) % POINT_COUNT]
+                ax, az = point[0]-before[0], point[1]-before[1]
+                bx, bz = after[0]-point[0], after[1]-point[1]
+                turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
+                if distance(point,after)/max(turn,1e-6) < 21:
+                    tight.update((i+j)%POINT_COUNT for j in range(-2,3))
+            if not tight:
                 break
-            if j<=i+span:
-                u=(j-i)/span
-                lateral=shift*(u-math.sin(math.tau*u)/math.tau)
-            else:
-                u=(j-i-span)/return_span
-                lateral=shift*(0.5+0.5*math.cos(math.pi*u))
-            points[j]=[round(points[j][0]+rx*lateral,3),round(points[j][1]+rz*lateral,3)]
-        track["loop"] = {"start": i/POINT_COUNT, "end": (i+span)/POINT_COUNT,
-                          "heading":heading,"offset":shift,"radius": 18, "minimumSpeed": 20}
-        # Keep geometry-distance progress and public centreline length consistent
-        # after moving the exit lane and easing it back into the city route.
-        track["length"]=round(sum(distance(points[j],points[(j+1)%POINT_COUNT]) for j in range(POINT_COUNT)),2)
-    if not validate_geometry(points, 14, elevations):
-        raise RuntimeError(f"Unsafe generated circuit: {track_date}")
-    driving_length = sum(math.hypot(
-        distance(points[i], points[(i+1) % POINT_COUNT]),
-        elevations[i]-elevations[(i+1) % POINT_COUNT]) for i in range(POINT_COUNT))
-    if "loop" in track:
-        loop=track["loop"]
-        start,end=round(loop["start"]*POINT_COUNT),round(loop["end"]*POINT_COUNT)
-        dx,dz=points[end][0]-points[start][0],points[end][1]-points[start][1]
-        forward_span=dx*math.sin(loop["heading"])+dz*math.cos(loop["heading"])
-        poses=[]
-        for step in range(241):
-            t=step/240
-            u=max(0,min(1,(t-0.25)*2)); angle=math.tau*u
-            along=forward_span/2+loop["radius"]*math.sin(angle) if 0.25<=t<=0.75 else forward_span*t*2 if t<0.25 else forward_span*(t*2-1)
-            poses.append((along,loop["radius"]*(1-math.cos(angle)),loop["offset"]*(u-math.sin(angle)/math.tau)))
-        driving_length += sum(math.dist(a,b) for a,b in zip(poses,poses[1:]))-sum(distance(points[j],points[j+1]) for j in range(start,end))
-    track["drivingLength"] = round(driving_length,2)
-    if not 1609.344 <= track["drivingLength"] <= 3218.688:
-        raise RuntimeError(f"Circuit is outside the 1–2 mile target: {track_date}")
-    return track
+            points = resample_closed_loop([
+                [(points[i-1][a]+2*p[a]+points[(i+1)%POINT_COUNT][a])/4 for a in range(2)]
+                if i in tight else p for i,p in enumerate(points)], POINT_COUNT)
+        length = sum(distance(points[i-1], p) for i,p in enumerate(points))
+        total_turn, reversals = corner_profile(points)
+        if not (1609.344 <= length <= 3218.688 and total_turn >= 38 and reversals >= 24 and longest_flat_run(points) < 100):
+            continue
+        if not validate_geometry(points,14) or crossing_pairs(points):
+            continue
+        start = rng.randrange(POINT_COUNT)
+        points = points[start:]+points[:start]
+        return {"version":1, "generatorVersion":GENERATOR_VERSION, "date":str(track_date),
+                "seed":seed, "name":["Midnight Switchbacks", "Neon Chicanes", "Skyline Esses"][seed%3],
+                "layout":"switchbacks", "environment":"NIGHT CITY", "width":14,
+                "length":round(length,2), "drivingLength":round(length,2),
+                "points":points, "elevations":[0.0]*POINT_COUNT, "bridges":[]}
+    raise RuntimeError(f"Unable to generate a safe twisty circuit: {track_date}")
 
 
 def write_json(path, data):

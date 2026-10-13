@@ -72,7 +72,7 @@ test('continuous walls carry amber arrows and lamps without freestanding helpers
     assert.equal(walls.children.filter(child => child.name === 'concrete-boundary').length, 2);
     for (const wall of walls.children.filter(child => child.name === 'concrete-boundary')) {
         wall.geometry.computeBoundingBox();
-        assert.ok(wall.geometry.boundingBox.max.y >= 12);
+        assert.ok(wall.geometry.boundingBox.max.y >= Math.max(...track.elevations) + 0.9);
         assert.equal(wall.castShadow, true);
         assert.ok([...wall.geometry.attributes.position.array].every(Number.isFinite));
     }

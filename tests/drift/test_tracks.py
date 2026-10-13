@@ -35,39 +35,31 @@ class TrackTests(unittest.TestCase):
                 flat_run = (flat_run + generator.distance(point, points[(j+1) % len(points)])
                             if turn/max(math.hypot(ax, az), 0.001) < 1/180 else 0)
                 longest_flat_run = max(longest_flat_run, flat_run)
-            self.assertLess(longest_flat_run, 240, "Break long flat runs into linked bends")
+            self.assertLess(longest_flat_run, 100, "Break long flat runs into linked bends")
             self.assertTrue(generator.validate_geometry(points, track["width"], track["elevations"]))
             segments = [generator.distance(points[index], points[(index + 1) % len(points)]) for index in range(len(points))]
-            evenly_spaced = segments
-            if "loop" in track:
-                loop=track["loop"]
-                evenly_spaced=[length for i,length in enumerate(segments) if not loop["start"]-0.01 <= i/len(points) <= loop["end"]+140/track["length"]]
-                self.assertLess(max(segments)/min(segments),2, "Offset loop exit must blend without a geometry jump")
-            self.assertLess(max(evenly_spaced) / min(evenly_spaced), 1.03)
+            self.assertNotIn("loop", track)
+            self.assertLess(max(segments) / min(segments), 1.03)
             self.assertAlmostEqual(sum(segments), track["length"], places=1)
             self.assertGreaterEqual(track["drivingLength"],1609.344)
             self.assertLessEqual(track["drivingLength"],3218.688)
             total_turn, reversals = generator.corner_profile(points)
             self.assertGreaterEqual(generator.hairpin_count(points), 1, "Keep at least one returning drift corner")
-            self.assertGreaterEqual(total_turn, 20)
-            self.assertLessEqual(total_turn, 42)
-            self.assertGreaterEqual(reversals, 10, "Each circuit needs linked left/right bends")
-            self.assertLessEqual(reversals, 20, "Keep bends distinct rather than noisy")
+            self.assertGreaterEqual(total_turn, 38)
+            self.assertLessEqual(total_turn, 75)
+            self.assertGreaterEqual(reversals, 24, "Each circuit needs linked left/right bends")
+            self.assertLessEqual(reversals, 44, "Keep bends distinct rather than noisy")
 
-    def test_three_layouts_include_bridges_and_one_loop(self):
-        tracks = [generator.generate_track(date(2026, 10, 11) + timedelta(days=i)) for i in range(3)]
-        self.assertEqual({t["layout"] for t in tracks}, {"sketch", "borough", "stunt"})
-        self.assertEqual(sum("loop" in t for t in tracks), 1)
+    def test_daily_layouts_change_corner_geometry_and_have_no_stunts(self):
+        tracks = [generator.generate_track(date(2026, 10, 11) + timedelta(days=i)) for i in range(6)]
+        # Rotation, uniform scale and a different start cannot change total turn.
+        profiles = [generator.corner_profile(t["points"])[0] for t in tracks]
+        self.assertGreater(max(profiles)-min(profiles), 3)
         for track in tracks:
-            self.assertEqual(len(track["bridges"]), 1)
-            self.assertEqual(len(track["elevations"]), len(track["points"]))
-            self.assertGreaterEqual(max(track["elevations"]), 12)
-            for bridge in track["bridges"]:
-                upper = round(bridge["upper"]*len(track["points"])) % len(track["points"])
-                lower = round(bridge["lower"]*len(track["points"])) % len(track["points"])
-                self.assertGreaterEqual(track["elevations"][upper]-track["elevations"][lower], 10)
-        self.assertEqual(tracks[2]["loop"]["minimumSpeed"], 20)
-        self.assertGreater(tracks[2]["loop"]["offset"],tracks[2]["width"]+4)
+            self.assertNotIn("loop", track)
+            self.assertEqual(track["bridges"], [])
+            self.assertEqual(track["elevations"], [0.0]*len(track["points"]))
+            self.assertEqual(generator.crossing_pairs(track["points"]), [])
 
     def test_development_bank_shrinks_a_previously_larger_bank(self):
         today = date(2026, 10, 13)

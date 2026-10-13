@@ -161,8 +161,8 @@ async function selectTrackContent(date) {
         dateElement.textContent = new Date(`${date}T12:00:00Z`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase();
         element('trackEdition').textContent = `${isDaily ? 'DAILY' : 'ARCHIVE'} / ${date.replaceAll('-', '.')}`;
         element('trackName').textContent = track.name.toUpperCase();
-        element('trackDescription').textContent = track.loop ? 'Sweeping drifts, a raised crossover and a full vertical loop. Accelerate into the assisted loop. Clean near-misses: +250 points.' :
-            'Wide city streets, linked drift corners and a raised crossover. Clean near-misses: +250 points.';
+        element('trackDescription').textContent =
+            'Linked esses, returning corners and flowing chicanes. Clean near-misses: +250 points.';
         element('trackLength').textContent = `${miles(track.drivingLength || track.length).toFixed(2)} MI`;
         drawMap(element('trackMap'), track);
         displayPersonalBest();

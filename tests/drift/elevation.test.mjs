@@ -7,7 +7,8 @@ import { trackPose } from '../../games/drift/math.js';
 import { createCar, updateCar } from '../../games/drift/physics.js';
 import { Race } from '../../games/drift/race.js';
 
-const track = JSON.parse(readFileSync(new URL('../../games/drift/tracks/2026-10-13.json', import.meta.url)));
+// Legacy geometry remains a fixture for the shared surface engine; no daily track uses it.
+const track = JSON.parse(readFileSync(new URL('./fixtures/legacy-stunt.json', import.meta.url)));
 const noInput = { throttle: false, brake: false, handbrake: false, steer: 0 };
 
 test('overlapping roads retain their own progress and vertical clearance', () => {

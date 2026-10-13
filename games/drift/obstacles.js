@@ -20,8 +20,8 @@ export function roadObstacles(track) {
         if (obstacles.some(o => distanceProgress(o.progress,progress)*track.length < 190)) continue;
         const pose = trackPose(track, progress);
         const before = trackPose(track, progress - 24/track.length), after = trackPose(track, progress + 24/track.length);
-        if (Math.abs(wrapAngle(after.heading-before.heading)) > 0.20 ||
-            Math.abs(wrapAngle(pose.heading-before.heading)) > 0.14) continue;
+        if (Math.abs(wrapAngle(after.heading-before.heading)) > 0.45 ||
+            Math.abs(wrapAngle(pose.heading-before.heading)) > 0.26) continue;
         const side = (obstacles.length + (track.seed >>> 1)) % 2 ? 1 : -1;
         const offset = side * (track.width/2 - 1.35);
         obstacles.push({ id: obstacles.length, progress, side, heading: pose.heading,

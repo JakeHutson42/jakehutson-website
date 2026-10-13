@@ -67,30 +67,25 @@ update all copies when adding links, as there is no server-side template include
 
 ## Daily circuits and the archive
 
-The generator uses a SHA-256 seed of the UTC date and generator version. Version 9
-uses **14-metre roads**, three distinct sketch-inspired layout families and 640
-evenly spaced planar points. The first is a polished trace of the supplied drawing;
-the others replace the southern districts and change the route proportions and
-orientation. Small seeded scale and rotation changes give later dates variation.
-Pen kinks are rounded to centreline radii of at least 20 metres, with linked drift
-corners and returning sweepers rather than abrupt zigzags.
+The generator uses a SHA-256 seed of the UTC date and generator version. Version
+10 traces the twist-heavy perimeter reference, exchanging northern corner sequences
+and independently varying corner positions, depths, route proportions and driving
+direction. Dates differ in road geometry and bend counts, rather than just rotation
+or scale. Roads remain 14 metres wide with 640 evenly spaced points.
 
-Version 9 adds linked S bends along the western and northern runs and bends
-sustained flat sections after smoothing. Geometry tests cap nearly flat runs at
-240 metres across 60 dates. Powered-slide and handbrake grip are reduced by 10%
-(1.935 and 1.08); normal road grip remains 6 for clean recovery. Revised circuits
-and handling use v10 personal records. Fullscreen is hidden on touch devices and
-phone-width screens, including the mobile play view.
+Only tight corners and their neighbours are smoothed to a minimum 21-metre target
+radius. Earlier global smoothing washed out unrelated chicanes. Deterministic
+retries reject overlapping roads, tight corners, laps outside 1-2 miles, fewer than
+24 curvature reversals, total absolute turning below 38 radians, or nearly flat
+runs of 100 metres or more (radius above 180 metres). These requirements are tested
+across 60 dates. The new circuits are level, with no crossovers or vertical stunt
+loop. Legacy elevated/loop geometry remains in a test fixture for the shared
+surface engine.
 
-Every crossover receives a 12-metre raised deck, 105-metre eased ramps and a
-35-metre level approach around the crossing. An elevation array accompanies the
-planar points; local progress searches keep cars on their own road at overlaps.
-The stunt family adds an 18-metre-radius vertical loop on a level straight. Its
-entry pad provides at least 20 m/s (45 mph), and guided arcade grip carries the
-car through the complete circle before returning steering control. There is no
-gravity slowdown or falling simulation. Road, barriers, car pitch, lights, tyre
-marks and chase-camera height follow the surface. Checkpoints and resets retain
-the correct progress and road height. The loop does not earn drift points.
+Powered-slide and handbrake grip retain the previous 10% reduction (1.935 and
+1.08); normal road grip is 6. Revised circuits use v11 personal records. Fullscreen
+is hidden on touch devices and phone-width screens. Near-miss obstacles can occupy
+gently curving shoulders while leaving the centre lane open.
 
 The development bank contains **four circuits**, initially dated 2026-10-11 through
 2026-10-14: two recent dates, today and tomorrow. The browser exposes only dates
@@ -250,8 +245,8 @@ The mixer crossfades idle and rev recordings, follows RPM and automatic shifts, 
 
 Near-miss challenges deterministically place four to eight shoulder-side parked cars/construction barriers on suitably straight, level sections, outside starts/checkpoints, bridge approaches and loop entries. Shared rectangular hitboxes preserve the open centre lane. A clean forward pass above 12 m/s, within 1.25 m of the obstacle body, pays 250 points once per obstacle per lap. Contact, reversing and runoff invalidate the encounter; resetting cannot repeat a claimed reward. Total score includes drift and near-miss bonuses. Narrower roads and new scoring use v9 device records, preserving previous data.
 
-Version 8 circuits target 1–2 miles per lap, measured along the elevated road and full stunt path. Current laps are about 1.42 miles (Sketch Run), 1.60 miles (Neon Borough) and 1.48 miles (Skyline Stunt Run). Menu distances are miles; dial and digital speed are mph. Physics still uses metres and seconds internally.
+Version 10 circuits target 1-2 miles per lap along the level centreline. Menu distances are miles; dial and digital speed are mph. Physics uses metres and seconds internally.
 
-The stunt loop shifts 24 metres to the right during its full turn, with tangent-matched entry/exit straights and a smooth return into the normal route. The car enters on the left and exits on the right facing its original direction. A shared orthonormal surface frame positions the road, walls, car and chase camera, including inversion. The camera stays nine metres behind the car rather than cutting to a side view. A cached arc-length table preserves travel speed through the lateral shift.
+Vertical stunt loops were removed from all generated circuits in version 10.
 
 Handling refinement: handbrake grip is 1.2 and powered-slide grip is 2.15, with a 0.45-second progressive return to road grip after releasing a handbrake tap. Handbrake longitudinal drag is reduced to retain pace. Acceleration rises by roughly 17%; maximum speed remains about 89 mph. The chase camera sits closer and lower, widening from 56 to 68 degrees as speed builds; reduced motion disables the speed-dependent changes. Updated handling uses v9 personal records while the track generator/cache remains v8.

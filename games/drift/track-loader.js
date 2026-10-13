@@ -21,7 +21,7 @@ export function availableTrackDates(manifest, today = utcDate()) {
 
 export async function loadTrack(date) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Invalid circuit date.');
-    const response = await fetch(new URL(`${date}.json`, TRACK_DIRECTORY));
+    const response = await fetch(new URL(`${date}.json`, TRACK_DIRECTORY), { cache: 'no-cache' });
     if (!response.ok) throw new Error('This circuit is not available yet. Please try again shortly.');
     const track = await response.json();
     const elevationsValid = track.elevations === undefined || (Array.isArray(track.elevations) &&

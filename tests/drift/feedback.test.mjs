@@ -32,14 +32,14 @@ test('automatic shifts drop RPM, resist threshold chatter and show reverse; brak
     assert.ok(car.brakeHeat < hot);
 });
 
-test('obstacles occupy straight level shoulders and leave a wide passing lane on every map', () => {
+test('obstacles occupy gently curving level shoulders and leave a wide passing lane on every map', () => {
     for (const day of ['11','12','13','14']) {
         const t = JSON.parse(readFileSync(new URL(`../../games/drift/tracks/2026-10-${day}.json`, import.meta.url)));
         assert.equal(t.width, 14);
         const obstacles = roadObstacles(t); assert.ok(obstacles.length >= 4 && obstacles.length <= 8);
         for (const o of obstacles) {
             const before = trackPose(t, o.progress - 24/t.length), after = trackPose(t, o.progress + 24/t.length);
-            assert.ok(Math.abs(wrapAngle(after.heading-before.heading)) <= 0.20);
+            assert.ok(Math.abs(wrapAngle(after.heading-before.heading)) <= 0.45);
             assert.ok(roadHeight(t, o.progress) <= 0.1);
             const center = trackPose(t,o.progress), offset = Math.hypot(o.x-center.x,o.z-center.z);
             assert.ok(offset + o.halfWidth < t.width/2);
