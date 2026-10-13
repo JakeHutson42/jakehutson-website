@@ -95,11 +95,11 @@ function drawMap(canvas, track, car = null) {
     });
     context.closePath();
     context.strokeStyle = '#61718b'; context.lineWidth = car ? 3 : 9; context.lineJoin = 'round'; context.stroke();
-    context.strokeStyle = '#ffbe55'; context.lineWidth = car ? 1 : 3; context.stroke();
+    context.strokeStyle = '#36e6ed'; context.lineWidth = car ? 1 : 3; context.stroke();
     for (let checkpoint = 0; checkpoint < 4; checkpoint++) {
         const point = track.points[Math.floor(checkpoint * track.points.length / 4)];
         const [x, y] = project(...point);
-        context.fillStyle = checkpoint === 0 ? '#ffbe55' : '#f3f5fa';
+        context.fillStyle = checkpoint === 0 ? '#36e6ed' : '#f3f5fa';
         context.fillRect(x - 3, y - 3, 6, 6);
     }
     if (car) {

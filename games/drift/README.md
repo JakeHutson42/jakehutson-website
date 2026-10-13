@@ -2,8 +2,8 @@
 
 A static Three.js driving game at `/drift.html`. No application server, account,
 database, package installation, or JavaScript build step is needed to play.
-The game has its own navy-and-amber interface, separate from the main website,
-with a high-desert circuit preview, spacious launch menu, and illustrated driving guide.
+The game has its own cyan-and-violet interface, separate from the main website,
+with a night-city circuit preview, spacious launch menu, and illustrated driving guide.
 All geometry and engine audio are created locally; no assets were copied from DailyDrift.
 
 ## Run locally
@@ -211,3 +211,7 @@ without changing the car or race clock. Desaturation, darkening and a vignette
 apply only to the preview canvas and disappear immediately on Start. Reduced-motion
 users receive a stationary overview; off-screen and hidden previews stop animating.
 The existing driving camera, handling, scenery and mobile play lock are preserved.
+
+Night scenery uses procedural city blocks, instanced windows, rooftop neon, six nearby streetlights and layered additive road glints. Glints are stylised reflections rather than real-time mirror reflections. City blocks clear the driving corridor; physics and layouts are unchanged.
+
+Pacing: 40 m/s (144 km/h) forward cap, 15 m/s² acceleration and 28 m/s² braking. Speed adds up to eight degrees of camera FOV and lowers the chase view slightly; reduced-motion mode disables these camera effects. A bounded pool of 96 soft smoke sprites emits from both rear tyres during scored drifts, trailing backwards and opposite actual lateral velocity. Pause freezes smoke and resets clear it. Faster runs use the v5 records namespace, preserving earlier device data.

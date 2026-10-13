@@ -1,3 +1,4 @@
+import { smokeVelocity } from './smoke-motion.js';
 import { CircuitFlythrough } from './preview-camera.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { nearestTrackPoint, trackPose, wrapAngle } from './math.js';
@@ -6,7 +7,7 @@ import { offsetTrackPoint } from './track-edges.js';
 import { TRACK_EDGE_CONFIG as EDGE, CAMERA_CONFIG } from './config.js';
 import { buildCar, disposeCar } from './car-model.js';
 
-const COLORS = { asphalt: 0x343c3e, sand: 0xb6b39a, white: 0xeae9db, yellow: 0xdfff00, red: 0xd66443 };
+const COLORS = { asphalt: 0x101624, sand: 0x202638, white: 0xa5dbe8, yellow: 0x36e6ed, red: 0xd66443 };
 
 function seededRandom(seed) {
     return () => {
@@ -47,12 +48,14 @@ export class DriftWorld {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xc5cfc7);
-        this.scene.fog = new THREE.Fog(0xc5cfc7, 420, 850);
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1.3;
+        this.scene.background = new THREE.Color(0x050817);
+        this.scene.fog = new THREE.Fog(0x080d23, 140, 680);
         // A one-metre near plane preserves depth precision in the wide circuit preview.
         this.camera = new THREE.PerspectiveCamera(CAMERA_CONFIG.fieldOfView, 1, 1, 1100);
-        this.scene.add(new THREE.HemisphereLight(0xeaf4ff, 0x7e7656, 2.2));
-        this.sun = new THREE.DirectionalLight(0xffe7bc, 3.1);
+        this.scene.add(new THREE.HemisphereLight(0x92baff, 0x151028, 1.3));
+        this.sun = new THREE.DirectionalLight(0x93b9ff, 1.8);
         this.sun.position.set(-110, 180, 75);
         this.sun.castShadow = true;
         this.sun.shadow.mapSize.set(2048, 2048);
@@ -96,6 +99,60 @@ export class DriftWorld {
         this.render(race, 0, performance.now() / 1000);
     }
 
+    buildSmoke() {
+        const canvas = document.createElement('canvas'); canvas.width = canvas.height = 64;
+        const context = canvas.getContext('2d');
+        const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+        gradient.addColorStop(0, 'rgba(190,205,225,0.65)');
+        gradient.addColorStop(0.45, 'rgba(155,175,200,0.35)');
+        gradient.addColorStop(1, 'rgba(140,160,190,0)');
+        context.fillStyle = gradient; context.fillRect(0, 0, 64, 64);
+        const texture = new THREE.CanvasTexture(canvas);
+        this.smoke = Array.from({ length: 96 }, () => {
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture,
+                transparent: true, depthWrite: false, opacity: 0 }));
+            sprite.visible = false; this.scene.add(sprite);
+            return { sprite, life: 0, vx: 0, vz: 0 };
+        });
+        this.smokeIndex = 0; this.smokeRemainder = 0;
+    }
+
+    updateSmoke(race, deltaTime) {
+        // Pause freezes existing plumes; reset/teleport clears the trail.
+        const car = race.car;
+        if (this.lastSmokeCar !== car || race.state === 'ready') {
+            this.smoke.forEach(puff => { puff.life = 0; puff.sprite.visible = false; });
+            this.smokeRemainder = 0; this.lastSmokeCar = car;
+        }
+        if (race.state === 'paused') return;
+        for (const puff of this.smoke) {
+            if (puff.life <= 0) continue;
+            puff.life = Math.max(0, puff.life - deltaTime);
+            puff.sprite.visible = puff.life > 0;
+            puff.sprite.position.x += puff.vx * deltaTime;
+            puff.sprite.position.z += puff.vz * deltaTime;
+            puff.sprite.position.y += 0.9 * deltaTime;
+            const size = 0.6 + (1.5 - puff.life) * 2.8;
+            puff.sprite.scale.setScalar(size);
+            puff.sprite.material.opacity = 0.5 * Math.min(1, puff.life / 0.65);
+        }
+        if (race.state !== 'racing' || !race.drifting) { this.smokeRemainder = 0; return; }
+        this.smokeRemainder += deltaTime;
+        const velocity = smokeVelocity(car);
+        while (this.smokeRemainder >= 1 / 24) {
+            this.smokeRemainder -= 1 / 24;
+            for (const side of [-0.8, 0.8]) {
+                const puff = this.smoke[this.smokeIndex++ % this.smoke.length];
+                puff.life = 1.5; puff.vx = velocity.x; puff.vz = velocity.z;
+                puff.sprite.position.set(car.x - Math.sin(car.heading) * 1.6 + Math.cos(car.heading) * side,
+                    0.35, car.z - Math.cos(car.heading) * 1.6 - Math.sin(car.heading) * side);
+                puff.sprite.scale.setScalar(0.6); puff.sprite.material.opacity = 0.5;
+                puff.sprite.material.rotation = Math.random() * Math.PI;
+                puff.sprite.visible = true;
+            }
+        }
+    }
+
     buildTireMarks() {
         // A bounded ring buffer avoids allocating thousands of objects during long runs.
         const geometry = new THREE.BufferGeometry();
@@ -124,7 +181,7 @@ export class DriftWorld {
         const floor = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), this.material(COLORS.sand));
         floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; this.environment.add(floor);
         const halfWidth = track.width / 2;
-        const road = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth, halfWidth, 0.08), this.material(COLORS.asphalt, { side: THREE.DoubleSide }));
+        const road = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth, halfWidth, 0.08), this.material(COLORS.asphalt, { side: THREE.DoubleSide, roughness: 0.23, metalness: 0.35 }));
         road.receiveShadow = true; this.environment.add(road);
         const verge = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth - EDGE.vergeWidth,
             halfWidth + EDGE.vergeWidth, 0.025), this.material(COLORS.sand, { side: THREE.DoubleSide }));
@@ -177,40 +234,66 @@ export class DriftWorld {
 
     buildScenery(track) {
         const random = seededRandom(track.seed);
-        const rockGeometry = new THREE.DodecahedronGeometry(1, 0);
-        const rockMaterial = this.material(0x8d8b78, { flatShading: true });
-        const cactusGeometry = new THREE.CylinderGeometry(0.5, 0.65, 1, 6);
-        const cactusMaterial = this.material(0x647365, { flatShading: true });
-        for (let index = 0; index < 160; index++) {
-            const x = (random() - 0.5) * 560;
-            const z = (random() - 0.5) * 560;
-            if (nearestTrackPoint(track.points, x, z).distance < track.width / 2 + 9) continue;
-            if (index % 3 === 0) {
-                const height = 3 + random() * 6;
-                const cactus = new THREE.Mesh(cactusGeometry, cactusMaterial);
-                cactus.position.set(x, height / 2, z); cactus.scale.y = height;
-                cactus.castShadow = true; this.environment.add(cactus);
-                const arm = new THREE.Mesh(cactusGeometry, cactusMaterial);
-                arm.rotation.z = Math.PI / 2; arm.scale.y = 2.5;
-                arm.position.set(x + 1, height * 0.55, z); arm.castShadow = true; this.environment.add(arm);
-            } else {
-                const rock = new THREE.Mesh(rockGeometry, rockMaterial);
-                const scale = 1.5 + random() * 6;
-                rock.position.set(x, scale * 0.3, z); rock.scale.set(scale, scale * 0.65, scale * 0.8);
-                rock.rotation.set(random(), random() * 6, random()); rock.castShadow = true;
-                this.environment.add(rock);
+        const box = new THREE.BoxGeometry(1, 1, 1);
+        const facade = this.material(0x182238, { roughness: 0.48, metalness: 0.25 });
+        const colors = [0x36e6ed, 0xf34dac, 0x9c83ff, 0xffc578];
+        const neons = colors.map(color => new THREE.MeshBasicMaterial({ color }));
+        const windows = new THREE.InstancedMesh(box, new THREE.MeshBasicMaterial({ color: 0xb7dfff }), 12000);
+        const dummy = new THREE.Object3D();
+        let count = 0;
+        const block = (x, y, z, w, h, d, material, shadow = false) => {
+            const mesh = new THREE.Mesh(box, material);
+            mesh.position.set(x, y, z); mesh.scale.set(w, h, d);
+            mesh.castShadow = shadow; mesh.receiveShadow = shadow;
+            this.environment.add(mesh);
+        };
+        // Footprint clearance keeps every city block outside the driving corridor.
+        for (let gx = -9; gx <= 9; gx++) for (let gz = -9; gz <= 9; gz++) {
+            const x = gx * 36 + (random() - 0.5) * 8;
+            const z = gz * 36 + (random() - 0.5) * 8;
+            const w = 14 + random() * 10, d = 14 + random() * 10;
+            if (nearestTrackPoint(track.points, x, z).distance < track.width / 2 + Math.hypot(w, d) / 2 + 7) continue;
+            const h = 12 + random() * 65;
+            block(x, h / 2, z, w, h, d, facade, true);
+            block(x, h - 1, z, w + 0.2, 0.3, d + 0.2, neons[Math.floor(random() * 4)]);
+            for (let y = 4; y < h - 3; y += 3.5) for (const side of [-1, 1]) {
+                for (let u = -w / 2 + 2; u < w / 2 - 1; u += 3) {
+                    if (random() < 0.35 || count >= 12000) continue;
+                    dummy.position.set(x + u, y, z + side * (d / 2 + 0.04));
+                    dummy.scale.set(1.1, 1.5, 0.08); dummy.updateMatrix(); windows.setMatrixAt(count++, dummy.matrix);
+                }
+                for (let u = -d / 2 + 2; u < d / 2 - 1; u += 3) {
+                    if (random() < 0.35 || count >= 12000) continue;
+                    dummy.position.set(x + side * (w / 2 + 0.04), y, z + u);
+                    dummy.scale.set(0.08, 1.5, 1.1); dummy.updateMatrix(); windows.setMatrixAt(count++, dummy.matrix);
+                }
             }
         }
-        // Distant mesas provide a horizon without textures or downloaded model assets.
-        const mountainGeometry = new THREE.CylinderGeometry(15, 34, 45, 5);
-        const mountainMaterial = this.material(0x969f90, { flatShading: true });
-        for (let index = 0; index < 22; index++) {
-            const angle = index / 22 * Math.PI * 2;
-            const mountain = new THREE.Mesh(mountainGeometry, mountainMaterial);
-            const scale = 0.8 + random();
-            mountain.position.set(Math.cos(angle) * 450, 13, Math.sin(angle) * 450);
-            mountain.scale.set(scale * 1.8, scale, scale); this.environment.add(mountain);
+        windows.count = count; windows.instanceMatrix.needsUpdate = true;
+        this.environment.add(windows);
+        this.lampPoses = [];
+        for (let index = 0; index < 44; index++) {
+            const pose = trackPose(track, index / 44), side = index % 2 ? 1 : -1;
+            const offset = track.width / 2 + EDGE.vergeWidth + 2;
+            const x = pose.x + Math.cos(pose.heading) * offset * side;
+            const z = pose.z - Math.sin(pose.heading) * offset * side;
+            this.lampPoses.push({ x, z, color: colors[index % 4] });
+            block(x, 4, z, 0.18, 8, 0.18, facade, true);
+            block(x, 8, z, 1.6, 0.15, 1.6, neons[index % 4]);
+            // Layered glints suggest wet neon reflections without reflection passes.
+            for (let layer = 0; layer < 4; layer++) {
+                const glint = new THREE.Mesh(new THREE.PlaneGeometry(3 + layer * 1.4, 9 + layer * 2),
+                    new THREE.MeshBasicMaterial({ color: colors[index % 4], transparent: true,
+                        opacity: 0.025, depthWrite: false, blending: THREE.AdditiveBlending }));
+                glint.rotation.set(-Math.PI / 2, 0, -pose.heading);
+                glint.position.set(pose.x, 0.105 + layer * 0.001, pose.z);
+                this.environment.add(glint);
+            }
         }
+        this.streetLamps = Array.from({ length: 6 }, () => {
+            const lamp = new THREE.PointLight(0x36e6ed, 85, 30, 2);
+            this.environment.add(lamp); return lamp;
+        });
     }
 
     resize() {
@@ -246,13 +329,22 @@ export class DriftWorld {
         const car = race.car;
         this.car.position.set(car.x, 0.1, car.z); this.car.rotation.y = car.heading;
         const playing = race.state !== 'ready';
+        const focus = playing ? car : this.camera.position;
+        const nearby = [...this.lampPoses].sort((a, b) =>
+            Math.hypot(a.x - focus.x, a.z - focus.z) - Math.hypot(b.x - focus.x, b.z - focus.z));
+        this.streetLamps.forEach((lamp, index) => {
+            const pose = nearby[index];
+            lamp.position.set(pose.x, 7.5, pose.z); lamp.color.setHex(pose.color);
+        });
         this.car.visible = playing;
         // A tall mobile play area otherwise crops the chase view around an
         // oversized car. Preserve the desktop horizontal view in portrait,
         // without changing the camera's position or its driving angle.
+        const pace = this.reducedMotion ? 0 : THREE.MathUtils.clamp(car.speed / 40, 0, 1);
+        const drivingFov = CAMERA_CONFIG.fieldOfView + 8 * pace;
         this.camera.fov = playing && this.camera.aspect < 1 ? Math.min(94,
-            THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(CAMERA_CONFIG.fieldOfView / 2)) / this.camera.aspect))) :
-            CAMERA_CONFIG.fieldOfView;
+            THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(drivingFov / 2)) / this.camera.aspect))) :
+            drivingFov;
         if (playing) {
             this.camera.filmOffset = 0;
             // Let the body rotate into a drift before the camera catches up. Angle
@@ -262,7 +354,7 @@ export class DriftWorld {
                 (1 - Math.exp(-CAMERA_CONFIG.headingResponse * deltaTime));
             const forward = new THREE.Vector3(Math.sin(this.cameraHeading), 0, Math.cos(this.cameraHeading));
             const desiredPosition = new THREE.Vector3(car.x - forward.x * CAMERA_CONFIG.followDistance,
-                CAMERA_CONFIG.followHeight, car.z - forward.z * CAMERA_CONFIG.followDistance);
+                CAMERA_CONFIG.followHeight - 0.55 * pace, car.z - forward.z * CAMERA_CONFIG.followDistance);
             const desiredTarget = new THREE.Vector3(car.x + forward.x * CAMERA_CONFIG.lookAhead,
                 CAMERA_CONFIG.targetHeight, car.z + forward.z * CAMERA_CONFIG.lookAhead);
             // Follow position directly, smoothing only the view direction. A
@@ -289,6 +381,7 @@ export class DriftWorld {
         this.camera.lookAt(this.cameraTarget);
         if (race.state === 'racing' && race.drifting) this.addTireMarks(car);
         else this.lastMark = null;
+        this.updateSmoke(race, deltaTime);
         this.renderer.render(this.scene, this.camera);
     }
 }

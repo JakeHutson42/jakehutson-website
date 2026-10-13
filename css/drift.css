@@ -5,10 +5,10 @@
 body { margin: 0; }
 .drift-page {
     --race-bg: #0c111b; --race-panel: #141e2b; --race-ink: #f3f5fa;
-    --race-muted: #a9b7c9; --race-line: #2b3a4d; --race-accent: #ffbe55;
+    --race-muted: #a9b7c9; --race-line: #2b3a4d; --race-accent: #36e6ed;
     --race-display: 'Barlow Condensed', Impact, sans-serif;
     --font-display: 'Manrope', sans-serif; --font-mono: 'DM Mono', monospace;
-    background: radial-gradient(ellipse at 85% 0, #1c2a40, transparent 50%), var(--race-bg);
+    background: radial-gradient(ellipse at 85% 0, #25173e, transparent 50%), var(--race-bg);
     color: var(--race-ink); font: 15px/1.6 var(--font-display);
 }
 a { color: inherit; text-decoration: none; }
@@ -53,7 +53,7 @@ button, select { border-radius: 4px; }
 .archive-field label { font-size: 12px; color: var(--race-muted); }
 .archive-field select { padding: 10px; min-height: 44px; font: 12px var(--font-mono); border: 1px solid var(--race-line); color: var(--race-ink); background: var(--race-bg); max-width: 200px; }
 /* The launch panel has its own space, leaving the complete preview unobstructed. */
-.race-stage { position: relative; height: 560px; overflow: hidden; background: #b6b39a; isolation: isolate; }
+.race-stage { position: relative; height: 560px; overflow: hidden; background: #080d23; isolation: isolate; }
 .scene-view { position: absolute; inset: 0 350px 0 0; }
 #raceCanvas { display: block; width: 100%; height: 100%; outline-offset: -3px; }
 .is-playing .scene-view { inset: 0; height: 100%; }

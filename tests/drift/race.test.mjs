@@ -93,8 +93,8 @@ test('acceleration is progressive, speed is capped, and lower-speed handbrake dr
         updateCar(car, { ...noInput, throttle: true }, straight, GAME_CONFIG.fixedStep);
         if (step === 239) speedAfterTwoSeconds = car.speed;
     }
-    assert.ok(speedAfterTwoSeconds > 17 && speedAfterTwoSeconds < 20, 'Allow time to read the approaching corner');
-    assert.ok(car.speed >= 31 && car.speed <= 32.01, 'Cruising pace should stay near 115 km/h');
+    assert.ok(speedAfterTwoSeconds > 25 && speedAfterTwoSeconds < 27, 'Faster launch should still build speed progressively');
+    assert.ok(car.speed >= 39 && car.speed <= 40.01, 'Cruising pace should stay near 144 km/h');
 
     const race = new Race(track); race.state = 'racing';
     race.car.vx = Math.sin(race.car.heading) * 16;

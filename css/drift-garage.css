@@ -1,5 +1,5 @@
 /* Self-contained game surfaces: these tokens can evolve with the game theme. */
-.garage-dialog, .game-loading { --garage-bg: #0c111b; --garage-panel: #141e2b; --garage-line: #2b3a4d; --garage-accent: #ffbe55; --garage-text: #f1f4ed; color: var(--garage-text); background: var(--garage-bg); font-family: var(--font-display); }
+.garage-dialog, .game-loading { --garage-bg: #0c111b; --garage-panel: #141e2b; --garage-line: #2b3a4d; --garage-accent: #36e6ed; --garage-text: #f1f4ed; color: var(--garage-text); background: var(--garage-bg); font-family: var(--font-display); }
 .garage-dialog { width: min(960px, calc(100% - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--garage-line); overscroll-behavior: contain; }
 .garage-dialog::backdrop { background: #070d13d9; backdrop-filter: blur(6px); }
 .garage-header { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 20px 28px 16px; border-bottom: 1px solid var(--garage-line); }
@@ -24,7 +24,7 @@
 .garage-models button { text-align: left; color: inherit; background: var(--garage-panel); border: 1px solid var(--garage-line); padding: 8px 14px; min-height: 52px; position: relative; }
 .garage-models small { display: block; font: 10px var(--font-mono); color: #b4c2ca; margin-bottom: 4px; }
 .garage-models strong { font-size: 15px; }
-.garage-models button[aria-pressed=true] { border-color: var(--garage-accent); background: #ffbe550a; }
+.garage-models button[aria-pressed=true] { border-color: var(--garage-accent); background: #36e6ed0a; }
 .garage-models button[aria-pressed=true]::after { content: '✓'; position: absolute; right: 16px; top: 18px; color: var(--garage-accent); }
 .paint-swatches { display: flex; flex-wrap: wrap; gap: 9px; }
 .paint-swatches button { width: 40px; height: 40px; background: var(--paint); border: 3px solid var(--garage-bg); outline: 1px solid #657783; border-radius: 50%; }
