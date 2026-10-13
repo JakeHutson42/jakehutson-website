@@ -10,6 +10,7 @@ import { MobilePlayView } from './mobile-play-view.js';
 import { LocalRecords } from './storage.js';
 import { Race } from './race.js';
 import { EngineAudio } from './audio.js';
+import { StartSequence } from './start-sequence.js';
 import { utcDate, loadTrackManifest, availableTrackDates, loadTrack } from './track-loader.js';
 
 // This module coordinates the page. Physics, scoring, persistence, and rendering remain
@@ -19,7 +20,8 @@ const element = id => document.getElementById(id);
 element('year').textContent = new Date().getFullYear();
 const stage = element('raceStage');
 const records = new LocalRecords();
-const audio = new EngineAudio();
+const audio = new EngineAudio(records.data.sound);
+const startSequence = new StartSequence(element('countdown'), audio);
 const garagePreferences = new GaragePreferences();
 let garage;
 let world;
@@ -33,7 +35,6 @@ let simulationRemainder = 0;
 let lastHudTime = 0;
 let noticeTimeout;
 let finishHandled = false;
-let performanceMode = false;
 let pendingDailyDate = null;
 let previewVisible = true;
 // Stop the lobby fly-through while the player reads below it, saving GPU/battery.
@@ -198,11 +199,13 @@ function showPreview() {
 async function startRun() {
     if (loader.active) return;
     if (!race || !world) { await initialize(); return; }
+    const soundReady = enableSound(audio.enabled);
     // Move the mobile stage before opening a top-layer dialog: reparenting an
     // already-open dialog can dismiss it in some browsers.
     mobileView.enter();
     try {
         await loader.run('Putting you on the grid', async () => {
+            await soundReady;
             startRunContent();
             await world.prepare(race);
             await loader.nextPaint();
@@ -229,8 +232,6 @@ function startRunContent() {
     mobileView.enter();
     element('raceCanvas').focus({ preventScroll: true });
     if (!mobileView.active) stage.scrollIntoView({ behavior: 'instant', block: 'center' });
-    // A stored sound preference is applied only inside this deliberate user gesture.
-    if (records.data.sound && !audio.enabled) enableSound(true);
 }
 
 function pauseRun() {
@@ -251,6 +252,7 @@ function pauseRun() {
 
 function resumeRun() {
     if (loader.active || element('garageDialog').open || race?.state !== 'paused') return;
+    enableSound(audio.enabled);
     race.resume(); simulationRemainder = 0; input.clear(); input.suspended = false;
     element('raceOverlay').hidden = true;
     element('raceCanvas').focus({ preventScroll: true });
@@ -297,10 +299,6 @@ function updateHud() {
 
     drawMap(element('raceMap'), race.track, race.car);
     if (race.message) { showNotice(race.message); race.message = ''; }
-    const counting = race.state === 'countdown';
-    element('countdown').hidden = !counting;
-    const count = Math.max(1, Math.ceil(race.countdown));
-    if (element('countdown').textContent !== String(count)) element('countdown').textContent = count;
 }
 
 function animate(timeMilliseconds) {
@@ -320,19 +318,27 @@ function animate(timeMilliseconds) {
     } else simulationRemainder = 0;
     world.render(race, deltaTime, seconds);
     updateInstruments();
-    audio.update(race.car, race.state === 'racing');
+    audio.update(race.car, ['countdown', 'racing'].includes(race.state));
+    startSequence.update(race);
     // Simulation/rendering run every frame; text and the minimap only need 12 Hz.
     if (seconds - lastHudTime > 1 / 12) { updateHud(); lastHudTime = seconds; }
     if (race.state === 'finished' && !finishHandled) finishRun();
 }
 
-async function enableSound(enabled) {
+function updateSoundButton() {
+    const button = element('soundButton');
+    button.setAttribute('aria-pressed', String(audio.enabled));
+    button.setAttribute('aria-label', audio.enabled ? 'Mute game sound' : 'Enable game sound');
+    button.title = audio.enabled ? 'Mute sound' : 'Enable sound';
+}
+
+async function enableSound(enabled, persist = false) {
     try {
-        const active = await audio.setEnabled(enabled);
-        records.setSound(active);
-        element('soundButton').setAttribute('aria-pressed', String(active));
-        element('soundButton').setAttribute('aria-label', active ? 'Mute game sound' : 'Enable game sound');
-        element('soundState').textContent = active ? 'ON' : 'OFF';
+        const ready = audio.setEnabled(enabled);
+        if (persist) records.setSound(enabled);
+        updateSoundButton();
+        await ready;
+        updateSoundButton();
         updateStorageStatus();
     } catch { showStageMessage('Sound could not start in this browser. You can still play.'); }
 }
@@ -439,25 +445,7 @@ element('exitButton').addEventListener('click', exitRun);
 element('mobileExitButton').addEventListener('click', exitRun);
 element('trackSelect').addEventListener('change', event => selectTrack(event.target.value));
 element('soundButton').addEventListener('click', () => {
-    enableSound(!audio.enabled);
-    if (input.active && race?.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });
-});
-element('qualityButton').addEventListener('click', async () => {
-    if (!world) return;
-    if (loader.active) return;
-    try {
-        await loader.run('Adjusting graphics', async () => {
-            performanceMode = !performanceMode; world.setPerformanceMode(performanceMode);
-            if (race) await world.prepare(race);
-        });
-    } catch {
-        pauseRun();
-        showStageMessage('Graphics settings could not be prepared. Try reloading the page.');
-        return;
-    }
-    element('qualityButton').setAttribute('aria-pressed', String(performanceMode));
-    element('qualityButton').setAttribute('aria-label', performanceMode ? 'Disable performance mode' : 'Enable performance mode');
-    element('qualityState').textContent = performanceMode ? 'ON' : 'OFF';
+    enableSound(!audio.enabled, true);
     if (input.active && race?.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });
 });
 element('fullscreenButton').addEventListener('click', async () => {
@@ -512,5 +500,6 @@ setInterval(async () => {
 }, 1000);
 
 updateStorageStatus();
+updateSoundButton();
 initialize();
 requestAnimationFrame(animate);

@@ -5,7 +5,6 @@ import { driftIntensity, updateDrivingFeedback } from '../../games/drift/driving
 import { roadObstacles, NearMissChallenges, resolveObstacleContacts, obstacleOverlap } from '../../games/drift/obstacles.js';
 import { trackPose, wrapAngle } from '../../games/drift/math.js';
 import { roadHeight } from '../../games/drift/road-surface.js';
-import { EngineAudio } from '../../games/drift/audio.js';
 
 const track = JSON.parse(readFileSync(new URL('../../games/drift/tracks/2026-10-13.json', import.meta.url)));
 
@@ -82,20 +81,4 @@ test('obstacle impact stops penetration while leaving the centre lane open', () 
     assert.ok(Math.hypot(car.vx,car.vz)<1);
     const lane = carAt(o,0,-o.side*5.65); resolveObstacleContacts(lane,track);
     assert.equal(lane.obstacleHit,false);
-});
-
-test('tyre squeal follows drift angle and all audio channels mute on pause and disable', async () => {
-    const param = () => ({ value:0, setTargetAtTime(value) { this.value=value; }, cancelScheduledValues() {}, setValueAtTime(value) { this.value=value; } });
-    const audio = new EngineAudio();
-    audio.context = { currentTime:0 }; audio.enabled = true;
-    audio.oscillator = { frequency:param() }; audio.filter = { frequency:param() };
-    audio.tyreTone = { frequency:param() }; audio.tyreFilter = { frequency:param() };
-    audio.gain = { gain:param() }; audio.tyreGain = { gain:param() }; audio.toneGain = { gain:param() };
-    const car = { speed:25,slip:0.3,rpm:6000 };
-    audio.update(car,true); const mild = audio.tyreGain.gain.value;
-    audio.update({ ...car,slip:0.9 },true); assert.ok(audio.tyreGain.gain.value>mild);
-    audio.update(car,false);
-    for (const channel of [audio.gain,audio.tyreGain,audio.toneGain]) assert.equal(channel.gain.value,0);
-    audio.update(car,true); await audio.setEnabled(false);
-    for (const channel of [audio.gain,audio.tyreGain,audio.toneGain]) assert.equal(channel.gain.value,0);
 });

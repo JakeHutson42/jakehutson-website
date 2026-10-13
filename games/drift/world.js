@@ -135,7 +135,7 @@ export class DriftWorld {
         this.smokeRemainder += deltaTime;
         const velocity = smokeVelocity(car);
         const intensity = driftIntensity(car);
-        const interval = 1 / ((12 + intensity * 28) * (this.performanceMode ? 0.6 : 1));
+        const interval = 1 / (12 + intensity * 28);
         while (this.smokeRemainder >= interval) {
             this.smokeRemainder -= interval;
             for (const side of [-0.8, 0.8]) {
@@ -417,13 +417,6 @@ export class DriftWorld {
         this.camera.updateProjectionMatrix();
     }
 
-    setPerformanceMode(enabled) {
-        this.performanceMode = enabled;
-        this.renderer.setPixelRatio(enabled ? 1 : Math.min(window.devicePixelRatio, 1.75));
-        this.renderer.shadowMap.enabled = !enabled;
-        this.resize();
-    }
-
     addTireMarks(car) {
         const current = { x: car.x - Math.sin(car.heading) * 1.25, z: car.z - Math.cos(car.heading) * 1.25, heading: car.heading, y: car.y || 0 };
         if (this.lastMark) {
@@ -463,7 +456,7 @@ export class DriftWorld {
         // oversized car. Preserve the desktop horizontal view in portrait,
         // without changing the camera's position or its driving angle.
         const pace = this.reducedMotion ? 0 : THREE.MathUtils.clamp(car.speed / 40, 0, 1);
-        const drivingFov = CAMERA_CONFIG.fieldOfView + 8 * pace;
+        const drivingFov = CAMERA_CONFIG.fieldOfView + CAMERA_CONFIG.speedFieldOfView * pace;
         this.camera.fov = playing && this.camera.aspect < 1 ? Math.min(94,
             THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(drivingFov / 2)) / this.camera.aspect))) :
             drivingFov;
@@ -476,12 +469,12 @@ export class DriftWorld {
                 (1 - Math.exp(-CAMERA_CONFIG.headingResponse * deltaTime));
             const forward = new THREE.Vector3(Math.sin(this.cameraHeading), 0, Math.cos(this.cameraHeading));
             const desiredPosition = new THREE.Vector3(car.x - forward.x * CAMERA_CONFIG.followDistance,
-                (car.y || 0) + CAMERA_CONFIG.followHeight - 0.55 * pace, car.z - forward.z * CAMERA_CONFIG.followDistance);
+                (car.y || 0) + CAMERA_CONFIG.followHeight - CAMERA_CONFIG.speedHeightDrop * pace, car.z - forward.z * CAMERA_CONFIG.followDistance);
             const desiredTarget = new THREE.Vector3(car.x + forward.x * CAMERA_CONFIG.lookAhead,
                 (car.y || 0) + CAMERA_CONFIG.targetHeight, car.z + forward.z * CAMERA_CONFIG.lookAhead);
             this.camera.up.set(0,1,0);
             if(car.loopT != null) {
-                const view=loopChaseView(car,CAMERA_CONFIG.followDistance,CAMERA_CONFIG.followHeight-0.55*pace,
+                const view=loopChaseView(car,CAMERA_CONFIG.followDistance,CAMERA_CONFIG.followHeight-CAMERA_CONFIG.speedHeightDrop*pace,
                     CAMERA_CONFIG.lookAhead,CAMERA_CONFIG.targetHeight);
                 desiredPosition.fromArray(view.position); desiredTarget.fromArray(view.target);
                 this.camera.up.fromArray(view.up); this.cameraHeading=car.heading;

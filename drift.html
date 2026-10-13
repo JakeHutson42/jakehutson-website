@@ -38,7 +38,7 @@
             <div class="race-stage" id="raceStage" aria-label="Drifting game">
                 <div class="scene-view"><canvas id="raceCanvas" tabindex="0" aria-label="3D driving circuit. Use W A S D or arrow keys to drive, Space to drift, Escape to pause, and R to reset."></canvas></div>
                 <div class="scene-caption" aria-hidden="true"><span>AFTER HOURS</span><span>CIRCUIT FLY-THROUGH</span></div>
-                <div class="stage-tools"><button id="soundButton" type="button" aria-label="Enable game sound" aria-pressed="false">SOUND <span id="soundState">OFF</span></button><button id="qualityButton" type="button" aria-label="Enable performance mode" aria-pressed="false">LITE <span id="qualityState">OFF</span></button><button id="fullscreenButton" type="button" aria-label="Enter fullscreen">⛶</button></div>
+                <div class="stage-tools"><button id="soundButton" type="button" aria-label="Mute game sound" aria-pressed="true" title="Mute sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4 5 9H2v6h3l6 5Z"/><g class="sound-waves"><path d="M15 8a6 6 0 0 1 0 8M18 4a11 11 0 0 1 0 16"/></g><path class="sound-slash" d="M3 3 21 21"/></svg></button><button id="fullscreenButton" type="button" aria-label="Enter fullscreen">⛶</button></div>
                 <button id="mobileExitButton" class="mobile-exit-button" type="button" aria-label="Exit run and return to circuit preview">↙ EXIT</button>
 
                 <aside class="starting-card" id="startingCard">
@@ -65,7 +65,7 @@
                         <div class="touch-pedals" data-control-group="pedals"><span class="touch-control-label" aria-hidden="true">THROTTLE / BRAKE</span><button type="button" data-drive="handbrake" class="touch-drift" aria-label="Handbrake" aria-pressed="false">SLIDE</button><button type="button" data-drive="brake" aria-label="Brake or reverse" aria-pressed="false">↓</button><button type="button" data-drive="throttle" aria-label="Accelerate" aria-pressed="false">↑</button></div>
                     </div>
                 </div>
-                <div class="countdown" id="countdown" hidden aria-live="polite">3</div>
+                <div class="countdown" id="countdown" hidden role="status" aria-live="polite" aria-atomic="true"><div class="start-panel"><span class="start-kicker">APEX / START SEQUENCE</span><div class="start-lights" aria-hidden="true"><i></i><i></i><i></i></div><strong data-start-word>READY</strong><span class="start-hint" data-start-hint>HOLD YOUR LINE</span></div></div>
                 <div class="stage-message" id="stageMessage" role="status" hidden></div>
                 <div class="race-overlay" id="raceOverlay" role="dialog" aria-modal="true" aria-labelledby="overlayTitle" hidden><div class="overlay-card"><p class="race-eyebrow" id="overlayEyebrow">TAKE A BREATHER</p><h2 id="overlayTitle">PARKED UP.</h2><p id="overlayDescription">Your run is paused.</p><div class="result-grid" id="resultGrid" hidden><div><span>POINTS</span><strong id="resultScore">0</strong></div><div><span>RUN TIME</span><strong id="resultTime">00:00.00</strong></div></div><button type="button" class="race-button primary" id="resumeButton">BACK TO IT <span aria-hidden="true">↗</span></button><button type="button" class="race-button secondary" id="restartButton">START AGAIN <span aria-hidden="true">↗</span></button><div class="pause-menu-links"><button type="button" class="text-button" id="pauseGarageButton">Garage</button><button type="button" class="text-button" id="pauseHelpButton">How to play</button></div><button type="button" class="text-button" id="exitButton">Return to circuit preview</button></div></div>
     <!-- Native dialogs keep focus inside the garage and loading lock on every screen. -->
@@ -137,7 +137,7 @@
     <div class="drift-steps"><article><span>01</span><div><h3>Set up the corner</h3><p>Brake before a tight bend. Turn in with a little speed left.</p></div></article><article><span>02</span><div><h3>Let the rear go</h3><p>Tap the handbrake, release it, then steer against the slide to stay on the road.</p></div></article><article><span>03</span><div><h3>Link your drifts</h3><p>Start the next slide within 1.4 seconds to build up to ×5. Wall contact ends your combo.</p></div></article></div>
     </div>
         </section>
-        <footer class="drift-footer"><a href="drift.html" class="footer-wordmark">APEX / DRIFT</a><span>Built by Jake Hutson · <span id="year">2026</span></span><div><a href="index.html">Back to website ↗</a><a href="privacy.html">Privacy</a></div></footer>
+        <footer class="drift-footer"><a href="drift.html" class="footer-wordmark">APEX / DRIFT</a><span>Built by Jake Hutson · <span id="year">2026</span></span><div><a href="games/drift/sounds/CREDITS.txt">Audio credits</a><a href="index.html">Back to website ↗</a><a href="privacy.html">Privacy</a></div></footer>
     </main>
 
     <noscript><p class="no-script">Apex Drift needs JavaScript and WebGL2 to run. Enable JavaScript to hit the circuit.</p></noscript>

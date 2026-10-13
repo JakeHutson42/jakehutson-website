@@ -8,14 +8,16 @@ export const GAME_CONFIG = Object.freeze({
     resetPenalty: 5,
     // Redesigned layouts and elevation need their own records. Preserve earlier
     // device data rather than comparing runs on different circuits.
-    storageKey: 'apex-drift:v8',
+    storageKey: 'apex-drift:v9',
     maximumRecords: 64,
     maximumSpeed: 40,
-    acceleration: 15,
+    acceleration: 17.5,
     brakeForce: 28,
     roadGrip: 6,
-    driftGrip: 1.45,
-    poweredSlideGrip: 2.6,
+    driftGrip: 1.2,
+    poweredSlideGrip: 2.15,
+    slideCarrySeconds: 0.45,
+    handbrakeDrag: 0.52,
     steeringRate: 1.85,
     poweredSlideSpeed: 11,
     minimumDriftSpeed: 7,
@@ -39,12 +41,14 @@ export const TRACK_EDGE_CONFIG = Object.freeze({
 });
 
 // A low chase view leaves the car in the lower third and makes the approaching
-// bend readable. Keep the view steady instead of widening the lens with speed.
+// bend readable, with a modest speed-dependent widening and lower viewpoint.
 export const CAMERA_CONFIG = Object.freeze({
-    fieldOfView: 52,
-    followDistance: 10,
-    followHeight: 4.8,
-    lookAhead: 10,
+    fieldOfView: 56,
+    speedFieldOfView: 12,
+    speedHeightDrop: 0.8,
+    followDistance: 9,
+    followHeight: 4.4,
+    lookAhead: 11,
     targetHeight: 1,
     headingResponse: 3.5,
 });

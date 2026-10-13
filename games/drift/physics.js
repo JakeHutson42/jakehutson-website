@@ -32,7 +32,7 @@ function stepCar(car, input, track, deltaTime) {
 
     if (input.throttle) forwardSpeed += CONFIG.acceleration * deltaTime;
     if (input.brake) forwardSpeed -= (forwardSpeed > 0.8 ? CONFIG.brakeForce : 7) * deltaTime;
-    if (input.handbrake) forwardSpeed *= Math.exp(-0.7 * deltaTime);
+    if (input.handbrake) forwardSpeed *= Math.exp(-CONFIG.handbrakeDrag * deltaTime);
     forwardSpeed *= Math.exp(-(car.offRoad ? 1.8 : 0.16) * deltaTime);
     forwardSpeed = clamp(forwardSpeed, -9, CONFIG.maximumSpeed);
     car.steering += (input.steer - car.steering) * (1 - Math.exp(-10 * deltaTime));
@@ -45,7 +45,10 @@ function stepCar(car, input, track, deltaTime) {
     lateralSpeed -= forwardSpeed * Math.sin(rotation);
     // Gentle steering stays planted; deliberate cornering releases the rear sooner.
     const poweredSlide = Math.abs(car.steering) > 0.35 && forwardSpeed > CONFIG.poweredSlideSpeed;
-    const grip = car.offRoad ? 4 : input.handbrake ? CONFIG.driftGrip : poweredSlide ? CONFIG.poweredSlideGrip : CONFIG.roadGrip;
+    car.slideCarry = input.handbrake && !car.offRoad && forwardSpeed > CONFIG.minimumDriftSpeed ? CONFIG.slideCarrySeconds :
+        Math.max(0,(car.slideCarry || 0)-deltaTime);
+    const recoveryGrip = CONFIG.roadGrip - (CONFIG.roadGrip-CONFIG.driftGrip)*(car.slideCarry/CONFIG.slideCarrySeconds);
+    const grip = car.offRoad ? 4 : input.handbrake ? CONFIG.driftGrip : poweredSlide ? CONFIG.poweredSlideGrip : recoveryGrip;
     lateralSpeed *= Math.exp(-grip * deltaTime);
     const nextForwardX = Math.sin(car.heading);
     const nextForwardZ = Math.cos(car.heading);
@@ -78,6 +81,7 @@ function stepCar(car, input, track, deltaTime) {
 }
 
 function updateLoop(car, input, track, deltaTime) {
+    car.slideCarry = 0;
     const minimum = track.loop.minimumSpeed;
     car.speed = clamp(Math.max(minimum, car.speed) + (input.throttle ? CONFIG.acceleration : 0) * deltaTime -
         (input.brake ? CONFIG.brakeForce * deltaTime : 0), minimum, CONFIG.maximumSpeed);

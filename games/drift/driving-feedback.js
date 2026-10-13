@@ -8,6 +8,7 @@ export function driftIntensity(car) {
 // Cosmetic automatic gearbox: engine pitch and gauges share the same readings.
 // Gear changes never alter the established acceleration or handling model.
 export function updateDrivingFeedback(car, input, dt) {
+    car.throttle = Boolean(input.throttle);
     car.braking = Boolean(input.brake || input.handbrake);
     const heating = car.braking && car.speed > 5 ? 0.45 + car.speed / 55 : -0.16;
     car.brakeHeat = clamp((car.brakeHeat || 0) + heating * dt, 0, 1);

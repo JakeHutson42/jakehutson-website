@@ -93,8 +93,8 @@ test('acceleration is progressive, speed is capped, and lower-speed handbrake dr
         updateCar(car, { ...noInput, throttle: true }, straight, GAME_CONFIG.fixedStep);
         if (step === 239) speedAfterTwoSeconds = car.speed;
     }
-    assert.ok(speedAfterTwoSeconds > 25 && speedAfterTwoSeconds < 27, 'Faster launch should still build speed progressively');
-    assert.ok(car.speed >= 39 && car.speed <= 40.01, 'Cruising pace should stay near 144 km/h');
+    assert.ok(speedAfterTwoSeconds > 29 && speedAfterTwoSeconds < 31, 'Reach roughly 67 mph in two seconds while building speed progressively');
+    assert.ok(car.speed >= 39 && car.speed <= 40.01, 'Cruising pace should stay near 89 mph');
 
     const race = new Race(track); race.state = 'racing';
     race.car.vx = Math.sin(race.car.heading) * 16;
@@ -117,6 +117,21 @@ test('handbrake holds a slide while releasing it restores grip', () => {
     }
     assert.ok(sliding.vx > 3.5, 'A held drift should retain sideways momentum');
     assert.ok(recovering.vx < 0.5, 'Releasing the handbrake should let the tyres recover');
+});
+
+test('a handbrake tap carries the slide briefly, then normal grip returns', () => {
+    const road = { width: 200, points: [[0,-1000],[0,1000],[1000,1000],[1000,-1000]] };
+    const car = { x:0, z:0, heading:0, vx:8, vz:22, speed:23, steering:0 };
+    for (let i=0;i<24;i++) updateCar(car,{ ...noInput,handbrake:true },road,1/120);
+    const immediateGrip = { ...car,slideCarry:0 };
+    for (let i=0;i<24;i++) {
+        updateCar(car,noInput,road,1/120);
+        updateCar(immediateGrip,noInput,road,1/120);
+    }
+    assert.ok(car.vx>immediateGrip.vx*1.5,'Releasing the handbrake must not instantly end the slide');
+    for (let i=0;i<240;i++) updateCar(car,noInput,road,1/120);
+    assert.equal(car.slideCarry,0);
+    assert.ok(Math.abs(car.vx)<0.1,'The car must still settle back onto its line');
 });
 
 test('records persist highest score and fastest time independently', () => {

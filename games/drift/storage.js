@@ -5,12 +5,14 @@ import { GAME_CONFIG } from './config.js';
 export class LocalRecords {
     constructor(storage) {
         this.available = true;
-        this.data = { version: 1, sound: false, records: {} };
+        this.data = { version: 1, sound: true, soundPreferenceVersion: 2, records: {} };
         try {
             this.storage = storage || window.localStorage;
             const saved = JSON.parse(this.storage.getItem(GAME_CONFIG.storageKey));
             if (saved?.version === 1) {
-                this.data.sound = saved.sound === true;
+                // Old releases saved their default OFF value with every result.
+                // Migrate once; explicit choices in this release remain persistent.
+                this.data.sound = saved.soundPreferenceVersion === 2 ? saved.sound !== false : true;
                 for (const [date, record] of Object.entries(saved.records || {})) {
                     if (/^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(record.score) && record.score >= 0 && Number.isFinite(record.time) && record.time > 0) {
                         this.data.records[date] = { score: Math.floor(record.score), time: record.time, runs: Math.max(1, Math.floor(record.runs) || 1) };

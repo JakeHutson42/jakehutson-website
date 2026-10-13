@@ -23,7 +23,27 @@
 .race-notice { position: absolute; top: 125px; left: 50%; transform: translateX(-50%); color: var(--race-bg); background: var(--race-accent); font: 10px var(--font-mono); padding: 10px 18px; white-space: nowrap; }
 .race-notice:empty { display: none; }
 #raceMap { position: absolute; top: 125px; right: 22px; width: 130px; height: 104px; background: #0c111bdf; }
-.countdown { position: absolute; inset: 0; display: grid; place-items: center; font: italic 800 170px var(--race-display); color: var(--race-accent); text-shadow: 3px 3px #0c111b; pointer-events: none; }
+.countdown { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; pointer-events: none; color: var(--race-ink); background: radial-gradient(ellipse at center,#070d1355,transparent 65%); }
+.start-panel { width: min(320px,80%); padding: 24px; text-align: center; background: linear-gradient(135deg,#0c1525ed,#080e18e0); border: 1px solid #36e6ed55; border-radius: 16px; box-shadow: 0 18px 80px #0007; }
+.start-kicker,.start-hint { display: block; font: 9px var(--font-mono); letter-spacing: .2em; color: var(--race-muted); }
+.start-lights { display: flex; justify-content: center; gap: 18px; margin: 22px 0 12px; }
+.start-lights i { width: 24px; height: 24px; border: 2px solid #475166; border-radius: 50%; background: #182134; transition: background .12s,box-shadow .12s; }
+.countdown[data-phase="ready"] i:first-child,.countdown[data-phase="set"] i:nth-child(-n+2) { background: #ffb366; border-color: #ffcf97; box-shadow: 0 0 22px #ff9c4faa; }
+.start-panel strong { display: block; font: italic 800 clamp(60px,10vw,92px)/1.15 var(--race-display); letter-spacing: -.04em; }
+.start-hint { margin-top: 10px; font-size: 8px; }
+.countdown[data-phase="ready"] .start-panel { animation: start-ready .3s ease-out both; }
+.countdown[data-phase="set"] .start-panel { animation: start-set .3s ease-out both; }
+.countdown[data-phase="go"] .start-panel { color: var(--race-accent); border-color: var(--race-accent); animation: start-go .65s ease-out both; }
+.countdown[data-phase="go"] i { background: var(--race-accent); border-color: #b5fcff; box-shadow: 0 0 24px #36e6edaa; }
+@keyframes start-ready { from { opacity: 0; transform: translateY(14px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes start-set { from { transform: scale(.95); } to { transform: none; } }
+@keyframes start-go { 0% { opacity: 1; transform: scale(.95); } 35% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0; transform: scale(1.16); } }
+#soundButton,#fullscreenButton { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; }
+#soundButton svg { width: 22px; height: 22px; }
+.sound-slash { display: none; stroke: #ff606e; stroke-width: 2.8; paint-order: stroke; }
+#soundButton[aria-pressed="false"] .sound-slash { display: block; }
+#soundButton[aria-pressed="false"] .sound-waves { opacity: .18; }
+#soundButton[aria-pressed="true"] { color: var(--race-accent); }
 .stage-message { position: absolute; inset: auto 20px 20px; z-index: 8; padding: 16px 20px; background: var(--race-bg); border-left: 3px solid var(--race-accent); color: var(--race-ink); font-size: 13px; }
 .race-overlay { position: absolute; inset: 0; background: #070d1399; backdrop-filter: blur(5px); display: grid; place-items: center; z-index: 10; padding: 20px; }
 .overlay-card { width: min(100%, 390px); background: var(--race-bg); padding: 30px; border-top: 3px solid var(--race-accent); }
@@ -73,11 +93,6 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 }
 .mobile-play .stage-tools { top: var(--play-top); right: var(--play-right); gap: 4px; }
 .mobile-play .stage-tools button { min-height: 44px; padding: 8px; }
-.mobile-play #soundButton { font-size: 0; }
-.mobile-play #soundButton::before { content: '♪'; font: 15px var(--font-mono); }
-.mobile-play #soundButton span { font: 8px var(--font-mono); margin-left: 4px; }
-.mobile-play #qualityButton { font-size: 8px; }
-.mobile-play #qualityButton span { font-size: 8px; }
 .mobile-play #fullscreenButton { width: 44px; padding: 0; }
 .mobile-play .hud-top { top: calc(var(--play-top) + 58px); left: var(--play-left); right: var(--play-right); padding: 0; gap: 6px; }
 .mobile-play .hud-pause { top: -58px; left: 62px; right: auto; width: 44px; height: 44px; border: 1px solid #75827577; }
@@ -126,7 +141,7 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
     .mobile-play #raceMap { display: none; }
     .mobile-play .race-notice { top: calc(var(--play-top) + 135px); }
 }
-@media (prefers-reduced-motion: reduce) { .drift-page * { scroll-behavior: auto; } }
+@media (prefers-reduced-motion: reduce) { .drift-page * { scroll-behavior: auto; } .countdown .start-panel { animation: none; } .start-lights i { transition: none; } }
 
 /* Menu typography can grow without moving any driving controls. */
 .overlay-card > p:not(.race-eyebrow) { font-size: 14px; }
@@ -135,8 +150,8 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
    an oversized card above the viewport where its heading cannot be reached. */
 .mobile-play .race-overlay { align-items: safe center; }
 /* Reserve room for the larger desktop utility buttons without overlapping pause. */
-.race-stage:not(.mobile-play) .hud-top { padding-right: 320px; }
-.race-stage:not(.mobile-play) .hud-pause { right: 260px; width: 44px; height: 40px; top: -2px; }
+.race-stage:not(.mobile-play) .hud-top { padding-right: 164px; }
+.race-stage:not(.mobile-play) .hud-pause { right: 104px; width: 44px; height: 44px; top: -2px; }
 
 /* Shared RPM drives the engine sound, rev strip and automatic gear display. */
 .speed-readout.instrument-cluster { display: flex; align-items: center; gap: 12px; width: 244px; min-width: 0; padding: 10px 14px; border-radius: 8px; border: 1px solid #36e6ed44; background: linear-gradient(135deg,#101c2df2,#080e18f2); text-align: center; }
