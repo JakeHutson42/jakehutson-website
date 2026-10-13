@@ -76,12 +76,12 @@ test('loop camera remains behind the car and follows its road-relative up vector
     }
 });
 
-test('published laps are 1–2 miles and speed conversions use imperial units', () => {
+test('published laps are 0.75-1.5 miles and speed conversions use imperial units', () => {
     assert.ok(Math.abs(mph(40)-89.47745168)<0.0001);
     assert.equal(miles(1609.344),1);
     for(const day of ['11','12','13','14']) {
         const t=JSON.parse(readFileSync(new URL(`../../games/drift/tracks/2026-10-${day}.json`,import.meta.url)));
-        assert.ok(miles(t.drivingLength)>=1 && miles(t.drivingLength)<=2);
+        assert.ok(miles(t.drivingLength)>=0.75 && miles(t.drivingLength)<=1.5);
     }
 });
 

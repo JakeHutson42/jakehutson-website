@@ -14,7 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 640
-GENERATOR_VERSION = 10
+GENERATOR_VERSION = 11
+# Keep daily corner choices stable while changing road dimensions.
+SHAPE_SEED_VERSION = 10
 
 
 def distance(first, second):
@@ -110,7 +112,7 @@ def hairpin_count(points):
 
 
 # Perimeter trace of the twist-heavy reference: linked chicanes and returning
-# corners distributed around the entire lap, with space for a 14-metre road.
+# corners distributed around the entire lap, with space for a 15-metre road.
 SKETCH = [(365,185),(410,163),(445,175),(465,210),(460,270),(480,282),
  (510,260),(510,180),(525,163),(555,163),(570,185),(568,270),
  (590,270),(615,255),(615,205),(635,175),(675,173),(708,192),
@@ -181,8 +183,33 @@ def longest_flat_run(points):
     return longest
 
 
+def round_corners(points, target_length=None):
+    """Round tight corners locally, optionally retaining a chosen lap length."""
+    # Smooth only tight corners and their neighbours. Global smoothing was
+    # erasing nearby chicanes while fixing an unrelated tight corner.
+    for _ in range(700):
+        if target_length is not None:
+            length = sum(distance(points[i-1], p) for i,p in enumerate(points))
+            scale = target_length/length
+            points = [[x*scale,z*scale] for x,z in points]
+        tight = set()
+        for i, point in enumerate(points):
+            before, after = points[i-1], points[(i+1) % POINT_COUNT]
+            ax, az = point[0]-before[0], point[1]-before[1]
+            bx, bz = after[0]-point[0], after[1]-point[1]
+            turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
+            if distance(point,after)/max(turn,1e-6) < 21:
+                tight.update((i+j)%POINT_COUNT for j in range(-2,3))
+        if not tight:
+            break
+        points = resample_closed_loop([
+            [(points[i-1][a]+2*p[a]+points[(i+1)%POINT_COUNT][a])/4 for a in range(2)]
+            if i in tight else p for i,p in enumerate(points)], POINT_COUNT)
+    return points
+
+
 def generate_track(track_date):
-    seed = int.from_bytes(hashlib.sha256(f"apex-v{GENERATOR_VERSION}:{track_date}".encode()).digest()[:4], "big")
+    seed = int.from_bytes(hashlib.sha256(f"apex-v{SHAPE_SEED_VERSION}:{track_date}".encode()).digest()[:4], "big")
     rng = random.Random(seed)
     for attempt in range(80):
         # Each date changes individual corner positions, proportions and driving
@@ -210,33 +237,28 @@ def generate_track(track_date):
         length = sum(distance(points[i-1], p) for i, p in enumerate(points))
         scale = rng.uniform(4050, 4350)/length
         points = [[x*scale, z*scale] for x,z in points]
-        # Smooth only tight corners and their neighbours. Global smoothing was
-        # erasing nearby chicanes while fixing an unrelated tight corner.
-        for _ in range(700):
-            tight = set()
-            for i, point in enumerate(points):
-                before, after = points[i-1], points[(i+1) % POINT_COUNT]
-                ax, az = point[0]-before[0], point[1]-before[1]
-                bx, bz = after[0]-point[0], after[1]-point[1]
-                turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
-                if distance(point,after)/max(turn,1e-6) < 21:
-                    tight.update((i+j)%POINT_COUNT for j in range(-2,3))
-            if not tight:
-                break
-            points = resample_closed_loop([
-                [(points[i-1][a]+2*p[a]+points[(i+1)%POINT_COUNT][a])/4 for a in range(2)]
-                if i in tight else p for i,p in enumerate(points)], POINT_COUNT)
+        points = round_corners(points)
         length = sum(distance(points[i-1], p) for i,p in enumerate(points))
         total_turn, reversals = corner_profile(points)
         if not (1609.344 <= length <= 3218.688 and total_turn >= 38 and reversals >= 24 and longest_flat_run(points) < 100):
             continue
         if not validate_geometry(points,14) or crossing_pairs(points):
             continue
+        # Retain the established daily shapes and shorten their actual lap
+        # distance by 25%. Re-round tighter corners at the new scale, restoring
+        # the target length during smoothing so it cannot shorten the lap again.
+        target_length = length * 0.75
+        points = round_corners(points, target_length)
+        length = sum(distance(points[i-1], p) for i,p in enumerate(points))
+        total_turn, reversals = corner_profile(points)
+        if not (validate_geometry(points,15) and total_turn >= 38 and reversals >= 24
+                and longest_flat_run(points) < 100 and not crossing_pairs(points)):
+            continue
         start = rng.randrange(POINT_COUNT)
         points = points[start:]+points[:start]
         return {"version":1, "generatorVersion":GENERATOR_VERSION, "date":str(track_date),
                 "seed":seed, "name":["Midnight Switchbacks", "Neon Chicanes", "Skyline Esses"][seed%3],
-                "layout":"switchbacks", "environment":"NIGHT CITY", "width":14,
+                "layout":"switchbacks", "environment":"NIGHT CITY", "width":15,
                 "length":round(length,2), "drivingLength":round(length,2),
                 "points":points, "elevations":[0.0]*POINT_COUNT, "bridges":[]}
     raise RuntimeError(f"Unable to generate a safe twisty circuit: {track_date}")

@@ -21,7 +21,7 @@ class TrackTests(unittest.TestCase):
     def test_many_dates_produce_safe_evenly_spaced_circuits(self):
         for offset in range(60):
             track = generator.generate_track(date(2026, 10, 1) + timedelta(days=offset))
-            self.assertEqual(track["width"], 14)
+            self.assertEqual(track["width"], 15)
             points = track["points"]
             # Broad, nearly flat stretches should not dominate the lap. Walk
             # twice so a run crossing the start line is measured as one run.
@@ -41,14 +41,20 @@ class TrackTests(unittest.TestCase):
             self.assertNotIn("loop", track)
             self.assertLess(max(segments) / min(segments), 1.03)
             self.assertAlmostEqual(sum(segments), track["length"], places=1)
-            self.assertGreaterEqual(track["drivingLength"],1609.344)
-            self.assertLessEqual(track["drivingLength"],3218.688)
+            self.assertGreaterEqual(track["drivingLength"],1207.008)
+            self.assertLessEqual(track["drivingLength"],2414.016)
             total_turn, reversals = generator.corner_profile(points)
             self.assertGreaterEqual(generator.hairpin_count(points), 1, "Keep at least one returning drift corner")
             self.assertGreaterEqual(total_turn, 38)
             self.assertLessEqual(total_turn, 75)
             self.assertGreaterEqual(reversals, 24, "Each circuit needs linked left/right bends")
             self.assertLessEqual(reversals, 44, "Keep bends distinct rather than noisy")
+
+    def test_existing_daily_laps_are_25_percent_shorter(self):
+        previous_lengths = [2734.52, 2658.05, 2690.99, 2829.78]
+        for day, previous in zip(range(11,15), previous_lengths):
+            track = generator.generate_track(date(2026,10,day))
+            self.assertAlmostEqual(track["length"], previous*0.75, delta=0.02)
 
     def test_daily_layouts_change_corner_geometry_and_have_no_stunts(self):
         tracks = [generator.generate_track(date(2026, 10, 11) + timedelta(days=i)) for i in range(6)]

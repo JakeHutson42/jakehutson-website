@@ -17,7 +17,7 @@ export function roadObstacles(track) {
         if (track.loop && progress > track.loop.start - 140/track.length && progress < track.loop.end + 140/track.length) continue;
         if ((track.bridges || []).some(b => [b.upper,b.lower].some(p => distanceProgress(p,progress)*track.length < 150))) continue;
         if ([0,0.25,0.5,0.75].some(p => distanceProgress(p,progress)*track.length < 45)) continue;
-        if (obstacles.some(o => distanceProgress(o.progress,progress)*track.length < 190)) continue;
+        if (obstacles.some(o => distanceProgress(o.progress,progress)*track.length < 140)) continue;
         const pose = trackPose(track, progress);
         const before = trackPose(track, progress - 24/track.length), after = trackPose(track, progress + 24/track.length);
         if (Math.abs(wrapAngle(after.heading-before.heading)) > 0.45 ||
