@@ -223,8 +223,8 @@ The complete checked-in bank has been regenerated. Records use `apex-drift:v9` t
 
 The start-screen camera follows a closed Catmull–Rom spline eight metres per second,
 5.2 metres above the centreline, looking 18 metres ahead. It loops continuously
-without changing the car or race clock. Desaturation, darkening and a vignette
-apply only to the preview canvas and disappear immediately on Start. Reduced-motion
+without changing the car or race clock. The preview shows the city's full lighting
+and colour, with no desaturation, darkening or vignette overlay. Reduced-motion
 users receive a stationary overview; off-screen and hidden previews stop animating.
 The existing driving camera, handling, scenery and mobile play lock are preserved.
 

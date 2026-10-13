@@ -210,10 +210,5 @@ kbd.wide-key { min-width: 132px; }
     .dialog-footer { padding: 12px 20px; }
 }
 
-/* The cinematic treatment belongs only to the preview, never to menus or a run.
-   CSS compositing avoids another WebGL pass or a downloaded texture/video. */
-.race-stage:not(.is-playing) #raceCanvas { filter: saturate(.25) brightness(.78); }
-.race-stage:not(.is-playing) .scene-view::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(ellipse at center, transparent 25%, #060b145c 100%), linear-gradient(0deg, #060b1459, transparent 45%);
-}
+/* Let the flyover show the city's full lighting and colour without a tint,
+   desaturation filter or dark vignette over the rendered scene. */
