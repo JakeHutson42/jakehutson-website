@@ -192,7 +192,9 @@ export class DriftWorld {
                 side * halfWidth, 0.10), this.material(COLORS.white, { side: THREE.DoubleSide }));
             this.environment.add(stripe);
         }
-        this.environment.add(buildTrackBarriers(track));
+        const barriers = buildTrackBarriers(track);
+        this.environment.add(barriers);
+        this.lampPoses = barriers.userData.lampPoses;
         this.buildStartLine(track);
         this.buildScenery(track);
         this.markIndex = 0; this.lastMark = null;
@@ -272,15 +274,8 @@ export class DriftWorld {
         }
         windows.count = count; windows.instanceMatrix.needsUpdate = true;
         this.environment.add(windows);
-        this.lampPoses = [];
         for (let index = 0; index < 44; index++) {
-            const pose = trackPose(track, index / 44), side = index % 2 ? 1 : -1;
-            const offset = track.width / 2 + EDGE.vergeWidth + 2;
-            const x = pose.x + Math.cos(pose.heading) * offset * side;
-            const z = pose.z - Math.sin(pose.heading) * offset * side;
-            this.lampPoses.push({ x, z, color: colors[index % 4] });
-            block(x, 4, z, 0.18, 8, 0.18, facade, true);
-            block(x, 8, z, 1.6, 0.15, 1.6, neons[index % 4]);
+            const pose = trackPose(track, index / 44);
             // Layered glints suggest wet neon reflections without reflection passes.
             for (let layer = 0; layer < 4; layer++) {
                 const glint = new THREE.Mesh(new THREE.PlaneGeometry(3 + layer * 1.4, 9 + layer * 2),
@@ -334,7 +329,7 @@ export class DriftWorld {
         const nearby = [...this.lampPoses].sort((a, b) =>
             Math.hypot(a.x - focus.x, a.z - focus.z) - Math.hypot(b.x - focus.x, b.z - focus.z));
         this.streetLamps.forEach((lamp, index) => {
-            const pose = nearby[index];
+            const pose = nearby[index % nearby.length];
             lamp.position.set(pose.x, 7.5, pose.z); lamp.color.setHex(pose.color);
         });
         this.car.visible = playing;

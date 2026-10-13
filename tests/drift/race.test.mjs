@@ -107,6 +107,18 @@ test('acceleration is progressive, speed is capped, and lower-speed handbrake dr
     assert.ok(scoredDrift, 'A cornering slide at about 60 km/h must remain rewarding');
 });
 
+test('handbrake holds a slide while releasing it restores grip', () => {
+    const openRoad = { width: 200, points: [[0, -1000], [0, 1000], [1000, 1000], [1000, -1000]] };
+    const sliding = { x: 0, z: 0, heading: 0, vx: 8, vz: 22, speed: 23, steering: 0 };
+    const recovering = { ...sliding };
+    for (let step = 0; step < 60; step++) {
+        updateCar(sliding, { ...noInput, handbrake: true }, openRoad, GAME_CONFIG.fixedStep);
+        updateCar(recovering, noInput, openRoad, GAME_CONFIG.fixedStep);
+    }
+    assert.ok(sliding.vx > 3.5, 'A held drift should retain sideways momentum');
+    assert.ok(recovering.vx < 0.5, 'Releasing the handbrake should let the tyres recover');
+});
+
 test('records persist highest score and fastest time independently', () => {
     let saved = null;
     const storage = { getItem: () => saved, setItem: (_key, value) => { saved = value; } };

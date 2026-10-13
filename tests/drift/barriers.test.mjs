@@ -65,16 +65,20 @@ test('an impact banks the existing combo and cannot score a collision as a drift
     assert.equal(race.combo, 0); assert.equal(race.score, 100); assert.equal(race.drifting, false);
 });
 
-test('continuous wall geometry closes the seam and is batched into two coloured meshes', () => {
+test('continuous concrete walls close the seam alongside batched urban signs and lamps', () => {
     const track = JSON.parse(readFileSync(new URL('../../games/drift/tracks/2026-10-13.json', import.meta.url)));
     for (const offset of [-6, 6]) assert.deepEqual(offsetTrackPoint(track.points, 0, offset), offsetTrackPoint(track.points, track.points.length, offset));
     const walls = buildTrackBarriers(track);
-    assert.equal(walls.children.length, 2);
-    for (const wall of walls.children) {
+    assert.equal(walls.children.filter(child => child.name === 'concrete-boundary').length, 2);
+    for (const wall of walls.children.filter(child => child.name === 'concrete-boundary')) {
         wall.geometry.computeBoundingBox();
         assert.ok(Math.abs(wall.geometry.boundingBox.max.y - EDGE.barrierHeight) < 0.0001);
         assert.equal(wall.castShadow, true);
         assert.ok([...wall.geometry.attributes.position.array].every(Number.isFinite));
     }
+    const lamps = walls.getObjectByName('barrier-streetlights');
+    assert.ok(lamps.userData.spacing >= 29 && lamps.userData.spacing <= 31);
+    assert.equal(lamps.getObjectByName('lamp-heads').count, walls.userData.lampPoses.length);
+    assert.ok(walls.getObjectByName('direction-chevrons').geometry.attributes.position.count > 0);
     disposeCar(walls);
 });

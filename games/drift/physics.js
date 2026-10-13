@@ -30,9 +30,9 @@ export function updateCar(car, input, track, deltaTime) {
     // Reproject after turning. Momentum follows the old heading until tire grip acts.
     const rotation = -car.steering * CONFIG.steeringRate * speedSteering * Math.sign(forwardSpeed) * driftSteering * deltaTime;
     lateralSpeed -= forwardSpeed * Math.sin(rotation);
-    // Preserve accessible throttle drifts at the revised, slower cornering speed.
-    const poweredSlide = Math.abs(car.steering) > 0.4 && forwardSpeed > CONFIG.poweredSlideSpeed;
-    const grip = car.offRoad ? 4 : input.handbrake ? CONFIG.driftGrip : poweredSlide ? 3 : CONFIG.roadGrip;
+    // Gentle steering stays planted; deliberate cornering releases the rear sooner.
+    const poweredSlide = Math.abs(car.steering) > 0.35 && forwardSpeed > CONFIG.poweredSlideSpeed;
+    const grip = car.offRoad ? 4 : input.handbrake ? CONFIG.driftGrip : poweredSlide ? CONFIG.poweredSlideGrip : CONFIG.roadGrip;
     lateralSpeed *= Math.exp(-grip * deltaTime);
     const nextForwardX = Math.sin(car.heading);
     const nextForwardZ = Math.cos(car.heading);
