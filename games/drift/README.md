@@ -67,13 +67,20 @@ update all copies when adding links, as there is no server-side template include
 
 ## Daily circuits and the archive
 
-The generator uses a SHA-256 seed of the UTC date and generator version. Version 8
+The generator uses a SHA-256 seed of the UTC date and generator version. Version 9
 uses **14-metre roads**, three distinct sketch-inspired layout families and 640
 evenly spaced planar points. The first is a polished trace of the supplied drawing;
 the others replace the southern districts and change the route proportions and
 orientation. Small seeded scale and rotation changes give later dates variation.
 Pen kinks are rounded to centreline radii of at least 20 metres, with linked drift
 corners and returning sweepers rather than abrupt zigzags.
+
+Version 9 adds linked S bends along the western and northern runs and bends
+sustained flat sections after smoothing. Geometry tests cap nearly flat runs at
+240 metres across 60 dates. Powered-slide and handbrake grip are reduced by 10%
+(1.935 and 1.08); normal road grip remains 6 for clean recovery. Revised circuits
+and handling use v10 personal records. Fullscreen is hidden on touch devices and
+phone-width screens, including the mobile play view.
 
 Every crossover receives a 12-metre raised deck, 105-metre eased ramps and a
 35-metre level approach around the crossing. An elevation array accompanies the

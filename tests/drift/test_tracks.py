@@ -1,6 +1,7 @@
 """Generator tests cover determinism, safe geometry, and bank replenishment."""
 import importlib.util
 import json
+import math
 import tempfile
 import unittest
 from datetime import date, timedelta
@@ -22,6 +23,19 @@ class TrackTests(unittest.TestCase):
             track = generator.generate_track(date(2026, 10, 1) + timedelta(days=offset))
             self.assertEqual(track["width"], 14)
             points = track["points"]
+            # Broad, nearly flat stretches should not dominate the lap. Walk
+            # twice so a run crossing the start line is measured as one run.
+            flat_run = longest_flat_run = 0
+            for i in range(len(points)*2):
+                j = i % len(points)
+                before, point, after = points[j-4], points[j], points[(j+4) % len(points)]
+                ax, az = point[0]-before[0], point[1]-before[1]
+                bx, bz = after[0]-point[0], after[1]-point[1]
+                turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
+                flat_run = (flat_run + generator.distance(point, points[(j+1) % len(points)])
+                            if turn/max(math.hypot(ax, az), 0.001) < 1/180 else 0)
+                longest_flat_run = max(longest_flat_run, flat_run)
+            self.assertLess(longest_flat_run, 240, "Break long flat runs into linked bends")
             self.assertTrue(generator.validate_geometry(points, track["width"], track["elevations"]))
             segments = [generator.distance(points[index], points[(index + 1) % len(points)]) for index in range(len(points))]
             evenly_spaced = segments

@@ -8,14 +8,15 @@ export const GAME_CONFIG = Object.freeze({
     resetPenalty: 5,
     // Redesigned layouts and elevation need their own records. Preserve earlier
     // device data rather than comparing runs on different circuits.
-    storageKey: 'apex-drift:v9',
+    storageKey: 'apex-drift:v10',
     maximumRecords: 64,
     maximumSpeed: 40,
     acceleration: 17.5,
     brakeForce: 28,
     roadGrip: 6,
-    driftGrip: 1.2,
-    poweredSlideGrip: 2.15,
+    // 10% less lateral grip in both slide modes; retain normal recovery grip.
+    driftGrip: 1.08,
+    poweredSlideGrip: 1.935,
     slideCarrySeconds: 0.45,
     handbrakeDrag: 0.52,
     steeringRate: 1.85,

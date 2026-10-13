@@ -93,7 +93,10 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 }
 .mobile-play .stage-tools { top: var(--play-top); right: var(--play-right); gap: 4px; }
 .mobile-play .stage-tools button { min-height: 44px; padding: 8px; }
-.mobile-play #fullscreenButton { width: 44px; padding: 0; }
+.mobile-play #fullscreenButton { display: none; }
+@media (any-pointer: coarse), (max-width: 767px) {
+    #fullscreenButton { display: none; }
+}
 .mobile-play .hud-top { top: calc(var(--play-top) + 58px); left: var(--play-left); right: var(--play-right); padding: 0; gap: 6px; }
 .mobile-play .hud-pause { top: -58px; left: 62px; right: auto; width: 44px; height: 44px; border: 1px solid #75827577; }
 .mobile-play .hud-readout { min-width: 57px; padding: 8px 10px; }

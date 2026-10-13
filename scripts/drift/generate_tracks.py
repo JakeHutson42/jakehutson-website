@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 640
-GENERATOR_VERSION = 8
+GENERATOR_VERSION = 9
 
 
 def distance(first, second):
@@ -162,6 +162,14 @@ def generate_track(track_date):
     rng = random.Random(seed)
     variant = (track_date - date(2026, 10, 11)).days % 3
     controls = list(SKETCH)
+    # Break up the long western and northern runs with linked, broad S bends.
+    # Keep the crossover and southern hairpins intact; final smoothing still
+    # enforces the full road-width corner clearance.
+    controls[63:85] = [(263,839),(213,825),(182,790),(205,750),
+        (180,710),(193,683),(233,651),(268,610),(269,575),
+        (243,550),(210,520),(204,480),(225,450),(204,422),
+        (235,382),(273,356),(318,337),(355,330),(392,309),
+        (421,276),(415,240),(450,210),(466,175),(501,150)]
     if variant == 1:
         # Replace the southern switchbacks with a wide westward chicane district.
         controls[38:56] = [(505,1010),(454,1025),(411,1077),(352,1104),
@@ -201,6 +209,33 @@ def generate_track(track_date):
         if min(radii) >= 20:
             break
         points = resample_closed_loop([[(points[i-1][a]+2*point[a]+points[(i+1)%POINT_COUNT][a])/4 for a in range(2)] for i,point in enumerate(points)], POINT_COUNT)
+    points = resample_closed_loop(points, POINT_COUNT)
+    # Turn sustained flat runs into smooth S bends. A zero-slope envelope joins
+    # the original road without a steering kink at either end.
+    runs, run = [], []
+    for i, point in enumerate(points):
+        before, after = points[i-4], points[(i+4) % POINT_COUNT]
+        ax, az = point[0]-before[0], point[1]-before[1]
+        bx, bz = after[0]-point[0], after[1]-point[1]
+        turn = abs(math.atan2(ax*bz-az*bx, ax*bx+az*bz))
+        if turn / max(math.hypot(ax, az), 0.001) < 1/180:
+            run.append(i)
+        elif run:
+            runs.append(run)
+            run = []
+    if run:
+        runs.append(run)
+    for run in runs:
+        span = sum(distance(points[i-1], points[i]) for i in run[1:])
+        if span < 110:
+            continue
+        first, last = points[run[0]], points[run[-1]]
+        dx, dz = last[0]-first[0], last[1]-first[1]
+        chord = math.hypot(dx, dz)
+        for step, i in enumerate(run):
+            t = step / (len(run)-1)
+            offset = min(28, span*0.04) * math.sin(math.tau*t) * math.sin(math.pi*t)**2
+            points[i] = [points[i][0]-dz/chord*offset, points[i][1]+dx/chord*offset]
     points = resample_closed_loop(points, POINT_COUNT)
     # Move the start to the sweeping left flank, clear of the crossover and stunt.
     start = min(range(len(points)), key=lambda i: distance(points[i], transformed[int(0.83*POINT_COUNT)]))
