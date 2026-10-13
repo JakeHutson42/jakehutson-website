@@ -71,6 +71,7 @@ export class DriftWorld {
         this.scene.add(this.tireMarks);
         this.markIndex = 0;
         this.lastMark = null;
+        this.buildSmoke();
         this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.resizeObserver = new ResizeObserver(() => this.resize());
         this.resizeObserver.observe(canvas.parentElement);
