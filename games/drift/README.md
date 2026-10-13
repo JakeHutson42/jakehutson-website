@@ -43,6 +43,7 @@ Using the existing root-directory deployment also works with the checked-in bank
 | `games/drift/main.js` | Loading, UI state, fixed-step loop, UTC rollover |
 | `games/drift/config.js` | Race length, physics tuning, archive and storage limits |
 | `games/drift/physics.js` | Arcade acceleration, grip, steering, handbrake, runoff |
+| `games/drift/road-surface.js` | Shared elevated road frames, crossover routing and vertical-loop poses |
 | `games/drift/race.js` | Countdown, checkpoints, laps, drift combos, reset penalties |
 | `games/drift/world.js` | Three.js track, car, scenery, camera, tire marks |
 | `games/drift/preview-camera.js` | Distance-based cinematic circuit fly-through |
@@ -66,15 +67,23 @@ update all copies when adding links, as there is no server-side template include
 
 ## Daily circuits and the archive
 
-The generator uses a SHA-256 seed of the UTC date and generator version. Version 4
-uses a **14-metre road**, explicit 180-degree switchbacks and alternating S-bends.
-Each layout must have at least three sustained corners turning 155 degrees or more,
-at least 18 meaningful curvature reversals, and at least 23 radians of accumulated
-absolute turning. These are geometry checks, not a displayed corner count.
-Centreline radii below 18.9 metres and nearby overlapping road sections are rejected.
-The loop is resampled to 320 evenly spaced points, then its start is moved to a
-gentle section. Seeded reflection, rotation, lane lengths, bend amplitudes and
-hairpin radii vary the rhythm while keeping joins tangent and roads separated.
+The generator uses a SHA-256 seed of the UTC date and generator version. Version 6
+uses **17-metre roads**, three distinct sketch-inspired layout families and 640
+evenly spaced planar points. The first is a polished trace of the supplied drawing;
+the others replace the southern districts and change the route proportions and
+orientation. Small seeded scale and rotation changes give later dates variation.
+Pen kinks are rounded to centreline radii of at least 24 metres, with linked drift
+corners and returning sweepers rather than abrupt zigzags.
+
+Every crossover receives a 12-metre raised deck, 105-metre eased ramps and a
+35-metre level approach around the crossing. An elevation array accompanies the
+planar points; local progress searches keep cars on their own road at overlaps.
+The stunt family adds an 18-metre-radius vertical loop on a level straight. Its
+entry pad provides at least 20 m/s (72 km/h), and guided arcade grip carries the
+car through the complete circle before returning steering control. There is no
+gravity slowdown or falling simulation. Road, barriers, car pitch, lights, tyre
+marks and chase-camera height follow the surface. Checkpoints and resets retain
+the correct progress and road height. The loop does not earn drift points.
 
 The development bank contains **four circuits**, initially dated 2026-10-11 through
 2026-10-14: two recent dates, today and tomorrow. The browser exposes only dates
@@ -165,7 +174,7 @@ rather than claiming identical physics or copying its implementation.
 
 ## Records, privacy, and future backend
 
-The `apex-drift:v4` local-storage entry holds sound preference and up to 64 dated
+The `apex-drift:v6` local-storage entry holds sound preference and up to 64 dated
 records: best drift score, fastest finish (which may be from a different run), and
 completed-run count. There is no tracking or data upload. If storage is inaccessible,
 records stay in memory for the current visit and the page clearly says so. Clearing
@@ -195,13 +204,13 @@ Everything remains static, local, and backend-free. No additional libraries or d
 
 ### Track edges and solid barriers
 
-Road edges have a 0.32-metre white line, a one-metre desert verge, then a red/white wall 0.95 metres high and 0.5 metres thick. The existing desert scenery, horizon, materials and lighting remain in use. Start/finish supports and checkpoint markers sit beyond the walls.
+Road edges have a 0.32-metre pale line, a one-metre paved shoulder, then a dark concrete wall 0.95 metres high and 0.5 metres thick. Integrated amber arrows and barrier-mounted streetlights follow the raised road heights. Start/finish supports and checkpoint markers sit beyond the walls.
 
-`TRACK_EDGE_CONFIG` in `config.js` owns shared dimensions. `track-edges.js` provides the same offset vertices to the renderer's road ribbons and `barrier-mesh.js`. The walls are continuous prisms with joined endpoints, rendered as two batched meshes rather than hundreds of draw calls. This avoids gaps between rotated blocks in tight corners.
+`TRACK_EDGE_CONFIG` in `config.js` owns shared dimensions. `road-surface.js` supplies shared surface frames to the road ribbons and `barrier-mesh.js`; `track-edges.js` resolves body contacts against the same road corridor. The walls are continuous prisms with joined endpoints, rendered as two batched meshes rather than hundreds of draw calls. This avoids gaps between rotated blocks in tight corners.
 
 The physics resolves body corners, bumper centres and side midpoints against the corridor after each fixed step, removing outward velocity while preserving slower motion along the barrier. A small contact margin keeps wheels and body clear of the visible wall; all cosmetic models share a hitbox large enough for the widest and longest car. Contact banks the current combo and stops wall scraping from earning drift points. A conservative clearance test skips detailed collision work away from the edges.
 
-The complete checked-in bank has been regenerated. Records use `apex-drift:v4` to avoid comparing previous layouts with the new challenge; previous records remain untouched in their old storage entries. The separate garage save is preserved. Scheduled track cache keys also use v4, so an old cached bank cannot restore superseded layouts.
+The complete checked-in bank has been regenerated. Records use `apex-drift:v6` to avoid comparing previous layouts with the new challenge; previous records remain untouched in their old storage entries. The separate garage save is preserved. Scheduled track cache keys also use v6, so an old cached bank cannot restore superseded layouts.
 
 ## Cinematic lobby preview
 
@@ -214,6 +223,10 @@ The existing driving camera, handling, scenery and mobile play lock are preserve
 
 Night scenery uses procedural city blocks, instanced windows, rooftop neon, six nearby streetlights and layered additive road glints. Glints are stylised reflections rather than real-time mirror reflections. City blocks clear the driving corridor; physics and layouts are unchanged.
 
-Pacing: 40 m/s (144 km/h) forward cap, 15 m/s² acceleration and 28 m/s² braking. Speed adds up to eight degrees of camera FOV and lowers the chase view slightly; reduced-motion mode disables these camera effects. A bounded pool of 96 soft smoke sprites emits from both rear tyres during scored drifts, trailing backwards and opposite actual lateral velocity. Pause freezes smoke and resets clear it. Faster runs use the v5 records namespace, preserving earlier device data.
+Pacing: 40 m/s (144 km/h) forward cap, 15 m/s² acceleration and 28 m/s² braking. Speed adds up to eight degrees of camera FOV and lowers the chase view slightly; reduced-motion mode disables these camera effects. A bounded pool of 96 soft smoke sprites emits from both rear tyres during scored drifts, trailing backwards and opposite actual lateral velocity. Pause freezes smoke and resets clear it. Redesigned circuits use the v6 records namespace, preserving earlier device data.
 
-Street-race boundaries use dark concrete, cyan reflectors and amber bend chevrons. Barrier-mounted streetlights alternate sides at approximately 30-metre arc-length intervals; six nearby lights illuminate the road while all lamp heads remain visible. Slightly reduced grip makes powered and handbrake slides easier, while releasing the handbrake restores traction.
+Street-race boundaries use dark wall faces with repeated forward-pointing amber chevrons and a thin amber cap. Barrier-mounted streetlights alternate sides at approximately 30-metre arc-length intervals; six nearby lights illuminate the road while all lamp heads remain visible. Slightly reduced grip makes powered and handbrake slides easier, while releasing the handbrake restores traction.
+
+Circuit selection upgrades the native select to an animated, keyboard-accessible list of route cards with small SVG maps, dates, distances and feature badges. Arrow keys/Home/End navigate; Enter selects; Escape/outside clicks dismiss. The panel uses the browser top layer when available and stays within the viewport. The original select supplies race locking and remains a fallback if the enhancement fails to load. The header wheel spins and emits CSS smoke on hover or keyboard focus; reduced-motion settings stop these decorative animations.
+
+The freestanding directional-helper panels and posts have been removed. Both inner wall faces now carry batched orange chevrons aligned with increasing track progress, including bridge and inverted loop surfaces. The solid collision boundary and barrier-mounted lamps are preserved.

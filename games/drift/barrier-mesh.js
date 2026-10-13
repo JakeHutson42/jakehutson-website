@@ -1,7 +1,8 @@
+import { roadSamples, offsetSurface, roadHeight } from './road-surface.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { TRACK_EDGE_CONFIG as EDGE } from './config.js';
 import { offsetTrackPoint } from './track-edges.js';
-import { trackPose, wrapAngle } from './math.js';
+import { trackPose } from './math.js';
 
 // Build two continuous, low-poly wall meshes. Adjacent blocks share the same
 // corner positions: tight bends cannot expose the gaps left by rotated boxes.
@@ -12,27 +13,21 @@ export function buildTrackBarriers(track) {
     const face = (target, first, second, third, fourth) => {
         target.push(...first, ...second, ...third, ...first, ...third, ...fourth);
     };
-    for (let index = 0; index < track.points.length; index++) {
-        for (const side of [-1, 1]) {
-            const innerStart = offsetTrackPoint(track.points, index, innerOffset * side);
-            const innerEnd = offsetTrackPoint(track.points, index + 1, innerOffset * side);
-            const outerStart = offsetTrackPoint(track.points, index, (innerOffset + EDGE.barrierThickness) * side);
-            const outerEnd = offsetTrackPoint(track.points, index + 1, (innerOffset + EDGE.barrierThickness) * side);
-            for (let half = 0; half < 2; half++) {
-                const innerA = interpolate(innerStart, innerEnd, half / 2);
-                const innerB = interpolate(innerStart, innerEnd, (half + 1) / 2);
-                const outerA = interpolate(outerStart, outerEnd, half / 2);
-                const outerB = interpolate(outerStart, outerEnd, (half + 1) / 2);
-                const low = point => [point[0], 0.025, point[1]];
-                const high = point => [point[0], EDGE.barrierHeight, point[1]];
-                const vertices = surfaces[half];
-                face(vertices, low(innerA), low(innerB), high(innerB), high(innerA));
-                face(vertices, low(outerB), low(outerA), high(outerA), high(outerB));
-                face(vertices, high(innerA), high(innerB), high(outerB), high(outerA));
-                face(vertices, low(outerA), low(outerB), low(innerB), low(innerA));
-                face(vertices, low(outerA), low(innerA), high(innerA), high(outerA));
-                face(vertices, low(innerB), low(outerB), high(outerB), high(innerB));
-            }
+    const samples = roadSamples(track);
+    for (let index = 0; index < samples.length; index++) {
+        for (const side of [-1, 1]) for (let half = 0; half < 2; half++) {
+            const poseA = samples[index], poseB = samples[(index+1) % samples.length];
+            const at = (offset, height, f) => interpolate(offsetSurface(poseA, offset * side, height),
+                offsetSurface(poseB, offset * side, height), f);
+            const lowA = at(innerOffset, 0.025, half/2), lowB = at(innerOffset, 0.025, (half+1)/2);
+            const highA = at(innerOffset, EDGE.barrierHeight, half/2), highB = at(innerOffset, EDGE.barrierHeight, (half+1)/2);
+            const outer = innerOffset + EDGE.barrierThickness;
+            const outLowA = at(outer, 0.025, half/2), outLowB = at(outer, 0.025, (half+1)/2);
+            const outHighA = at(outer, EDGE.barrierHeight, half/2), outHighB = at(outer, EDGE.barrierHeight, (half+1)/2);
+            const v = surfaces[half];
+            face(v, lowA, lowB, highB, highA); face(v, outLowB, outLowA, outHighA, outHighB);
+            face(v, highA, highB, outHighB, outHighA); face(v, outLowA, outLowB, lowB, lowA);
+            face(v, outLowA, lowA, highA, outHighA); face(v, lowB, outLowB, outHighB, highB);
         }
     }
     const walls = new THREE.Group(); walls.name = 'solid-track-barriers';
@@ -40,12 +35,12 @@ export function buildTrackBarriers(track) {
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         geometry.computeVertexNormals();
-        const material = new THREE.MeshStandardMaterial({ color: index ? 0x30394a : 0x424b5b, roughness: 0.82, side: THREE.DoubleSide });
+        const material = new THREE.MeshStandardMaterial({ color: 0x17202c, roughness: 0.82, side: THREE.DoubleSide });
         const mesh = new THREE.Mesh(geometry, material);
         mesh.name = 'concrete-boundary';
         mesh.castShadow = true; mesh.receiveShadow = true; walls.add(mesh);
     });
-    walls.add(buildStreetRaceSigns(track));
+    walls.add(buildArrowBarriers(track, samples));
     const lighting = buildBarrierStreetlights(track);
     walls.add(lighting);
     walls.userData.lampPoses = lighting.userData.lampPoses;
@@ -66,74 +61,70 @@ function buildBarrierStreetlights(track) {
     const heads = new THREE.InstancedMesh(box, new THREE.MeshBasicMaterial({ color: 0xffdeb0 }), count);
     poles.name = 'lamp-poles-and-arms'; heads.name = 'lamp-heads'; poles.castShadow = true;
     const dummy = new THREE.Object3D(); const poses = [];
+    let lampCount = 0;
     for (let index = 0; index < count; index++) {
         let distance = total * index / count, segment = 0;
         while (segment < lengths.length - 1 && distance >= lengths[segment]) distance -= lengths[segment++];
         const pose = trackPose(track, (segment + distance / Math.max(lengths[segment], 0.001)) / track.points.length);
+        if (track.loop && (segment / track.points.length) >= track.loop.start &&
+            (segment / track.points.length) <= track.loop.end) continue;
+        const elevation = roadHeight(track, (segment + distance / Math.max(lengths[segment], 0.001)) / track.points.length);
         const side = index % 2 ? 1 : -1;
         const offset = track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness / 2;
         const rx = Math.cos(pose.heading), rz = -Math.sin(pose.heading);
         const x = pose.x + rx * offset * side, z = pose.z + rz * offset * side;
         dummy.rotation.set(0, pose.heading, 0);
-        dummy.position.set(x, 4, z); dummy.scale.set(0.2, 8, 0.2); dummy.updateMatrix();
-        poles.setMatrixAt(index * 2, dummy.matrix);
-        dummy.position.set(x - rx * side, 8, z - rz * side);
-        dummy.scale.set(2.2, 0.16, 0.2); dummy.updateMatrix(); poles.setMatrixAt(index * 2 + 1, dummy.matrix);
+        dummy.position.set(x, elevation + 4, z); dummy.scale.set(0.2, 8, 0.2); dummy.updateMatrix();
+        poles.setMatrixAt(lampCount * 2, dummy.matrix);
+        dummy.position.set(x - rx * side, elevation + 8, z - rz * side);
+        dummy.scale.set(2.2, 0.16, 0.2); dummy.updateMatrix(); poles.setMatrixAt(lampCount * 2 + 1, dummy.matrix);
         const headX = x - rx * side * 2, headZ = z - rz * side * 2;
-        dummy.position.set(headX, 7.9, headZ); dummy.scale.set(0.8, 0.12, 0.45); dummy.updateMatrix();
-        heads.setMatrixAt(index, dummy.matrix);
-        poses.push({ x: headX, z: headZ, color: 0xffdeb0, progress: index / count });
+        dummy.position.set(headX, elevation + 7.9, headZ); dummy.scale.set(0.8, 0.12, 0.45); dummy.updateMatrix();
+        heads.setMatrixAt(lampCount++, dummy.matrix);
+        poses.push({ x: headX, y: elevation, z: headZ, color: 0xffdeb0, progress: index / count });
     }
+    poles.count = lampCount * 2; heads.count = lampCount;
     group.add(poles, heads); group.userData.lampPoses = poses;
     group.userData.spacing = total / count;
     return group;
 }
 
-// Batched, texture-free warning panels sit behind the continuous concrete wall.
-// Their forward-facing arrows follow actual bend direction, on either roadside.
-function buildStreetRaceSigns(track) {
-    const group = new THREE.Group(); group.name = 'street-race-signs';
-    const panels = [], arrows = [], reflectors = [];
+// Repeated amber chevrons are part of the wall, not freestanding helper signs.
+// Increasing interpolation always means forward travel, on both road sides and
+// through bridges/inverted loop sections. No bend-sign guessing or flipped arrows.
+function buildArrowBarriers(track, samples) {
+    const group = new THREE.Group(); group.name = 'arrow-barrier-faces';
+    const arrows = [], trim = [];
+    const offset = track.width / 2 + EDGE.vergeWidth;
     const quad = (target, a, b, c, d) => target.push(...a, ...b, ...c, ...a, ...c, ...d);
-    const count = Math.max(12, Math.floor(track.length / 24));
-    for (let index = 0; index < count; index++) {
-        const progress = index / count;
-        const pose = trackPose(track, progress);
-        const ahead = trackPose(track, progress + 18 / track.length);
-        const turn = wrapAngle(ahead.heading - pose.heading);
-        const rightX = Math.cos(pose.heading), rightZ = -Math.sin(pose.heading);
-        const forwardX = Math.sin(pose.heading), forwardZ = Math.cos(pose.heading);
+    for (let index = 0; index < samples.length; index++) {
+        const a = samples[index], b = samples[(index + 1) % samples.length];
+        const length = Math.hypot(b.x-a.x, b.y-a.y, b.z-a.z);
+        const count = Math.max(1, Math.round(length / 3));
         for (const side of [-1, 1]) {
-            const offset = track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness + 0.2;
-            const x = pose.x + rightX * offset * side, z = pose.z + rightZ * offset * side;
-            const point = (u, y, front = 0) => [x + rightX * u - forwardX * front, y, z + rightZ * u - forwardZ * front];
-            // Small cyan reflectors make the wall line readable between signs.
-            quad(reflectors, point(-0.18, 0.65), point(0.18, 0.65), point(0.18, 0.9), point(-0.18, 0.9));
-            if (Math.abs(turn) < 0.08 && index % 3 !== 0) continue;
-            quad(panels, point(-1.7, 1.1), point(1.7, 1.1), point(1.7, 2.5), point(-1.7, 2.5));
-            // Signed chevrons for corners; paired upright stripes on straights.
-            for (const u of [-0.8, 0.8]) {
-                if (Math.abs(turn) < 0.08) {
-                    quad(arrows, point(u - 0.14, 1.3, 0.025), point(u + 0.14, 1.3, 0.025),
-                        point(u + 0.14, 2.3, 0.025), point(u - 0.14, 2.3, 0.025));
-                } else {
-                    const sign = Math.sign(turn);
-                    quad(arrows, point(u - sign * 0.4, 1.3, 0.025), point(u, 1.3, 0.025),
-                        point(u + sign * 0.45, 1.8, 0.025), point(u + sign * 0.05, 1.8, 0.025));
-                    quad(arrows, point(u + sign * 0.05, 1.8, 0.025), point(u + sign * 0.45, 1.8, 0.025),
-                        point(u, 2.3, 0.025), point(u - sign * 0.4, 2.3, 0.025));
-                }
+            const point = (f, height, across = offset - 0.025) => {
+                const start = offsetSurface(a, across * side, height);
+                const end = offsetSurface(b, across * side, height);
+                return start.map((value, axis) => value + (end[axis] - value) * f);
+            };
+            for (let cell = 0; cell < count; cell++) {
+                const p = (f, height) => point((cell + f) / count, height);
+                const low = EDGE.barrierHeight * 0.18, mid = EDGE.barrierHeight * 0.5, high = EDGE.barrierHeight * 0.82;
+                quad(arrows, p(0.18, low), p(0.4, low), p(0.82, mid), p(0.6, mid));
+                quad(arrows, p(0.6, mid), p(0.82, mid), p(0.4, high), p(0.18, high));
             }
-            // Posts are part of the same panel batch.
-            for (const u of [-1.35, 1.35]) quad(panels, point(u - 0.06, 0), point(u + 0.06, 0),
-                point(u + 0.06, 1.1), point(u - 0.06, 1.1));
+            // A fine amber cap connects the arrow panels into a readable boundary.
+            quad(trim, point(0, EDGE.barrierHeight + 0.008, offset),
+                point(1, EDGE.barrierHeight + 0.008, offset),
+                point(1, EDGE.barrierHeight + 0.008, offset + 0.09),
+                point(0, EDGE.barrierHeight + 0.008, offset + 0.09));
         }
     }
-    for (const [name, vertices, color] of [['sign-panels', panels, 0x101727], ['direction-chevrons', arrows, 0xffc578], ['wall-reflectors', reflectors, 0x36e6ed]]) {
+    for (const [name, vertices] of [['direction-chevrons', arrows], ['amber-barrier-trim', trim]]) {
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        const mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide }));
-        mesh.name = name; group.add(mesh);
+        const material = new THREE.MeshBasicMaterial({ color: 0xffb04a, side: THREE.DoubleSide, toneMapped: false });
+        const mesh = new THREE.Mesh(geometry, material); mesh.name = name; group.add(mesh);
     }
     return group;
 }

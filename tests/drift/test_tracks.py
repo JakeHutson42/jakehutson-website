@@ -20,18 +20,32 @@ class TrackTests(unittest.TestCase):
     def test_many_dates_produce_safe_evenly_spaced_circuits(self):
         for offset in range(60):
             track = generator.generate_track(date(2026, 10, 1) + timedelta(days=offset))
-            self.assertEqual(track["width"], 14)
+            self.assertEqual(track["width"], 17)
             points = track["points"]
-            self.assertTrue(generator.validate_geometry(points, track["width"]))
+            self.assertTrue(generator.validate_geometry(points, track["width"], track["elevations"]))
             segments = [generator.distance(points[index], points[(index + 1) % len(points)]) for index in range(len(points))]
             self.assertLess(max(segments) / min(segments), 1.03)
             self.assertAlmostEqual(sum(segments), track["length"], places=1)
             total_turn, reversals = generator.corner_profile(points)
-            self.assertGreaterEqual(generator.hairpin_count(points), 3, "Require real returning hairpins, not shallow wiggles")
-            self.assertGreaterEqual(total_turn, 23)
-            self.assertLessEqual(total_turn, 32)
-            self.assertGreaterEqual(reversals, 18, "Each circuit needs linked left/right bends")
-            self.assertLessEqual(reversals, 26, "Keep bends distinct rather than noisy")
+            self.assertGreaterEqual(generator.hairpin_count(points), 1, "Keep at least one returning drift corner")
+            self.assertGreaterEqual(total_turn, 20)
+            self.assertLessEqual(total_turn, 42)
+            self.assertGreaterEqual(reversals, 10, "Each circuit needs linked left/right bends")
+            self.assertLessEqual(reversals, 20, "Keep bends distinct rather than noisy")
+
+    def test_three_layouts_include_bridges_and_one_loop(self):
+        tracks = [generator.generate_track(date(2026, 10, 11) + timedelta(days=i)) for i in range(3)]
+        self.assertEqual({t["layout"] for t in tracks}, {"sketch", "borough", "stunt"})
+        self.assertEqual(sum("loop" in t for t in tracks), 1)
+        for track in tracks:
+            self.assertEqual(len(track["bridges"]), 1)
+            self.assertEqual(len(track["elevations"]), len(track["points"]))
+            self.assertGreaterEqual(max(track["elevations"]), 12)
+            for bridge in track["bridges"]:
+                upper = round(bridge["upper"]*len(track["points"])) % len(track["points"])
+                lower = round(bridge["lower"]*len(track["points"])) % len(track["points"])
+                self.assertGreaterEqual(track["elevations"][upper]-track["elevations"][lower], 10)
+        self.assertEqual(tracks[2]["loop"]["minimumSpeed"], 20)
 
     def test_development_bank_shrinks_a_previously_larger_bank(self):
         today = date(2026, 10, 13)

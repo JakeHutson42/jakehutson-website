@@ -6,9 +6,9 @@ export const GAME_CONFIG = Object.freeze({
     fixedStep: 1 / 120,
     maximumFrameTime: 0.1,
     resetPenalty: 5,
-    // Faster pacing needs its own records. Preserve previous records on the
-    // device rather than comparing runs with different acceleration and speed.
-    storageKey: 'apex-drift:v5',
+    // Redesigned layouts and elevation need their own records. Preserve earlier
+    // device data rather than comparing runs on different circuits.
+    storageKey: 'apex-drift:v6',
     maximumRecords: 64,
     maximumSpeed: 40,
     acceleration: 15,

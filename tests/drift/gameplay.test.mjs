@@ -1,3 +1,4 @@
+import { nearestRoadPoint } from '../../games/drift/road-surface.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -12,9 +13,12 @@ test('a driver can complete generated circuits with the actual driving model', (
     for (const date of manifest.dates) {
         const track = JSON.parse(readFileSync(new URL(`${date}.json`, directory)));
         const race = new Race(track); race.start();
-        for (let step = 0; step < 120 * 360 && race.state !== 'finished'; step++) {
+        let droveBridge = false, droveLoop = false;
+        for (let step = 0; step < 120 * 900 && race.state !== 'finished'; step++) {
             const car = race.car;
-            const nearest = nearestTrackPoint(track.points, car.x, car.z);
+            droveBridge ||= car.y >= 11;
+            droveLoop ||= car.loopT != null;
+            const nearest = nearestRoadPoint(track, car.x, car.z, car.progress);
             const target = trackPose(track, nearest.progress + 13 / track.length);
             const desiredHeading = Math.atan2(target.x - car.x, target.z - car.z);
             const headingError = wrapAngle(desiredHeading - car.heading);
@@ -23,5 +27,7 @@ test('a driver can complete generated circuits with the actual driving model', (
         }
         assert.equal(race.state, 'finished', `The driving model must allow three laps on ${date}; reached lap ${race.lap}, gate ${race.checkpoint}`);
         assert.ok(race.elapsed > 50, 'A run must involve driving the full circuit');
+        assert.ok(droveBridge, 'The driver must cross the elevated bridge');
+        if (track.loop) assert.ok(droveLoop, 'The driver must traverse the vertical loop');
     }
 });

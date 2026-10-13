@@ -1,9 +1,9 @@
+import { roadSamples, offsetSurface, roadHeight, surfacePose } from './road-surface.js';
 import { smokeVelocity } from './smoke-motion.js';
 import { CircuitFlythrough } from './preview-camera.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { nearestTrackPoint, trackPose, wrapAngle } from './math.js';
 import { buildTrackBarriers } from './barrier-mesh.js';
-import { offsetTrackPoint } from './track-edges.js';
 import { TRACK_EDGE_CONFIG as EDGE, CAMERA_CONFIG } from './config.js';
 import { buildCar, disposeCar } from './car-model.js';
 
@@ -18,25 +18,16 @@ function seededRandom(seed) {
 
 // Ribbon geometry follows the same centerline used by the driving model. No hidden
 // collision mesh can disagree with what the player sees on screen.
-function ribbonGeometry(points, innerOffset, outerOffset, height) {
-    const vertices = [];
-    const normals = [];
-    const indices = [];
-    for (let index = 0; index <= points.length; index++) {
-        for (const offset of [innerOffset, outerOffset]) {
-            const [x, z] = offsetTrackPoint(points, index, offset);
-            vertices.push(x, height, z);
-            normals.push(0, 1, 0);
-        }
-        if (index < points.length) {
-            const first = index * 2;
-            indices.push(first, first + 2, first + 1, first + 1, first + 2, first + 3);
-        }
+function ribbonGeometry(track, innerOffset, outerOffset, height) {
+    const samples = roadSamples(track), vertices = [], indices = [];
+    for (let i = 0; i <= samples.length; i++) {
+        const pose = samples[i % samples.length];
+        for (const offset of [innerOffset, outerOffset]) vertices.push(...offsetSurface(pose, offset, height));
+        if (i < samples.length) { const j = i * 2; indices.push(j, j+2, j+1, j+1, j+2, j+3); }
     }
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
-    geometry.setIndex(indices);
+    geometry.setIndex(indices); geometry.computeVertexNormals();
     return geometry;
 }
 
@@ -61,7 +52,7 @@ export class DriftWorld {
         this.sun.shadow.mapSize.set(2048, 2048);
         Object.assign(this.sun.shadow.camera, { left: -210, right: 210, top: 210, bottom: -210, far: 450 });
         this.sun.shadow.normalBias = 0.15;
-        this.scene.add(this.sun);
+        this.scene.add(this.sun, this.sun.target);
         this.cameraTarget = new THREE.Vector3();
         this.cameraHeading = 0;
         this.followingCar = false;
@@ -146,7 +137,7 @@ export class DriftWorld {
                 const puff = this.smoke[this.smokeIndex++ % this.smoke.length];
                 puff.life = 1.5; puff.vx = velocity.x; puff.vz = velocity.z;
                 puff.sprite.position.set(car.x - Math.sin(car.heading) * 1.6 + Math.cos(car.heading) * side,
-                    0.35, car.z - Math.cos(car.heading) * 1.6 - Math.sin(car.heading) * side);
+                    (car.y || 0) + 0.35, car.z - Math.cos(car.heading) * 1.6 - Math.sin(car.heading) * side);
                 puff.sprite.scale.setScalar(0.6); puff.sprite.material.opacity = 0.5;
                 puff.sprite.material.rotation = Math.random() * Math.PI;
                 puff.sprite.visible = true;
@@ -182,13 +173,13 @@ export class DriftWorld {
         const floor = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), this.material(COLORS.sand));
         floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; this.environment.add(floor);
         const halfWidth = track.width / 2;
-        const road = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth, halfWidth, 0.08), this.material(COLORS.asphalt, { side: THREE.DoubleSide, roughness: 0.23, metalness: 0.35 }));
+        const road = new THREE.Mesh(ribbonGeometry(track, -halfWidth, halfWidth, 0.08), this.material(COLORS.asphalt, { side: THREE.DoubleSide, roughness: 0.23, metalness: 0.35 }));
         road.receiveShadow = true; this.environment.add(road);
-        const verge = new THREE.Mesh(ribbonGeometry(track.points, -halfWidth - EDGE.vergeWidth,
+        const verge = new THREE.Mesh(ribbonGeometry(track, -halfWidth - EDGE.vergeWidth,
             halfWidth + EDGE.vergeWidth, 0.025), this.material(COLORS.sand, { side: THREE.DoubleSide }));
         verge.receiveShadow = true; this.environment.add(verge);
         for (const side of [-1, 1]) {
-            const stripe = new THREE.Mesh(ribbonGeometry(track.points, side * (halfWidth - EDGE.lineWidth),
+            const stripe = new THREE.Mesh(ribbonGeometry(track, side * (halfWidth - EDGE.lineWidth),
                 side * halfWidth, 0.10), this.material(COLORS.white, { side: THREE.DoubleSide }));
             this.environment.add(stripe);
         }
@@ -196,7 +187,9 @@ export class DriftWorld {
         this.environment.add(barriers);
         this.lampPoses = barriers.userData.lampPoses;
         this.buildStartLine(track);
+        this.buildLoopEntry(track);
         this.buildScenery(track);
+        this.buildBridgeSupports(track);
         this.markIndex = 0; this.lastMark = null;
         this.tireMarks.geometry.attributes.position.array.fill(0);
         this.tireMarks.geometry.attributes.position.needsUpdate = true;
@@ -208,7 +201,7 @@ export class DriftWorld {
     buildStartLine(track) {
         const pose = trackPose(track);
         const line = new THREE.Group();
-        line.position.set(pose.x, 0.14, pose.z); line.rotation.y = pose.heading;
+        line.position.set(pose.x, roadHeight(track, 0) + 0.14, pose.z); line.rotation.y = pose.heading;
         const white = this.material(COLORS.white);
         const dark = this.material(0x172025);
         const yellow = this.material(COLORS.yellow);
@@ -228,11 +221,26 @@ export class DriftWorld {
             const checkpoint = trackPose(track, index / 4);
             for (const side of [-1, 1]) {
                 const marker = new THREE.Mesh(new THREE.BoxGeometry(0.45, 3.6, 0.6), yellow);
-                marker.position.set(checkpoint.x + Math.cos(checkpoint.heading) * (track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness + 1) * side, 1.8,
+                marker.position.set(checkpoint.x + Math.cos(checkpoint.heading) * (track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness + 1) * side, roadHeight(track, index / 4) + 1.8,
                     checkpoint.z - Math.sin(checkpoint.heading) * (track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness + 1) * side);
                 marker.rotation.y = checkpoint.heading; marker.castShadow = true; this.environment.add(marker);
             }
         }
+    }
+
+    buildLoopEntry(track) {
+        if (!track.loop) return;
+        const pad = new THREE.Group(); pad.name = 'loop-entry-boost';
+        const pose = surfacePose(track, track.loop.start);
+        pad.position.set(pose.x, pose.y + 0.12, pose.z); pad.rotation.y = pose.heading;
+        const glow = new THREE.MeshBasicMaterial({ color: 0xf34dac });
+        const bar = new THREE.BoxGeometry(track.width * 0.32, 0.02, 0.3);
+        for (let row = 0; row < 3; row++) for (const side of [-1, 1]) {
+            const arrow = new THREE.Mesh(bar, glow);
+            arrow.position.set(side * track.width * 0.14, 0, -3 - row * 2);
+            arrow.rotation.y = side * 0.35; pad.add(arrow);
+        }
+        this.environment.add(pad);
     }
 
     buildScenery(track) {
@@ -250,23 +258,32 @@ export class DriftWorld {
             mesh.castShadow = shadow; mesh.receiveShadow = shadow;
             this.environment.add(mesh);
         };
-        // Footprint clearance keeps every city block outside the driving corridor.
-        for (let gx = -9; gx <= 9; gx++) for (let gz = -9; gz <= 9; gz++) {
-            const x = gx * 36 + (random() - 0.5) * 8;
-            const z = gz * 36 + (random() - 0.5) * 8;
+        // Extend the city along the larger layouts, spending geometry near roads.
+        const blocksX = Math.ceil(Math.max(...track.points.map(p => Math.abs(p[0]))) / 48) + 3;
+        const blocksZ = Math.ceil(Math.max(...track.points.map(p => Math.abs(p[1]))) / 48) + 3;
+        for (let gx = -blocksX; gx <= blocksX; gx++) for (let gz = -blocksZ; gz <= blocksZ; gz++) {
+            const x = gx * 48 + (random() - 0.5) * 8;
+            const z = gz * 48 + (random() - 0.5) * 8;
             const w = 14 + random() * 10, d = 14 + random() * 10;
-            if (nearestTrackPoint(track.points, x, z).distance < track.width / 2 + Math.hypot(w, d) / 2 + 7) continue;
+            const clearance = nearestTrackPoint(track.points, x, z).distance;
+            if (clearance < track.width / 2 + Math.hypot(w, d) / 2 + 7 || clearance > 150) continue;
+            if (track.loop) {
+                const plaza = surfacePose(track, (track.loop.start + track.loop.end) / 2);
+                if (Math.hypot(x - plaza.x, z - plaza.z) < 75 + Math.hypot(w, d) / 2) continue;
+            }
             const h = 12 + random() * 65;
+            // Spread the bounded window budget over every building and floor.
+            const litChance = Math.min(0.65, 24 / ((h / 3.5) * (2 * w / 3 + 2 * d / 3)));
             block(x, h / 2, z, w, h, d, facade, true);
             block(x, h - 1, z, w + 0.2, 0.3, d + 0.2, neons[Math.floor(random() * 4)]);
             for (let y = 4; y < h - 3; y += 3.5) for (const side of [-1, 1]) {
                 for (let u = -w / 2 + 2; u < w / 2 - 1; u += 3) {
-                    if (random() < 0.35 || count >= 12000) continue;
+                    if (random() > litChance || count >= 12000) continue;
                     dummy.position.set(x + u, y, z + side * (d / 2 + 0.04));
                     dummy.scale.set(1.1, 1.5, 0.08); dummy.updateMatrix(); windows.setMatrixAt(count++, dummy.matrix);
                 }
                 for (let u = -d / 2 + 2; u < d / 2 - 1; u += 3) {
-                    if (random() < 0.35 || count >= 12000) continue;
+                    if (random() > litChance || count >= 12000) continue;
                     dummy.position.set(x + side * (w / 2 + 0.04), y, z + u);
                     dummy.scale.set(0.08, 1.5, 1.1); dummy.updateMatrix(); windows.setMatrixAt(count++, dummy.matrix);
                 }
@@ -275,14 +292,16 @@ export class DriftWorld {
         windows.count = count; windows.instanceMatrix.needsUpdate = true;
         this.environment.add(windows);
         for (let index = 0; index < 44; index++) {
-            const pose = trackPose(track, index / 44);
+            const progress = index / 44;
+            if (track.loop && progress >= track.loop.start && progress <= track.loop.end) continue;
+            const pose = trackPose(track, progress);
             // Layered glints suggest wet neon reflections without reflection passes.
             for (let layer = 0; layer < 4; layer++) {
                 const glint = new THREE.Mesh(new THREE.PlaneGeometry(3 + layer * 1.4, 9 + layer * 2),
                     new THREE.MeshBasicMaterial({ color: colors[index % 4], transparent: true,
                         opacity: 0.025, depthWrite: false, blending: THREE.AdditiveBlending }));
                 glint.rotation.set(-Math.PI / 2, 0, -pose.heading);
-                glint.position.set(pose.x, 0.105 + layer * 0.001, pose.z);
+                glint.position.set(pose.x, roadHeight(track, index / 44) + 0.105 + layer * 0.001, pose.z);
                 this.environment.add(glint);
             }
         }
@@ -290,6 +309,30 @@ export class DriftWorld {
             const lamp = new THREE.PointLight(0x36e6ed, 85, 30, 2);
             this.environment.add(lamp); return lamp;
         });
+    }
+
+    buildBridgeSupports(track) {
+        const material = this.material(0x30394a, { roughness: 0.7 });
+        const box = new THREE.BoxGeometry(1, 1, 1);
+        for (let i = 0; i < track.points.length; i += 3) {
+            const progress = i / track.points.length, height = roadHeight(track, progress);
+            if (height < 2 || (track.loop && progress >= track.loop.start && progress <= track.loop.end)) continue;
+            const pose = surfacePose(track, progress);
+            const deck = new THREE.Mesh(box, material);
+            deck.position.set(pose.x, height - 0.6, pose.z); deck.rotation.set(-pose.pitch, pose.heading, 0, 'YXZ');
+            deck.scale.set(track.width + 2, 0.8, track.length / track.points.length * 3.1);
+            deck.castShadow = true; deck.receiveShadow = true; this.environment.add(deck);
+            // Keep pillars clear of the lower carriageway at the crossing.
+            for (const side of [-1, 1]) {
+                const x = pose.x + Math.cos(pose.heading) * (track.width / 2 + 2) * side;
+                const z = pose.z - Math.sin(pose.heading) * (track.width / 2 + 2) * side;
+                const lower = nearestTrackPoint(track.points, x, z);
+                if (roadHeight(track, lower.progress) < height - 2 && lower.distance < track.width / 2 + 3) continue;
+                const pillar = new THREE.Mesh(box, material);
+                pillar.position.set(x, height / 2, z); pillar.scale.set(1.4, height, 1.4);
+                pillar.castShadow = true; this.environment.add(pillar);
+            }
+        }
     }
 
     resize() {
@@ -307,14 +350,14 @@ export class DriftWorld {
     }
 
     addTireMarks(car) {
-        const current = { x: car.x - Math.sin(car.heading) * 1.25, z: car.z - Math.cos(car.heading) * 1.25, heading: car.heading };
+        const current = { x: car.x - Math.sin(car.heading) * 1.25, z: car.z - Math.cos(car.heading) * 1.25, heading: car.heading, y: car.y || 0 };
         if (this.lastMark) {
             const attribute = this.tireMarks.geometry.attributes.position;
             for (const side of [-0.8, 0.8]) {
                 const previous = this.lastMark;
                 const offset = (this.markIndex++ % 1800) * 6;
-                attribute.array.set([previous.x + Math.cos(previous.heading) * side, 0.13, previous.z - Math.sin(previous.heading) * side,
-                    current.x + Math.cos(current.heading) * side, 0.13, current.z - Math.sin(current.heading) * side], offset);
+                attribute.array.set([previous.x + Math.cos(previous.heading) * side, previous.y + 0.13, previous.z - Math.sin(previous.heading) * side,
+                    current.x + Math.cos(current.heading) * side, current.y + 0.13, current.z - Math.sin(current.heading) * side], offset);
             }
             attribute.needsUpdate = true;
         }
@@ -323,14 +366,17 @@ export class DriftWorld {
 
     render(race, deltaTime, time) {
         const car = race.car;
-        this.car.position.set(car.x, 0.1, car.z); this.car.rotation.y = car.heading;
+        this.car.position.set(car.x, (car.y || 0) + 0.1, car.z);
+        this.car.rotation.set(-(car.pitch || 0), car.heading, 0, 'YXZ');
         const playing = race.state !== 'ready';
         const focus = playing ? car : this.camera.position;
+        this.sun.position.set(focus.x - 110, (car.y || 0) + 180, focus.z + 75);
+        this.sun.target.position.set(focus.x, car.y || 0, focus.z);
         const nearby = [...this.lampPoses].sort((a, b) =>
             Math.hypot(a.x - focus.x, a.z - focus.z) - Math.hypot(b.x - focus.x, b.z - focus.z));
         this.streetLamps.forEach((lamp, index) => {
             const pose = nearby[index % nearby.length];
-            lamp.position.set(pose.x, 7.5, pose.z); lamp.color.setHex(pose.color);
+            lamp.position.set(pose.x, (pose.y || 0) + 7.5, pose.z); lamp.color.setHex(pose.color);
         });
         this.car.visible = playing;
         // A tall mobile play area otherwise crops the chase view around an
@@ -350,9 +396,22 @@ export class DriftWorld {
                 (1 - Math.exp(-CAMERA_CONFIG.headingResponse * deltaTime));
             const forward = new THREE.Vector3(Math.sin(this.cameraHeading), 0, Math.cos(this.cameraHeading));
             const desiredPosition = new THREE.Vector3(car.x - forward.x * CAMERA_CONFIG.followDistance,
-                CAMERA_CONFIG.followHeight - 0.55 * pace, car.z - forward.z * CAMERA_CONFIG.followDistance);
+                (car.y || 0) + CAMERA_CONFIG.followHeight - 0.55 * pace, car.z - forward.z * CAMERA_CONFIG.followDistance);
             const desiredTarget = new THREE.Vector3(car.x + forward.x * CAMERA_CONFIG.lookAhead,
-                CAMERA_CONFIG.targetHeight, car.z + forward.z * CAMERA_CONFIG.lookAhead);
+                (car.y || 0) + CAMERA_CONFIG.targetHeight, car.z + forward.z * CAMERA_CONFIG.lookAhead);
+            if (car.loopT != null) {
+                // Stay upright beside the circle, on the car's side of the road
+                // surface. A normal chase camera would hide it behind the roof
+                // of the loop when upside down.
+                const blend = Math.min(1, car.loopT / 0.2, (1 - car.loopT) / 0.2);
+                const pitch = car.pitch || 0;
+                const sideView = new THREE.Vector3(
+                    car.x + Math.cos(car.heading) * 34 - Math.sin(car.heading) * (10 + Math.sin(pitch) * 8),
+                    (car.y || 0) + Math.cos(pitch) * 8,
+                    car.z - Math.sin(car.heading) * 34 - Math.cos(car.heading) * (10 + Math.sin(pitch) * 8));
+                desiredPosition.lerp(sideView, blend);
+                desiredTarget.lerp(new THREE.Vector3(car.x, (car.y || 0) + Math.cos(pitch), car.z), blend);
+            }
             // Follow position directly, smoothing only the view direction. A
             // world-position lerp falls farther behind as speed rises, shrinking
             // the car and changing the apparent pace. This also enters the chase

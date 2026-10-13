@@ -24,10 +24,18 @@ export async function loadTrack(date) {
     const response = await fetch(new URL(`${date}.json`, TRACK_DIRECTORY));
     if (!response.ok) throw new Error('This circuit is not available yet. Please try again shortly.');
     const track = await response.json();
+    const elevationsValid = track.elevations === undefined || (Array.isArray(track.elevations) &&
+        Array.isArray(track.points) && track.elevations.length === track.points.length &&
+        track.elevations.every(height => Number.isFinite(height) && height >= 0 && height <= 100));
+    const loopValid = track.loop === undefined || (track.loop &&
+        [track.loop.start, track.loop.end, track.loop.radius, track.loop.minimumSpeed].every(Number.isFinite) &&
+        track.loop.start > 0.03 && track.loop.end < 0.97 && track.loop.end > track.loop.start &&
+        track.loop.end - track.loop.start < 0.1 && track.loop.radius >= 12 && track.loop.radius <= 40 &&
+        track.loop.minimumSpeed >= 10 && track.loop.minimumSpeed <= GAME_CONFIG.maximumSpeed);
     if (track.version !== 1 || track.date !== date || !Array.isArray(track.points) || track.points.length < 64 ||
         track.points.length > 1024 || !track.points.every(point => Array.isArray(point) && point.length === 2 && point.every(value => Number.isFinite(value) && Math.abs(value) < 10000)) ||
         track.points.some((point, index) => Math.hypot(point[0] - track.points[(index + 1) % track.points.length][0], point[1] - track.points[(index + 1) % track.points.length][1]) < 0.1) ||
-        typeof track.name !== 'string' || !Number.isInteger(track.seed) ||
+        !elevationsValid || !loopValid || typeof track.name !== 'string' || !Number.isInteger(track.seed) ||
         !Number.isFinite(track.width) || track.width < 8 || track.width > 30 || !Number.isFinite(track.length) || track.length <= 0) {
         throw new Error('This circuit file is invalid.');
     }

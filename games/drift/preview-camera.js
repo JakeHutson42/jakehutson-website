@@ -1,10 +1,11 @@
+import { roadSamples } from './road-surface.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 
 // The preview travels along a closed spline of the published centreline. It never
 // advances the car or race clock, and its local distance freezes off screen.
 export class CircuitFlythrough {
     constructor(track) {
-        this.path = new THREE.CatmullRomCurve3(track.points.map(([x, z]) => new THREE.Vector3(x, 0, z)), true, 'centripetal');
+        this.path = new THREE.CatmullRomCurve3(roadSamples(track).map(pose => new THREE.Vector3(pose.x, pose.y, pose.z)), true, 'centripetal');
         this.path.arcLengthDivisions = track.points.length * 4;
         this.length = this.path.getLength();
         this.distance = 0;
@@ -15,8 +16,8 @@ export class CircuitFlythrough {
         const ahead = ((distance + 18) / this.length) % 1;
         const position = this.path.getPointAt(progress);
         const target = this.path.getPointAt((ahead + 1) % 1);
-        position.y = 5.2;
-        target.y = 1.4;
+        position.y += 5.2;
+        target.y += 1.4;
         return { position, target };
     }
 

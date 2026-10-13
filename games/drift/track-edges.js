@@ -1,5 +1,6 @@
 import { TRACK_EDGE_CONFIG as EDGE } from './config.js';
 import { nearestTrackPoint } from './math.js';
+import { nearestRoadPoint } from './road-surface.js';
 
 // Offset a vertex along its smoothed normal. Both road ribbons and walls use
 // these vertices, so wall segments join continuously even around tight bends.
@@ -35,7 +36,7 @@ export function resolveBarrierContacts(car, track, deltaTime) {
     // This conservative circle skips corner searches when the entire body is
     // comfortably clear, keeping normal driving inexpensive on mobile devices.
     const bodyRadius = Math.hypot(EDGE.carHalfWidth, EDGE.carHalfLength);
-    if (nearestTrackPoint(track.points, car.x, car.z).distance + bodyRadius <= maximumDistance) {
+    if (nearestRoadPoint(track, car.x, car.z, car.progress).distance + bodyRadius <= maximumDistance) {
         return { contact: false, impactSpeed: 0 };
     }
     let contact = false; let impactSpeed = 0;
@@ -47,7 +48,7 @@ export function resolveBarrierContacts(car, track, deltaTime) {
             // Earlier contacts move the whole car; sample the next bumper point
             // from its corrected pose instead of applying stale penetrations.
             const [x, z] = carContactPoints(car)[contactIndex];
-            const road = nearestTrackPoint(track.points, x, z);
+            const road = nearestRoadPoint(track, x, z, car.progress);
             if (road.distance <= maximumDistance) continue;
             const normalX = (x - road.x) / road.distance;
             const normalZ = (z - road.z) / road.distance;

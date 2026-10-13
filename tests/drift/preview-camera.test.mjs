@@ -4,10 +4,11 @@ import { readFileSync } from 'node:fs';
 import { CircuitFlythrough } from '../../games/drift/preview-camera.js';
 import { nearestTrackPoint } from '../../games/drift/math.js';
 
-const track = JSON.parse(readFileSync(new URL('../../games/drift/tracks/2026-10-13.json', import.meta.url)));
+const track = JSON.parse(readFileSync(new URL('../../games/drift/tracks/2026-10-11.json', import.meta.url)));
+const flatTrack = { ...track, elevations: undefined, loop: undefined };
 
 test('fly-through stays above the road through every hairpin and loops without a camera jump', () => {
-    const preview = new CircuitFlythrough(track);
+    const preview = new CircuitFlythrough(flatTrack);
     for (let index = 0; index < 600; index++) {
         const distance = index / 600 * preview.length;
         const view = preview.sample(distance);

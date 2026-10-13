@@ -10,12 +10,13 @@
     <link rel="stylesheet" href="css/drift.css">
     <link rel="stylesheet" href="css/drift-garage.css">
     <link rel="stylesheet" href="css/drift-play.css">
+    <link rel="stylesheet" href="css/drift-picker.css">
 </head>
 <body class="drift-page">
     <a class="skip-link" href="#circuit">Skip to the game</a>
     <header class="game-header">
         <div class="game-header-inner">
-            <a href="drift.html" class="game-wordmark" aria-label="Apex Drift home"><span class="brand-checkers" aria-hidden="true"></span><span>APEX<em>DRIFT</em></span></a>
+            <a href="drift.html" class="game-wordmark" aria-label="Apex Drift home"><span class="brand-tyre" aria-hidden="true"><span class="tyre-wheel"></span><span class="tyre-smoke"><i></i><i></i><i></i><i></i><i></i></span></span><span>APEX<em>DRIFT</em></span></a>
             <nav class="game-navigation" aria-label="Game menu">
                 <button type="button" id="garageButton" disabled><span aria-hidden="true">◇</span> Garage</button>
                 <button type="button" id="helpButton"><span aria-hidden="true">?</span> How to play</button>
@@ -42,7 +43,7 @@
 
                 <aside class="starting-card" id="startingCard">
                     <div class="card-index"><span id="trackEdition">DAILY / 001</span><span class="small-checkers" aria-hidden="true"></span></div>
-                    <h2 id="trackName">FINDING<br>YOUR LINE.</h2><p class="track-description">Find the rhythm. Keep the slide alive.</p>
+                    <h2 id="trackName">FINDING<br>YOUR LINE.</h2><p class="track-description" id="trackDescription">Find the rhythm. Keep the slide alive.</p>
                     <canvas id="trackMap" width="520" height="230" aria-label="Map of the selected circuit"></canvas>
                     <div class="track-specs"><div><span>DISTANCE</span><strong id="trackLength">—</strong></div><div><span>FORMAT</span><strong>3 LAPS</strong></div></div>
                     <button class="race-button primary" id="startButton" disabled>Preparing circuit <span aria-hidden="true">↗</span></button>

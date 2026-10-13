@@ -1,8 +1,9 @@
+import { CircuitPicker } from './circuit-picker.js';
 import { initialiseDrivingGuides } from './tutorial.js';
 import { LoadingOverlay } from './loading-overlay.js';
 import { GaragePreferences, CAR_MODELS } from './garage-data.js';
 import { GAME_CONFIG } from './config.js';
-import { formatTime, clamp } from './math.js';
+import { formatTime, clamp, trackPose } from './math.js';
 import { DrivingInput } from './input.js';
 import { MobilePlayView } from './mobile-play-view.js';
 import { LocalRecords } from './storage.js';
@@ -23,6 +24,7 @@ let garage;
 let world;
 let race;
 let manifest;
+const circuitPicker = new CircuitPicker(element('trackSelect'), loadTrack);
 let currentDate = utcDate();
 let loadSequence = 0;
 let lastFrameTime = 0;
@@ -96,6 +98,17 @@ function drawMap(canvas, track, car = null) {
     context.closePath();
     context.strokeStyle = '#61718b'; context.lineWidth = car ? 3 : 9; context.lineJoin = 'round'; context.stroke();
     context.strokeStyle = '#36e6ed'; context.lineWidth = car ? 1 : 3; context.stroke();
+    for (const bridge of track.bridges || []) {
+        const a = trackPose(track, bridge.upper - 18 / track.length), b = trackPose(track, bridge.upper + 18 / track.length);
+        context.beginPath(); context.moveTo(...project(a.x, a.z)); context.lineTo(...project(b.x, b.z));
+        context.strokeStyle = '#080d23'; context.lineWidth = car ? 6 : 14; context.stroke();
+        context.strokeStyle = '#ffc578'; context.lineWidth = car ? 2 : 5; context.stroke();
+    }
+    if (track.loop) {
+        const entry = trackPose(track, track.loop.start);
+        context.beginPath(); context.arc(...project(entry.x, entry.z), car ? 4 : 7, 0, Math.PI * 2);
+        context.strokeStyle = '#f34dac'; context.lineWidth = 2; context.stroke();
+    }
     for (let checkpoint = 0; checkpoint < 4; checkpoint++) {
         const point = track.points[Math.floor(checkpoint * track.points.length / 4)];
         const [x, y] = project(...point);
@@ -146,7 +159,9 @@ async function selectTrackContent(date) {
         dateElement.textContent = new Date(`${date}T12:00:00Z`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase();
         element('trackEdition').textContent = `${isDaily ? 'DAILY' : 'ARCHIVE'} / ${date.replaceAll('-', '.')}`;
         element('trackName').textContent = track.name.toUpperCase();
-        element('trackLength').textContent = `${(track.length / 1000).toFixed(2)} KM`;
+        element('trackDescription').textContent = track.loop ? 'Sweeping drifts, a raised crossover and a full vertical loop. Accelerate in; steering assist carries you through.' :
+            'Wide city streets, linked drift corners and a raised crossover. Find your line.';
+        element('trackLength').textContent = `${((track.drivingLength || track.length) / 1000).toFixed(2)} KM`;
         drawMap(element('trackMap'), track);
         displayPersonalBest();
         await world.prepare(race);

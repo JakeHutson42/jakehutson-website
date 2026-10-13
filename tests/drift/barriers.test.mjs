@@ -47,7 +47,7 @@ test('angled contacts settle safely on inside and outside bends throughout a gen
         for (const side of [-1, 1]) {
             const normalX = Math.cos(pose.heading) * side;
             const normalZ = -Math.sin(pose.heading) * side;
-            const car = { ...createCar(track), x: pose.x + normalX * 5.5, z: pose.z + normalZ * 5.5,
+            const car = { ...createCar(track, index / track.points.length), x: pose.x + normalX * 5.5, z: pose.z + normalZ * 5.5,
                 heading: pose.heading + 0.6, vx: normalX * 25, vz: normalZ * 25 };
             resolveBarrierContacts(car, track, 1 / 120);
             staysInside(car, track);
@@ -65,14 +65,14 @@ test('an impact banks the existing combo and cannot score a collision as a drift
     assert.equal(race.combo, 0); assert.equal(race.score, 100); assert.equal(race.drifting, false);
 });
 
-test('continuous concrete walls close the seam alongside batched urban signs and lamps', () => {
+test('continuous walls carry amber arrows and lamps without freestanding helpers', () => {
     const track = JSON.parse(readFileSync(new URL('../../games/drift/tracks/2026-10-13.json', import.meta.url)));
     for (const offset of [-6, 6]) assert.deepEqual(offsetTrackPoint(track.points, 0, offset), offsetTrackPoint(track.points, track.points.length, offset));
     const walls = buildTrackBarriers(track);
     assert.equal(walls.children.filter(child => child.name === 'concrete-boundary').length, 2);
     for (const wall of walls.children.filter(child => child.name === 'concrete-boundary')) {
         wall.geometry.computeBoundingBox();
-        assert.ok(Math.abs(wall.geometry.boundingBox.max.y - EDGE.barrierHeight) < 0.0001);
+        assert.ok(wall.geometry.boundingBox.max.y >= 12);
         assert.equal(wall.castShadow, true);
         assert.ok([...wall.geometry.attributes.position.array].every(Number.isFinite));
     }
@@ -80,5 +80,28 @@ test('continuous concrete walls close the seam alongside batched urban signs and
     assert.ok(lamps.userData.spacing >= 29 && lamps.userData.spacing <= 31);
     assert.equal(lamps.getObjectByName('lamp-heads').count, walls.userData.lampPoses.length);
     assert.ok(walls.getObjectByName('direction-chevrons').geometry.attributes.position.count > 0);
+    assert.equal(walls.getObjectByName('street-race-signs'), undefined);
+    assert.equal(walls.getObjectByName('sign-panels'), undefined);
+    disposeCar(walls);
+});
+
+test('wall arrows point forward on both sides of the road', () => {
+    const points = [];
+    for (let i = 0; i < 20; i++) points.push([0, i * 5]);
+    for (let i = 0; i < 20; i++) points.push([i * 5, 100]);
+    for (let i = 0; i < 20; i++) points.push([100, 100 - i * 5]);
+    for (let i = 0; i < 20; i++) points.push([100 - i * 5, 0]);
+    const walls = buildTrackBarriers({ ...straightTrack, points });
+    const vertices = walls.getObjectByName('direction-chevrons').geometry.attributes.position;
+    let left = false, right = false;
+    // Two quads (12 vertices) per chevron. On the first straight forward is +z.
+    for (let index = 0; index < vertices.count; index += 12) {
+        const x = vertices.getX(index), z = vertices.getZ(index);
+        if (z >= 90 || Math.abs(x) < 5.9 || Math.abs(x) > 6.1) continue;
+        assert.ok(vertices.getZ(index + 2) > z, 'Arrow tip must lead its tail in track direction');
+        assert.ok(vertices.getY(index + 2) < EDGE.barrierHeight, 'Arrows sit on the wall face');
+        if (x < 0) left = true; else right = true;
+    }
+    assert.ok(left && right);
     disposeCar(walls);
 });

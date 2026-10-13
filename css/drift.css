@@ -25,7 +25,7 @@ button, select { border-radius: 4px; }
 .game-header-inner { max-width: 1440px; width: calc(100% - 64px); margin: auto; min-height: 88px; display: flex; align-items: center; gap: 32px; }
 .game-wordmark { display: flex; align-items: center; gap: 13px; font: italic 800 30px/1 var(--race-display); letter-spacing: .02em; white-space: nowrap; }
 .game-wordmark em { color: var(--race-accent); margin-left: 5px; }
-.brand-checkers, .small-checkers { width: 28px; height: 24px; background: repeating-conic-gradient(var(--race-ink) 0% 25%, transparent 0% 50%) 0 0 / 12px 12px; transform: skewY(-9deg); }
+.small-checkers { width: 28px; height: 24px; background: repeating-conic-gradient(var(--race-ink) 0% 25%, transparent 0% 50%) 0 0 / 12px 12px; transform: skewY(-9deg); }
 .game-navigation { display: flex; gap: 8px; margin-left: auto; }
 .game-navigation button { min-height: 44px; padding: 10px 16px; border: 1px solid transparent; background: transparent; color: var(--race-ink); font-size: 14px; }
 .game-navigation button:hover { background: var(--race-panel); border-color: var(--race-line); }

@@ -1,0 +1,56 @@
+/* Circuit select is upgraded from the native select; the fallback stays usable. */
+.circuit-picker-button { width: 270px; min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 15px; border: 1px solid #36e6ed66; color: var(--race-ink); background: linear-gradient(120deg, #17303b, #131c30); text-align: left; box-shadow: inset 3px 0 var(--race-accent); transition: border-color .2s, box-shadow .2s, background .2s; }
+.circuit-picker-button:hover, .circuit-picker-button[aria-expanded="true"] { border-color: var(--race-accent); box-shadow: inset 3px 0 var(--race-accent), 0 0 24px #36e6ed18; }
+.picker-current { min-width: 0; }
+.picker-current small { display: block; color: var(--race-accent); font: 9px var(--font-mono); letter-spacing: .14em; margin-bottom: 4px; }
+.picker-current strong { display: block; font: 700 19px/1.1 var(--race-display); text-transform: uppercase; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.picker-chevron { font: 24px var(--font-mono); color: var(--race-accent); transition: transform .2s; }
+[aria-expanded="true"] .picker-chevron { transform: rotate(180deg); }
+.circuit-picker-panel { position: fixed; z-index: 100; inset: auto; margin: 0; padding: 0; overflow: auto; overscroll-behavior: contain; border: 1px solid #36e6ed77; border-radius: 8px; color: #f3f5fa; background: linear-gradient(145deg, #162535, #0c1221 70%); box-shadow: 0 20px 70px #000b, 0 0 30px #36e6ed18; font-family: 'Manrope', sans-serif; animation: picker-reveal .2s ease-out both; }
+.circuit-picker-panel::backdrop { background: transparent; }
+.circuit-picker-panel { scrollbar-width: thin; scrollbar-color: #36e6ed77 #111d2c; }
+.circuit-picker-panel::-webkit-scrollbar { width: 6px; }
+.circuit-picker-panel::-webkit-scrollbar-track { background: #111d2c; }
+.circuit-picker-panel::-webkit-scrollbar-thumb { background: #387b87; border-radius: 6px; }
+.picker-heading { position: sticky; top: 0; z-index: 1; padding: 19px 20px 15px; background: #142131; border-bottom: 1px solid #36e6ed33; }
+.picker-heading > span { font: italic 800 24px/1 'Barlow Condensed', Impact, sans-serif; letter-spacing: .02em; }
+.picker-heading small { display: block; margin-top: 8px; color: #91aabe; font: 9px 'DM Mono', monospace; letter-spacing: .12em; }
+.circuit-picker-list { padding: 9px; display: grid; gap: 6px; }
+.circuit-picker-row { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 102px; padding: 12px; border: 1px solid #34455c; border-radius: 4px; color: #f3f5fa; background: #142031; text-align: left; overflow: hidden; animation: picker-row-in .3s ease-out both; animation-delay: calc(var(--row) * 55ms + 35ms); transition: transform .18s, border-color .18s, background .18s; }
+.circuit-picker-row::before { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 20%, #36e6ed10, transparent 80%); transform: translateX(-100%); transition: transform .35s; pointer-events: none; }
+.circuit-picker-row:hover, .circuit-picker-row:focus-visible { transform: translateX(3px); background: #1b3041; border-color: #36e6ed; outline: 2px solid #36e6ed; outline-offset: -2px; }
+.circuit-picker-row:hover::before, .circuit-picker-row:focus-visible::before { transform: translateX(100%); }
+.circuit-picker-row[aria-selected="true"] { border-color: #36e6ed; background: linear-gradient(110deg, #17404b, #182638); box-shadow: inset 3px 0 #36e6ed; }
+.picker-number { align-self: flex-start; padding-top: 3px; color: #71879f; font: italic 700 22px 'Barlow Condensed', sans-serif; }
+.picker-map { width: 65px; height: 66px; flex-shrink: 0; color: #90abc0; }
+.picker-map polyline { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+[aria-selected="true"] .picker-map { color: #36e6ed; filter: drop-shadow(0 0 4px #36e6ed55); }
+.picker-details { flex: 1; min-width: 0; }
+.picker-details strong { display: block; margin: 5px 0 7px; font: 700 23px/1.05 'Barlow Condensed', Impact, sans-serif; text-transform: uppercase; }
+.picker-details small { display: block; font: 9px/1.6 'DM Mono', monospace; color: #a9b7c9; }
+.picker-badge { display: inline-block; color: #36e6ed; font: 8px 'DM Mono', monospace; letter-spacing: .12em; border: 1px solid #36e6ed55; padding: 3px 5px; border-radius: 2px; }
+.picker-row-status { color: #36e6ed; font-size: 20px; }
+@keyframes picker-reveal { from { opacity: 0; transform: translateY(-7px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes picker-row-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+
+/* Original CSS wheel: rubber tread, machined rim and spinning spokes. */
+.brand-tyre { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 39px; height: 39px; flex-shrink: 0; isolation: isolate; }
+.tyre-wheel { position: relative; width: 36px; height: 36px; border-radius: 50%; border: 6px solid #11151d; outline: 2px dashed #586170; outline-offset: -2px; box-shadow: 0 0 0 1px #778397, inset 0 0 0 2px #c9d7e5, 0 3px 7px #0008; background: repeating-conic-gradient(#d5e5ed 0deg 12deg, #20303b 12deg 60deg); animation: tyre-spin .7s linear infinite; }
+.tyre-wheel::after { content: ''; position: absolute; inset: 7px; border-radius: 50%; border: 1px solid #d5e5ed; background: #36e6ed; box-shadow: 0 0 6px #36e6ed88; }
+.brand-tyre:hover .tyre-wheel, .game-wordmark:focus-visible .tyre-wheel { animation-duration: .12s; }
+.tyre-smoke { position: absolute; z-index: -1; inset: 0; pointer-events: none; }
+.tyre-smoke i { position: absolute; left: 3px; bottom: 1px; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(circle, #c4d5e9aa, #9eb8cd55 40%, transparent 70%); opacity: 0; }
+.brand-tyre:hover .tyre-smoke i, .game-wordmark:focus-visible .tyre-smoke i { animation: tyre-burnout .95s ease-out infinite; }
+.tyre-smoke i:nth-child(2) { animation-delay: .18s; bottom: 5px; }
+.tyre-smoke i:nth-child(3) { animation-delay: .36s; bottom: -2px; }
+.tyre-smoke i:nth-child(4) { animation-delay: .54s; bottom: 9px; }
+.tyre-smoke i:nth-child(5) { animation-delay: .72s; bottom: 2px; }
+@keyframes tyre-spin { to { transform: rotate(360deg); } }
+@keyframes tyre-burnout { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 15% { opacity: .9; } 100% { opacity: 0; transform: translate(-65px, -20px) scale(3.8); } }
+@media (max-width: 760px) { .circuit-picker-button { width: min(250px, 65vw); } .archive-field { gap: 10px; } .archive-field label { max-width: 9ch; } .picker-heading { padding: 16px; } }
+@media (max-width: 390px) { .picker-map { width: 46px; } .circuit-picker-row { gap: 7px; padding: 10px; } .picker-details strong { font-size: 21px; } }
+@media (prefers-reduced-motion: reduce) {
+    .circuit-picker-panel, .circuit-picker-row, .tyre-wheel, .brand-tyre:hover .tyre-smoke i, .game-wordmark:focus-visible .tyre-smoke i { animation: none; }
+    .circuit-picker-button, .picker-chevron, .circuit-picker-row, .circuit-picker-row::before { transition: none; }
+    .circuit-picker-row:hover, .circuit-picker-row:focus-visible { transform: none; }
+}

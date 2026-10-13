@@ -1,20 +1,25 @@
 import { GAME_CONFIG as CONFIG } from './config.js';
-import { clamp, nearestTrackPoint, trackPose } from './math.js';
+import { clamp, trackPose } from './math.js';
 import { resolveBarrierContacts } from './track-edges.js';
+import { nearestRoadPoint, roadHeight, surfacePose, loopPose } from './road-surface.js';
 
 export function createCar(track, progress = 0) {
-    return { ...trackPose(track, progress), vx: 0, vz: 0, speed: 0, slip: 0, steering: 0, offRoad: false, barrierHit: false };
+    const pose = surfacePose(track, progress);
+    return { ...pose, progress, vx: 0, vz: 0, speed: 0, slip: 0, steering: 0, offRoad: false, barrierHit: false,
+        loopT: track.loop && progress >= track.loop.start && progress < track.loop.end ?
+            (progress - track.loop.start) / (track.loop.end - track.loop.start) : null };
 }
 
 // A small arcade model: velocity is split into forward and sideways components.
 // The handbrake lowers sideways grip, making countersteering a useful part of driving.
 // A fixed update interval keeps grip and scoring consistent across refresh rates.
 export function updateCar(car, input, track, deltaTime) {
+    if (car.loopT != null) return updateLoop(car, input, track, deltaTime);
     const forwardX = Math.sin(car.heading);
     const forwardZ = Math.cos(car.heading);
     let forwardSpeed = car.vx * forwardX + car.vz * forwardZ;
     let lateralSpeed = car.vx * forwardZ - car.vz * forwardX;
-    const nearest = nearestTrackPoint(track.points, car.x, car.z);
+    const nearest = nearestRoadPoint(track, car.x, car.z, car.progress);
     car.offRoad = nearest.distance > track.width / 2;
 
     if (input.throttle) forwardSpeed += CONFIG.acceleration * deltaTime;
@@ -45,7 +50,38 @@ export function updateCar(car, input, track, deltaTime) {
     const resolvedForward = car.vx * nextForwardX + car.vz * nextForwardZ;
     const resolvedLateral = car.vx * nextForwardZ - car.vz * nextForwardX;
     car.slip = Math.abs(Math.atan2(resolvedLateral, Math.max(0.01, resolvedForward)));
-    const finalRoad = nearestTrackPoint(track.points, car.x, car.z);
+    const finalRoad = nearestRoadPoint(track, car.x, car.z, car.progress);
     car.offRoad = finalRoad.distance > track.width / 2;
+    if (track.loop && nearest.progress < track.loop.start && finalRoad.progress >= track.loop.start &&
+        forwardSpeed > 0 && !car.offRoad) {
+        car.loopT = 0;
+        // The entry pad supplies a minimum 72 km/h, then magnetic arcade grip
+        // keeps the car attached. No uphill gravity penalty or inverted stalls.
+        car.speed = Math.max(track.loop.minimumSpeed, car.speed);
+        const remaining = deltaTime * clamp((finalRoad.progress - track.loop.start) /
+            Math.max(1e-9, finalRoad.progress - nearest.progress), 0, 1);
+        return updateLoop(car, input, track, remaining);
+    }
+    car.progress = finalRoad.progress;
+    car.y = roadHeight(track, car.progress);
+    car.pitch = surfacePose(track, car.progress).pitch;
     return finalRoad;
+}
+
+function updateLoop(car, input, track, deltaTime) {
+    const minimum = track.loop.minimumSpeed;
+    car.speed = clamp(Math.max(minimum, car.speed) + (input.throttle ? CONFIG.acceleration : 0) * deltaTime -
+        (input.brake ? CONFIG.brakeForce * deltaTime : 0), minimum, CONFIG.maximumSpeed);
+    const t = car.loopT;
+    const start = trackPose(track, track.loop.start), end = trackPose(track, track.loop.end);
+    const span = Math.hypot(end.x - start.x, end.z - start.z), circle = 2 * Math.PI * track.loop.radius;
+    const distance = (t < 0.25 ? t * span * 2 : t <= 0.75 ? span / 2 + (t - 0.25) * circle * 2 :
+        span / 2 + circle + (t - 0.75) * span * 2) + car.speed * deltaTime;
+    car.loopT = Math.min(1, distance < span / 2 ? distance / (span * 2) : distance <= span / 2 + circle ?
+        0.25 + (distance - span / 2) / (circle * 2) : 0.75 + (distance - span / 2 - circle) / (span * 2));
+    const pose = loopPose(track, car.loopT);
+    Object.assign(car, pose, { vx: Math.sin(pose.heading) * car.speed,
+        vz: Math.cos(pose.heading) * car.speed, steering: 0, slip: 0, barrierHit: false, offRoad: false });
+    if (car.loopT >= 1) { car.loopT = null; car.pitch = 0; }
+    return { x: car.x, z: car.z, progress: pose.progress, distance: 0 };
 }
