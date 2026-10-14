@@ -201,7 +201,7 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 .race-stage .race-hud .hud-readout small { font-size: 18px; color: #b3f9ff; }
 .race-stage .race-hud .hud-lap { left: 50%; transform: translateX(-50%); width: 130px; }
 .race-stage .race-hud .hud-time { top: 4px; left: 0; width: 150px; }
-.race-stage .race-hud .hud-time strong { font-family: var(--font-mono); font-size: 22px; }
+.race-stage .race-hud .hud-time strong { font-size: 34px; }
 .race-stage .race-hud .hud-score { top: 74px; left: 50%; transform: translateX(-50%); width: min(260px,60vw); }
 .race-stage .race-hud .hud-score strong { font-size: 34px; }
 .race-stage .race-hud .hud-pause { top: 0; left: auto; right: 104px; border: 0; background: transparent; color: var(--race-accent); text-shadow: var(--hud-glow); }
@@ -219,7 +219,7 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 .race-stage.mobile-play .race-hud .hud-time { top: 60px; left: 0; transform: none; width: 130px; }
 .race-stage.mobile-play .race-hud .hud-readout > span { font-size: 8px; }
 .race-stage.mobile-play .race-hud .hud-readout strong { font-size: 23px; }
-.race-stage.mobile-play .race-hud .hud-time strong { font-size: 20px; }
+.race-stage.mobile-play .race-hud .hud-time strong { font-size: 23px; }
 .race-stage.mobile-play .race-hud .hud-score { top: 60px; left: auto; right: 0; transform: none; width: 130px; }
 .race-stage.mobile-play .race-hud .hud-pause { left: 62px; right: auto; }
 .race-stage.mobile-play .race-hud .combo-readout { top: clamp(120px,20%,180px); bottom: auto; width: min(210px,46vw); }

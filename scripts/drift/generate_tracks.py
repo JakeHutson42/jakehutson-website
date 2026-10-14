@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TRACK_DIRECTORY = ROOT / "games" / "drift" / "tracks"
 POINT_COUNT = 640
-GENERATOR_VERSION = 11
+GENERATOR_VERSION = 12
 # Keep daily corner choices stable while changing road dimensions.
 SHAPE_SEED_VERSION = 10
 
@@ -41,7 +41,7 @@ def resample_closed_loop(points, count):
     return result
 
 
-def validate_geometry(points, width, elevations=None):
+def validate_geometry(points, width, elevations=None, minimum_radius=None):
     """Reject tight corners and nearby road sections before publishing a circuit."""
     count = len(points)
     for index, point in enumerate(points):
@@ -51,7 +51,7 @@ def validate_geometry(points, width, elevations=None):
         turn = abs(math.atan2(incoming[0] * outgoing[1] - incoming[1] * outgoing[0],
                               incoming[0] * outgoing[0] + incoming[1] * outgoing[1]))
         radius = distance(point, following) / max(turn, 0.00001)
-        if radius < width * 1.35:
+        if radius < (minimum_radius if minimum_radius is not None else width * 1.35):
             return False
         for other_index in range(index + 1, count):
             separation = min(other_index - index, count - (other_index - index))
@@ -254,12 +254,19 @@ def generate_track(track_date):
         if not (validate_geometry(points,15) and total_turn >= 38 and reversals >= 24
                 and longest_flat_run(points) < 100 and not crossing_pairs(points)):
             continue
+        # A second 25% reduction preserves the established bend sequences.
+        points = [[x*0.75,z*0.75] for x,z in points]
+        length = sum(distance(points[i-1], p) for i,p in enumerate(points))
+        total_turn, reversals = corner_profile(points)
+        if not (validate_geometry(points,15,minimum_radius=15.5) and total_turn >= 38 and reversals >= 24
+                and longest_flat_run(points) < 100 and not crossing_pairs(points)):
+            continue
         start = rng.randrange(POINT_COUNT)
         points = points[start:]+points[:start]
         return {"version":1, "generatorVersion":GENERATOR_VERSION, "date":str(track_date),
                 "seed":seed, "name":["Midnight Switchbacks", "Neon Chicanes", "Skyline Esses"][seed%3],
                 "layout":"switchbacks", "environment":"NIGHT CITY", "width":15,
-                "length":round(length,2), "drivingLength":round(length,2),
+                "minimumCornerRadius":15.5, "length":round(length,2), "drivingLength":round(length,2),
                 "points":points, "elevations":[0.0]*POINT_COUNT, "bridges":[]}
     raise RuntimeError(f"Unable to generate a safe twisty circuit: {track_date}")
 

@@ -68,13 +68,13 @@ update all copies when adding links, as there is no server-side template include
 ## Daily circuits and the archive
 
 The generator uses a SHA-256 seed of the UTC date and generator version. Version
-11 traces the twist-heavy perimeter reference, exchanging northern corner sequences
+12 traces the twist-heavy perimeter reference, exchanging northern corner sequences
 and independently varying corner positions, depths, route proportions and driving
 direction. Dates differ in road geometry and bend counts, rather than just rotation
 or scale. Roads are now 15 metres wide with 640 evenly spaced points.
 
 Only tight corners and their neighbours are smoothed to a minimum 21-metre target
-radius. Earlier global smoothing washed out unrelated chicanes. Deterministic
+radius before the final reduction. Earlier global smoothing washed out unrelated chicanes. Deterministic
 retries reject overlapping roads, tight corners, base laps outside 1-2 miles, fewer than
 24 curvature reversals, total absolute turning below 38 radians, or nearly flat
 runs of 100 metres or more (radius above 180 metres). These requirements are tested
@@ -82,15 +82,15 @@ across 60 dates. The new circuits are level, with no crossovers or vertical stun
 loop. Legacy elevated/loop geometry remains in a test fixture for the shared
 surface engine.
 
-Version 11 retains the version 10 date seeds and shortens the accepted base route
-by 25%, then rounds tight corners again for the wider road. The second smoothing
-pass preserves the shorter target length. The four existing laps now measure
-about 1.99-2.12 km rather than 2.66-2.83 km.
+Version 12 keeps the established bend sequences and reduces version 11 laps by
+another 25%, to about 1.50-1.59 km for the four current circuits. Final centreline
+corner radii now have a 15.5-metre minimum, leaving at least an 8-metre inner road
+radius on 15-metre roads. Final geometry is checked again after scaling. Curvature
+reversals and total turning are retained rather than smoothing away the bends.
 
 Powered-slide and handbrake grip retain the previous 10% reduction (1.935 and
-1.08); normal road grip is 6. Revised circuits use v12 personal records. Fullscreen
-is hidden on touch devices and phone-width screens. Near-miss obstacles can occupy
-gently curving shoulders while leaving the centre lane open.
+1.08); normal road grip is 6. Revised circuits and drift-only scoring use v13 personal records. Fullscreen
+is hidden on touch devices and phone-width screens.
 
 The development bank contains **four circuits**, initially dated 2026-10-11 through
 2026-10-14: two recent dates, today and tomorrow. The browser exposes only dates
@@ -248,9 +248,11 @@ The mixer crossfades idle and rev recordings, follows RPM and automatic shifts, 
 
 `start-sequence.js` follows the simulation's three-second countdown: READY at the beginning, SET halfway, then GO when driving starts. Two short beeps precede a higher, longer third beep at GO. The animated three-light panel scales for mobile and respects reduced motion. Pausing freezes the sequence and silences audio; resuming never repeats a previously played cue.
 
-Near-miss challenges deterministically place four to eight shoulder-side parked cars/construction barriers on suitably straight, level sections, outside starts/checkpoints, bridge approaches and loop entries. Shared rectangular hitboxes preserve the open centre lane. A clean forward pass above 12 m/s, within 1.25 m of the obstacle body, pays 250 points once per obstacle per lap. Contact, reversing and runoff invalidate the encounter; resetting cannot repeat a claimed reward. Total score includes drift and near-miss bonuses. Narrower roads and new scoring use v9 device records, preserving previous data.
+Trackside parked cars and construction obstacles, their collision handling and
+near-miss scoring have been removed. Scores come from drifting; boundary walls
+and their contact effects remain.
 
-Version 11 circuits are 25% shorter, targeting 0.75-1.5 miles per lap along the level centreline. Menu distances are miles; dial and digital speed are mph. Physics uses metres and seconds internally.
+Version 12 circuits are another 25% shorter, targeting 0.5625-1.125 miles per lap along the level centreline. Menu distances are miles; dial and digital speed are mph. Physics uses metres and seconds internally.
 
 Vertical stunt loops were removed from all generated circuits in version 10.
 

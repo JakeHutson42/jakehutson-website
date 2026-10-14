@@ -1,7 +1,7 @@
 import { clamp } from './math.js';
 
 export function driftIntensity(car) {
-    if (car.barrierHit || car.obstacleHit || car.offRoad || car.loopT != null || car.speed < 7) return 0;
+    if (car.barrierHit || car.offRoad || car.loopT != null || car.speed < 7) return 0;
     return clamp((car.slip - 0.16) / 0.85, 0, 1) * clamp(car.speed / 22, 0, 1);
 }
 

@@ -162,7 +162,7 @@ async function selectTrackContent(date) {
         element('trackEdition').textContent = `${isDaily ? 'DAILY' : 'ARCHIVE'} / ${date.replaceAll('-', '.')}`;
         element('trackName').textContent = track.name.toUpperCase();
         element('trackDescription').textContent =
-            'Linked esses, returning corners and flowing chicanes. Clean near-misses: +250 points.';
+            'Linked esses, returning corners and flowing chicanes.';
         element('trackLength').textContent = `${miles(track.drivingLength || track.length).toFixed(2)} MI`;
         drawMap(element('trackMap'), track);
         displayPersonalBest();
@@ -266,7 +266,6 @@ function finishRun() {
     element('overlayEyebrow').textContent = newBest ? 'A NEW PERSONAL BENCHMARK' : 'THREE LAPS. ONE GOOD TIME.';
     element('overlayTitle').textContent = 'THAT’S YOUR LINE.';
     element('overlayDescription').textContent = records.available ? 'Run complete. Your record is saved on this device.' : 'Run complete. Your record is kept for this visit; browser storage is unavailable.';
-    if (race.nearMisses) element('overlayDescription').textContent += ` ${race.nearMisses} clean near-misses earned ${race.nearMissBonus} bonus points.`;
     element('resultScore').textContent = race.score.toLocaleString();
     element('resultTime').textContent = formatTime(race.elapsed);
     element('resultGrid').hidden = false;

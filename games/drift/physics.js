@@ -3,7 +3,6 @@ import { clamp, trackPose } from './math.js';
 import { resolveBarrierContacts } from './track-edges.js';
 import { nearestRoadPoint, roadHeight, surfacePose, loopPose, advanceLoop } from './road-surface.js';
 import { updateDrivingFeedback } from './driving-feedback.js';
-import { resolveObstacleContacts } from './obstacles.js';
 
 export function createCar(track, progress = 0) {
     const pose = surfacePose(track, progress);
@@ -56,7 +55,6 @@ function stepCar(car, input, track, deltaTime) {
     car.vz = nextForwardZ * forwardSpeed - nextForwardX * lateralSpeed;
     car.x += car.vx * deltaTime;
     car.z += car.vz * deltaTime;
-    resolveObstacleContacts(car, track);
     resolveBarrierContacts(car, track, deltaTime);
     car.speed = Math.hypot(car.vx, car.vz);
     const resolvedForward = car.vx * nextForwardX + car.vz * nextForwardZ;
@@ -88,7 +86,7 @@ function updateLoop(car, input, track, deltaTime) {
     car.loopT = advanceLoop(track,car.loopT,car.speed*deltaTime);
     const pose = loopPose(track, car.loopT);
     Object.assign(car, pose, { vx: pose.frame.forward[0] * car.speed,
-        vz: pose.frame.forward[2] * car.speed, steering: 0, slip: 0, barrierHit: false, obstacleHit: false, offRoad: false });
+        vz: pose.frame.forward[2] * car.speed, steering: 0, slip: 0, barrierHit: false, offRoad: false });
     if (car.loopT >= 1) { car.loopT = null; car.pitch = 0; delete car.frame; }
     return { x: car.x, z: car.z, progress: pose.progress, distance: 0 };
 }

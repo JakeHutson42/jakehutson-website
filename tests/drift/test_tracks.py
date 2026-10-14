@@ -36,13 +36,13 @@ class TrackTests(unittest.TestCase):
                             if turn/max(math.hypot(ax, az), 0.001) < 1/180 else 0)
                 longest_flat_run = max(longest_flat_run, flat_run)
             self.assertLess(longest_flat_run, 100, "Break long flat runs into linked bends")
-            self.assertTrue(generator.validate_geometry(points, track["width"], track["elevations"]))
+            self.assertTrue(generator.validate_geometry(points, track["width"], track["elevations"], track["minimumCornerRadius"]))
             segments = [generator.distance(points[index], points[(index + 1) % len(points)]) for index in range(len(points))]
             self.assertNotIn("loop", track)
             self.assertLess(max(segments) / min(segments), 1.03)
             self.assertAlmostEqual(sum(segments), track["length"], places=1)
-            self.assertGreaterEqual(track["drivingLength"],1207.008)
-            self.assertLessEqual(track["drivingLength"],2414.016)
+            self.assertGreaterEqual(track["drivingLength"],905.256)
+            self.assertLessEqual(track["drivingLength"],1810.512)
             total_turn, reversals = generator.corner_profile(points)
             self.assertGreaterEqual(generator.hairpin_count(points), 1, "Keep at least one returning drift corner")
             self.assertGreaterEqual(total_turn, 38)
@@ -51,10 +51,12 @@ class TrackTests(unittest.TestCase):
             self.assertLessEqual(reversals, 44, "Keep bends distinct rather than noisy")
 
     def test_existing_daily_laps_are_25_percent_shorter(self):
-        previous_lengths = [2734.52, 2658.05, 2690.99, 2829.78]
-        for day, previous in zip(range(11,15), previous_lengths):
+        previous_lengths = [2050.89, 1993.53, 2018.24, 2122.33]
+        previous_bend_changes = [30, 30, 26, 30]
+        for day, previous, bends in zip(range(11,15), previous_lengths, previous_bend_changes):
             track = generator.generate_track(date(2026,10,day))
             self.assertAlmostEqual(track["length"], previous*0.75, delta=0.02)
+            self.assertEqual(generator.corner_profile(track["points"])[1], bends)
 
     def test_daily_layouts_change_corner_geometry_and_have_no_stunts(self):
         tracks = [generator.generate_track(date(2026, 10, 11) + timedelta(days=i)) for i in range(6)]

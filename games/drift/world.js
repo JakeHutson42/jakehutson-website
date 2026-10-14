@@ -1,5 +1,4 @@
 import { driftIntensity } from './driving-feedback.js';
-import { roadObstacles } from './obstacles.js';
 import { roadSamples, offsetSurface, roadHeight, surfacePose, surfaceFrame, loopChaseView } from './road-surface.js';
 import { smokeVelocity } from './smoke-motion.js';
 import { CircuitFlythrough } from './preview-camera.js';
@@ -198,7 +197,6 @@ export class DriftWorld {
         this.buildStartLine(track);
         this.buildLoopEntry(track);
         this.buildScenery(track);
-        this.buildRoadObstacles(track);
         this.buildBridgeSupports(track);
         this.markIndex = 0; this.lastMark = null;
         this.tireMarks.geometry.attributes.position.array.fill(0);
@@ -319,31 +317,6 @@ export class DriftWorld {
             const lamp = new THREE.PointLight(0x36e6ed, 85, 30, 2);
             this.environment.add(lamp); return lamp;
         });
-    }
-
-    buildRoadObstacles(track) {
-        const orange = this.material(0xff9b32, { emissive: 0xff6a15, emissiveIntensity: 0.25 });
-        const white = this.material(0xd8e3e9), dark = this.material(0x172331);
-        const box = new THREE.BoxGeometry(1,1,1);
-        for (const obstacle of roadObstacles(track)) {
-            const group = new THREE.Group(); group.name = 'near-miss-' + obstacle.type;
-            group.position.set(obstacle.x, obstacle.y + 0.1, obstacle.z); group.rotation.y = obstacle.heading;
-            if (obstacle.type === 'parked-car') {
-                group.add(buildCar({ model: 'coupe', paint: '#64758e', wheels: 'silver', stripes: false, spoiler: false }));
-            } else {
-                const add = (w,h,d,x,y,z,material) => {
-                    const mesh = new THREE.Mesh(box,material); mesh.scale.set(w,h,d); mesh.position.set(x,y,z);
-                    mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh);
-                };
-                add(1.9,0.75,4.6,0,0.42,0,orange);
-                for (const z of [-1.65,-0.55,0.55,1.65]) add(1.92,0.16,0.45,0,0.65,z,white);
-                for (const z of [-1.7,1.7]) {
-                    add(0.18,0.8,0.18,0,1.1,z,dark);
-                    add(0.35,0.17,0.35,0,1.5,z,orange);
-                }
-            }
-            this.environment.add(group);
-        }
     }
 
     buildSparks() {
