@@ -2,6 +2,8 @@ import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { buildCar, disposeCar } from '../drift/car-model.js';
 import { trackPose } from '../drift/math.js';
 import { RACERS } from './race.js';
+import { surfacePose } from './surface.js';
+import { DeskBuilder, loadDeskMaterials, batchStaticMeshes } from './desk-world.js';
 
 const COLORS = ['#ed7866', '#69b5a8', '#f1c85b', '#8f80b5', '#ede6d8'];
 
@@ -13,20 +15,44 @@ export class PocketWorld {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1.12;
+        // All scenery is static. Cars use soft contact shadows, allowing the
+        // detailed scene's directional shadow map to be baked once per layout.
+        this.renderer.shadowMap.autoUpdate = false;
         this.scene = new THREE.Scene(); this.scene.background = new THREE.Color('#282333');
         this.camera = new THREE.OrthographicCamera(-100, 100, 75, -75, .1, 800);
         this.camera.up.set(0, 0, -1);
-        this.scene.add(new THREE.HemisphereLight('#fff4df', '#8a7890', 2.6));
-        this.sun = new THREE.DirectionalLight('#fff1d1', 3.0);
+        this.scene.add(new THREE.HemisphereLight('#fff4df', '#7d8790', 2.0));
+        this.sun = new THREE.DirectionalLight('#fff1d1', 2.4);
         this.sun.position.set(-65, 140, -40); this.sun.castShadow = true;
         this.sun.shadow.mapSize.set(2048, 2048);
-        Object.assign(this.sun.shadow.camera, { left: -160, right: 160, top: 145, bottom: -145, near: 1, far: 320 });
+        Object.assign(this.sun.shadow.camera, { left: -220, right: 220, top: 195, bottom: -195, near: 1, far: 400 });
         this.sun.shadow.bias = -.0006;
         this.scene.add(this.sun);
         this.materials = new Map(); this.labels = new Map(); this.cars = [];
+        this.assetMaterials = new Set();
+        this.underpassMarker = new THREE.Mesh(new THREE.RingGeometry(1.5, 1.9, 24),
+            new THREE.MeshBasicMaterial({ color: '#ffdc70', transparent: true, opacity: .9, depthTest: false, depthWrite: false, side: THREE.DoubleSide }));
+        this.underpassMarker.rotation.x = -Math.PI / 2; this.underpassMarker.renderOrder = 10;
+        this.underpassMarker.visible = false; this.scene.add(this.underpassMarker);
         this.observer = new ResizeObserver(() => this.resize()); this.observer.observe(canvas.parentElement);
         canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); this.onContextLost?.(); });
-        canvas.addEventListener('webglcontextrestored', () => this.onContextRestored?.());
+        canvas.addEventListener('webglcontextrestored', () => { this.renderer.shadowMap.needsUpdate = true; this.onContextRestored?.(); });
+    }
+    async loadAssets() {
+        try { this.deskMaterials = await loadDeskMaterials(); }
+        catch (error) {
+            console.warn('Using simple desk materials while texture detail is unavailable.', error);
+            this.deskMaterials = Object.fromEntries(Object.entries({ wood: '#98704b', paper: '#e9dfc7', cloth: '#3e6970', mat: '#456454' })
+                .map(([name, color]) => [name, new THREE.MeshStandardMaterial({ color, roughness: .85, side: THREE.DoubleSide })]));
+        }
+        this.assetMaterials = new Set(Object.values(this.deskMaterials));
+        const shadow = document.createElement('canvas'); shadow.width = shadow.height = 64;
+        const ctx = shadow.getContext('2d'), gradient = ctx.createRadialGradient(32, 32, 2, 32, 32, 31);
+        gradient.addColorStop(0, '#0009'); gradient.addColorStop(.5, '#0005'); gradient.addColorStop(1, '#0000');
+        ctx.fillStyle = gradient; ctx.fillRect(0, 0, 64, 64);
+        this.carShadow = new THREE.CanvasTexture(shadow);
     }
     material(color) {
         if (!this.materials.has(color)) this.materials.set(color, new THREE.MeshStandardMaterial({ color, roughness: .76 }));
@@ -92,6 +118,8 @@ export class PocketWorld {
     build(track) {
         this.clearMap(); this.track = track; this.map = new THREE.Group(); this.scene.add(this.map);
         const room = track.room;
+        if (track.authored) new DeskBuilder(this).build(track);
+        else {
         this.box(this.map, 0, -4, 0, 284, 7, 222, '#65505c');
         this.mesh(new THREE.BoxGeometry(280, .8, 218), this.surfaceTexture(room), this.map, 0, -.45, 0);
         this.ribbon(track, 0, track.width + 1.5, .03, room.edge);
@@ -106,22 +134,28 @@ export class PocketWorld {
             const pose = trackPose(track, i / 48 + .006);
             const dash = this.box(this.map, pose.x, .08, pose.z, .17, .015, 2, '#c5b6a6'); dash.rotation.y = pose.heading;
         }
-        const finish = trackPose(track, 0), line = new THREE.Group(); line.position.set(finish.x, .12, finish.z); line.rotation.y = finish.heading; this.map.add(line);
-        for (let x = 0; x < 10; x++) for (let z = 0; z < 3; z++)
-            this.box(line, (x - 4.5) * 1.25, 0, (z - 1) * 1.25, 1.25, .04, 1.25, (x + z) % 2 ? '#42384f' : '#fff9e7');
-        for (const side of [-1, 1]) {
-            this.box(line, side * 8.7, 3, 0, .6, 6, .6, '#f3dbac');
-            this.topLabel(line, side < 0 ? 'START' : 'FINISH', side * 11.5, .17, 0, 6, 3, '#483545', '#ffdc70');
         }
+        const finish = surfacePose(track, 0), line = new THREE.Group(); line.position.set(finish.x, finish.y + .2, finish.z); line.rotation.y = finish.heading; this.map.add(line);
+        const square = (finish.width - 1.5) / 10;
+        for (let x = 0; x < 10; x++) for (let z = 0; z < 3; z++)
+            this.box(line, (x - 4.5) * square, 0, (z - 1) * 1.1, square, .04, 1.1, (x + z) % 2 ? '#42384f' : '#fff9e7');
+        for (const side of [-1, 1]) {
+            this.box(line, side * (finish.width / 2 + 1), 3, 0, .6, 6, .6, '#f3dbac');
+            this.topLabel(line, side < 0 ? 'START' : 'FINISH', side * (finish.width / 2 + 4), .17, 0, 6, 3, '#483545', '#ffdc70');
+        }
+        if (!track.authored) {
         this.topLabel(this.map, 'POCKET / CIRCUIT', -62, .1, 92, 43, 7, room.edge, room.surface);
         for (const prop of track.props) this.prop(prop);
+        }
         for (const boost of track.boosts) {
-            const pad = new THREE.Group(); pad.position.set(boost.x, .11, boost.z); pad.rotation.y = boost.heading;
+            const pad = new THREE.Group(); pad.position.set(boost.x, (boost.y || 0) + .24, boost.z); pad.rotation.set(-(boost.pitch || 0), boost.heading, 0, 'YXZ');
             this.map.add(pad); this.box(pad, 0, 0, 0, 10, .06, 5, room.accent);
             for (let z = -1.4; z <= 1.4; z += 1.4) for (const side of [-1, 1]) {
-                const chevron = this.box(pad, side * .65, .05, z, .35, .03, 1.8, '#645037'); chevron.rotation.y = side * .7;
+                const chevron = this.box(pad, side * .65, .05, z, .35, .03, 1.8, '#645037'); chevron.rotation.y = -side * .7;
             }
         }
+        if (track.authored) batchStaticMeshes(this.map);
+        this.renderer.shadowMap.needsUpdate = true;
         this.cameraTarget = new THREE.Vector3(0, 0, 0); this.resize();
     }
     prop(spec) {
@@ -180,10 +214,15 @@ export class PocketWorld {
         }
     }
     setCars(drivers, paint) {
+        this.underpassMarker.material.color.set(paint);
         this.cars.forEach(car => { this.scene.remove(car); disposeCar(car); });
         this.cars = drivers.map(driver => {
             const spec = RACERS[driver.index];
             const car = buildCar({ model: spec.model, paint: driver.index === 0 ? paint : spec.color, stripes: true, spoiler: true, wheels: 'graphite' });
+            car.traverse(mesh => { if (mesh.isMesh) mesh.castShadow = false; });
+            batchStaticMeshes(car);
+            const shadow = new THREE.Mesh(new THREE.PlaneGeometry(4, 6.3), new THREE.MeshBasicMaterial({ map: this.carShadow, transparent: true, depthWrite: false, opacity: .65 }));
+            shadow.rotation.x = -Math.PI / 2; shadow.position.y = .02; car.add(shadow);
             this.scene.add(car); return car;
         });
     }
@@ -196,23 +235,30 @@ export class PocketWorld {
         if (!this.map || !this.aspect) return;
         drivers.forEach((driver, i) => {
             const mesh = this.cars[i]; if (!mesh) return;
-            mesh.position.set(driver.x, .12, driver.z); mesh.rotation.y = driver.heading;
+            mesh.position.set(driver.x, (driver.y || 0) + .12, driver.z); mesh.rotation.set(-(driver.pitch || 0), driver.heading, 0, 'YXZ');
             mesh.userData.tailLightMaterial.emissiveIntensity = driver.braking ? 2 : .5;
         });
         const player = drivers[0];
-        const desired = new THREE.Vector3(playing ? player.x + player.vx * .3 : 0, 0, playing ? player.z + player.vz * .3 : 0);
+        this.underpassMarker.visible = Boolean(playing && this.track.authored && player.y < 3 && Math.abs(player.x) < 46 && Math.abs(player.z) < 8);
+        this.underpassMarker.position.set(player.x, 12.5, player.z);
+        const desired = new THREE.Vector3(playing ? player.x + player.vx * .35 : 0, playing ? player.y || 0 : 0, playing ? player.z + player.vz * .35 : 0);
         this.cameraTarget.lerp(desired, playing && !reducedMotion ? 1 - Math.exp(-6 * dt) : 1);
-        const halfHeight = playing ? (this.aspect < .8 ? 57 : 43) : Math.max(108, 146 / this.aspect);
+        const halfHeight = playing ? (this.aspect < .8 ? 57 : 40) : this.track.authored ? Math.max(148, 186 / this.aspect) : Math.max(108, 146 / this.aspect);
         Object.assign(this.camera, { left: -halfHeight * this.aspect, right: halfHeight * this.aspect, top: halfHeight, bottom: -halfHeight });
         this.camera.updateProjectionMatrix();
-        this.camera.position.copy(this.cameraTarget).add(new THREE.Vector3(0, 180, 72)); this.camera.lookAt(this.cameraTarget);
+        this.camera.position.copy(this.cameraTarget).add(new THREE.Vector3(0, 150, 95)); this.camera.lookAt(this.cameraTarget);
         this.renderer.render(this.scene, this.camera);
+        const calls = String(this.renderer.info.render.calls);
+        if (this.canvas.dataset.drawCalls !== calls) {
+            this.canvas.dataset.drawCalls = calls;
+            this.canvas.dataset.triangles = String(this.renderer.info.render.triangles);
+        }
     }
     clearMap() {
         if (!this.map) return;
         this.scene.remove(this.map);
         const geometries = new Set(), surfaceMaterials = new Set();
-        this.map.traverse(object => { if (object.geometry) geometries.add(object.geometry); if (object.material?.map && ![...this.labels.values()].includes(object.material)) surfaceMaterials.add(object.material); });
+        this.map.traverse(object => { if (object.isInstancedMesh) object.dispose(); if (object.geometry) geometries.add(object.geometry); if (object.material?.map && ![...this.labels.values()].includes(object.material) && !this.assetMaterials.has(object.material)) surfaceMaterials.add(object.material); });
         geometries.forEach(geometry => geometry.dispose());
         surfaceMaterials.forEach(material => { material.map.dispose(); material.dispose(); });
     }

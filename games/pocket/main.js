@@ -47,7 +47,7 @@ function updateBest() {
 function drawMap(target, drivers = []) {
     const ctx = target.getContext('2d'), width = target.width, height = target.height;
     ctx.clearRect(0, 0, width, height);
-    const scale = Math.min((width - 35) / 220, (height - 24) / 170);
+    const scale = Math.min((width - 35) / (track.bounds?.width || 220), (height - 24) / (track.bounds?.depth || 170));
     ctx.save(); ctx.translate(width / 2, height / 2); ctx.scale(scale, scale);
     ctx.beginPath(); track.points.forEach(([x, z], i) => i ? ctx.lineTo(x, z) : ctx.moveTo(x, z)); ctx.closePath();
     ctx.strokeStyle = '#70617c'; ctx.lineWidth = 10; ctx.lineJoin = 'round'; ctx.stroke();
@@ -68,7 +68,7 @@ function loadRoom(index) {
     world.build(track); world.setCars(race.cars, storage.paint);
     const room = ROOMS[roomIndex];
     $('trackName').textContent = room.name; $('trackDescription').textContent = room.description;
-    $('trackEdition').textContent = `ROOM 0${roomIndex + 1} / 03 · ${remix ? `REMIX ${remix}` : 'DAILY'}`;
+    $('trackEdition').textContent = `ROOM 0${roomIndex + 1} / 03 · ${track.authored ? 'MULTI-LEVEL' : remix ? `REMIX ${remix}` : 'DAILY'}`;
     $('gridSpec').textContent = $('modeSelect').value === 'trial' ? 'JUST YOU & THE CLOCK' : 'YOU + 3 RIVALS';
     $('roomCaption').textContent = room.tag;
     $('roomSelect').value = String(roomIndex);
@@ -95,7 +95,7 @@ function start(newCup = true) {
     $('raceNotice').textContent = ''; stage.classList.add('is-playing'); lockLobby(true);
     mobile.enter();
     if (!mobile.active) stage.scrollIntoView({ behavior: 'instant', block: 'center' });
-    world.cameraTarget.set(race.player.x, 0, race.player.z); world.resize(); canvas.focus({ preventScroll: true });
+    world.cameraTarget.set(race.player.x, race.player.y || 0, race.player.z); world.resize(); canvas.focus({ preventScroll: true });
     unlockSound(); updateHud();
 }
 function backToLobby() {
@@ -134,7 +134,7 @@ function closeMenu() {
 }
 function showHelp() {
     setMenu('help', 'READY. TINY. GO.', 'YOUR POCKET-SIZED DRIVING SCHOOL',
-        '<p><strong>Race three laps.</strong> Follow the tape circuit through each checkpoint. Your timer starts at GO, including the short run to the start line.</p><p><kbd>W</kbd> / <kbd>↑</kbd> Accelerate &nbsp; <kbd>S</kbd> / <kbd>↓</kbd> Brake / reverse</p><p><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd> Steer &nbsp; <kbd>SPACE</kbd> Slide</p><p><kbd>R</kbd> Reset (+3 seconds) &nbsp; <kbd>ESC</kbd> Pause</p><p>Steering is relative to the car. On touch screens use the left pad to steer and the right pad to accelerate, brake or slide. You can hold two fingers at once.</p><p><strong>Yellow pads boost your speed</strong> once per pad each lap. In the cup, race all three rooms for 10 / 6 / 4 / 2 points per finish. Rivals still on track are ranked by progress.</p><p>Daily circuits change at midnight UTC. Remix creates an extra layout. Race and solo time-trial records save separately on this device.</p>', [['GOT IT ↗', closeMenu]]);
+        '<p><strong>Race three laps.</strong> Follow the route markings through each checkpoint. Your timer starts at GO, including the short run to the start line.</p><p><kbd>W</kbd> / <kbd>↑</kbd> Accelerate &nbsp; <kbd>S</kbd> / <kbd>↓</kbd> Brake / reverse</p><p><kbd>A</kbd> <kbd>D</kbd> / <kbd>←</kbd> <kbd>→</kbd> Steer &nbsp; <kbd>SPACE</kbd> Slide</p><p><kbd>R</kbd> Reset (+3 seconds) &nbsp; <kbd>ESC</kbd> Pause</p><p>Steering is relative to the car. On touch screens use the left pad to steer and the right pad to accelerate, brake or slide. You can hold two fingers at once.</p><p><strong>Desk Derby climbs across books and a ruler bridge.</strong> Later, the route passes below the same bridge. A small ring marks your car while it is hidden. Paper has less grip; the cutting mat has more.</p><p><strong>Yellow pads boost your speed</strong> once per pad each lap. In the cup, race all three rooms for 10 / 6 / 4 / 2 points per finish. Rivals still on track are ranked by progress.</p><p>Daily variations change at midnight UTC. Remix creates an extra layout. Race and solo time-trial records save separately on this device.</p>', [['GOT IT ↗', closeMenu]]);
 }
 function showGarage() {
     setMenu('garage', 'LITTLE CAR. YOURS.', 'THE TOY GARAGE / POCKET GT', '<p>A die-cast coupe, a pair of racing stripes, and your favourite colour. Every paint job has the same handling.</p><div class="paint-options" id="paintOptions"></div><p id="paintStatus" role="status">Choose a colour. It saves automatically.</p>', [['LOOKING GOOD ↗', closeMenu]]);
@@ -264,9 +264,11 @@ setInterval(() => { if (!playing && !dialog.open && day !== utcDay()) { remix = 
 $('year').textContent = new Date().getFullYear(); updateSound(); storageStatus();
 try {
     world = new PocketWorld(canvas);
+    lockLobby(true);
+    await world.loadAssets();
     world.onContextLost = () => { pause(); $('stageMessage').textContent = 'Graphics paused. Waiting for the browser to restore the scene…'; $('stageMessage').hidden = false; };
     world.onContextRestored = () => { world.resize(); $('stageMessage').hidden = true; };
-    loadRoom(0); paint(); requestAnimationFrame(animate);
+    loadRoom(0); paint(); lockLobby(false); requestAnimationFrame(animate);
 } catch (error) {
     console.error('Pocket Circuit could not prepare its scene.', error);
     $('stageMessage').textContent = 'The toybox needs WebGL. Enable browser hardware acceleration, then reload to race.';

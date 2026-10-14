@@ -1,7 +1,8 @@
 import { nearestTrackPoint, trackPose } from '../drift/math.js';
+import { makeDeskTrack } from './desk-track.js';
 
 export const ROOMS = [
-    { id: 'desk', name: 'Desk Derby', tag: 'THE HOME OFFICE', description: 'Thread the stationery. Sweep past the coffee. Take the long way around your homework.', surface: '#bf8b62', road: '#eadac0', edge: '#e66b59', accent: '#ffdc70', props: ['pencil', 'notebook', 'mug', 'keyboard', 'eraser', 'clip'], difficulty: 'QUICK & FLOWING' },
+    { id: 'desk', name: 'Desk Derby', tag: 'THE HOME OFFICE', description: 'Climb the books. Cross the ruler. Dive underneath it. A whole desk, built for little racers.', surface: '#bf8b62', road: '#eadac0', edge: '#e66b59', accent: '#ffdc70', props: ['pencil', 'notebook', 'mug', 'keyboard', 'eraser', 'clip'], difficulty: 'MULTI-LEVEL / TECHNICAL' },
     { id: 'kitchen', name: 'Kitchen Rush', tag: 'THE BREAKFAST CLUB', description: 'A breakfast-bar blast through cereal, cookies and cutlery. Please mind the morning coffee.', surface: '#b8ceca', road: '#f3eed9', edge: '#438e86', accent: '#f5c75e', props: ['plate', 'cookie', 'mug', 'cereal', 'spoon', 'sponge'], difficulty: 'FAST & TWISTY' },
     { id: 'playroom', name: 'Toybox GP', tag: 'THE PLAYROOM', description: 'Building blocks become grandstands. Dominoes mark the apex. This floor is yours to race.', surface: '#ada2c1', road: '#e9dff0', edge: '#8a64ae', accent: '#f0c85d', props: ['block', 'domino', 'crayon', 'notebook', 'ball', 'train'], difficulty: 'TIGHT & TECHNICAL' }
 ];
@@ -49,6 +50,7 @@ export const PROP_RADIUS = { pencil: 13, notebook: 18, mug: 11, keyboard: 22, er
 export function makeTrack(roomIndex = 0, seed = 'daily') {
     const room = ROOMS[roomIndex % ROOMS.length];
     const random = seededRandom(`pocket-v1:${room.id}:${seed}`);
+    if (room.id === 'desk') return makeDeskTrack(room, seed, random);
     // A radial, smooth perimeter avoids ambiguous crossings. Each room has its
     // own bend rhythm; modest seeded offsets keep the whole road safely separated.
     const profiles = [[1, .88, 1, .86, 1, .9, 1, .83, 1, .9, 1, .85],

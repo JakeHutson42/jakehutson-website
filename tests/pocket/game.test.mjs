@@ -5,20 +5,22 @@ import { PocketRace, STEP, aiInput, drive } from '../../games/pocket/race.js';
 import { nearestTrackPoint, trackPose } from '../../games/drift/math.js';
 import { PocketStorage } from '../../games/pocket/storage.js';
 import { PocketCup } from '../../games/pocket/cup.js';
+import { surfacePose, nearestSurfacePoint } from '../../games/pocket/surface.js';
 
 test('daily and remix maps are reproducible, separated and keep full props off the road', () => {
     for (let day = 1; day <= 20; day++) for (let room = 0; room < 3; room++) {
         const seed = `2026-10-${String(day).padStart(2, '0')}`, track = makeTrack(room, seed);
         assert.deepEqual(track, makeTrack(room, seed));
         assert.notDeepEqual(track.points, makeTrack(room, `${seed}-remix-1`).points);
-        assert.equal(track.points.length, 256);
-        assert.ok(track.length > 480 && track.length < 620);
-        assert.ok(track.props.length >= 20);
+        assert.equal(track.points.length, room === 0 ? 512 : 256);
+        assert.ok(room === 0 ? track.length > 950 && track.length < 1070 : track.length > 480 && track.length < 620);
+        assert.ok(track.props.length >= (room === 0 ? 16 : 20));
         for (const prop of track.props) {
             assert.ok(ROOMS[room].props.includes(prop.type));
-            assert.ok(nearestTrackPoint(track.points, prop.x, prop.z).distance >= track.width / 2 + prop.radius + 3);
+            assert.ok(nearestTrackPoint(track.points, prop.x, prop.z).distance >= (room === 0 ? 15 : track.width / 2 + 3) + prop.radius);
         }
         // Nonadjacent road portions cannot overlap or provide shortcut gates.
+        if (room === 0) continue; // The desk's intentional overpass is checked in 3D below.
         for (let i = 0; i < 256; i += 2) for (let j = i + 12; j < 256; j += 2) {
             if (256 - j + i < 12) continue;
             assert.ok(Math.hypot(track.points[i][0] - track.points[j][0], track.points[i][1] - track.points[j][1]) > track.width + 2);
@@ -33,11 +35,54 @@ test('all rooms and multiple layouts allow a complete race with the actual physi
         assert.equal(race.state, 'finished', `${ROOMS[room].name} / ${seed}`);
         assert.equal(race.player.laps, 3);
         assert.equal(race.player.lapTimes.length, 3);
-        assert.ok(race.elapsed > 40 && race.elapsed < 110);
+        assert.ok(race.elapsed > 40 && race.elapsed < (room === 0 ? 140 : 110));
         assert.ok(race.cars.slice(1).every(car => car.laps >= 2), 'Rivals must remain competitive and complete checkpoints');
         assert.ok(race.player.boostClaims.size >= 8, 'Yellow pads must be reachable through driving');
         assert.equal(new Set(race.ranking.map(car => car.index)).size, 4);
     }
+});
+
+test('desk surfaces provide variable widths, a safe bridge and an independent underpass', () => {
+    for (const seed of ['2026-10-14', '2026-10-15', '2026-10-16-remix-2']) {
+        const track = makeTrack(0, seed);
+        assert.ok(track.id.startsWith('v2:'), 'New driving geometry must not compare old records');
+        assert.ok(Math.min(...track.surfaces.map(s => s.width)) <= 12.1);
+        assert.ok(Math.max(...track.surfaces.map(s => s.width)) >= 23.9);
+        const high = track.points.map((p, i) => ({ p, i, s: track.surfaces[i] })).filter(v => v.s.y > 11.9)
+            .sort((a, b) => Math.hypot(...a.p) - Math.hypot(...b.p))[0];
+        const low = track.points.map((p, i) => ({ p, i, s: track.surfaces[i] })).filter(v => v.s.y < .01)
+            .sort((a, b) => Math.hypot(...a.p) - Math.hypot(...b.p))[0];
+        const bridge = nearestSurfacePoint(track, 0, 0, high.i / 512);
+        const tunnel = nearestSurfacePoint(track, 0, 0, low.i / 512);
+        assert.ok(bridge.y - tunnel.y > 11.9);
+        assert.ok(bridge.distance < 1 && tunnel.distance < 1);
+        assert.ok(Math.abs(bridge.progress - tunnel.progress) > .2);
+        for (let i = 0; i < 512; i++) {
+            const a = track.surfaces[i], b = track.surfaces[(i + 1) % 512];
+            assert.ok(Math.abs(a.y - b.y) / (track.length / 512) < .65, 'No vertical steps or unreasonably steep ramps');
+        }
+        const race = new PocketRace(track, 'trial');
+        Object.assign(race.player, surfacePose(track, bridge.progress), { progress: bridge.progress, resetProgress: bridge.progress });
+        race.state = 'racing'; race.reset(); assert.ok(race.player.y > 11.9);
+    }
+});
+
+test('cars crossing on different levels cannot collide or claim each other’s boost pads', () => {
+    const track = makeTrack(0, 'separate-levels'), race = new PocketRace(track);
+    const upper = race.cars[0], lower = race.cars[1];
+    Object.assign(upper, { x: 0, z: 0, y: 12, vx: 10, vz: 0 });
+    Object.assign(lower, { x: 0, z: .4, y: 0, vx: -10, vz: 0 });
+    race.resolveCars(); assert.equal(upper.x, 0); assert.equal(lower.z, .4);
+    assert.equal(upper.vx, 10); assert.equal(lower.vx, -10);
+    const nearOrigin = level => track.points.map((p, i) => ({ p, i, s: track.surfaces[i] }))
+        .filter(v => level ? v.s.y > 11.9 : v.s.y < .01).sort((a, b) => Math.hypot(...a.p) - Math.hypot(...b.p))[0].i / 512;
+    const over = surfacePose(track, nearOrigin(true)), under = surfacePose(track, nearOrigin(false));
+    track.boosts = [{ ...over, progress: nearOrigin(true) }];
+    const trial = new PocketRace(track, 'trial'); trial.state = 'racing';
+    const place = pose => Object.assign(trial.player, pose, { progress: pose === over ? nearOrigin(true) : nearOrigin(false),
+        previousProgress: pose === over ? nearOrigin(true) : nearOrigin(false), vx: Math.sin(pose.heading) * 15, vz: Math.cos(pose.heading) * 15, speed: 15 });
+    place(under); trial.update({}, STEP); assert.equal(trial.player.boost, 0);
+    place(over); trial.update({}, STEP); assert.ok(trial.player.boost > .8);
 });
 
 test('pause freezes the clock and car, and resets retain lap gates with a penalty', () => {

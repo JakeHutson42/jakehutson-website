@@ -1,5 +1,6 @@
-import { clamp, wrapAngle, nearestTrackPoint, trackPose } from '../drift/math.js';
+import { clamp, wrapAngle, trackPose } from '../drift/math.js';
 import { updateDrivingFeedback } from '../drift/driving-feedback.js';
+import { surfacePose, nearestSurfacePoint } from './surface.js';
 
 export const STEP = 1 / 120;
 export const LAPS = 3;
@@ -12,7 +13,7 @@ export const RACERS = [
 
 export function createDriver(track, index) {
     const progress = 1 - (8 + Math.floor(index / 2) * 7) / track.length;
-    const pose = trackPose(track, progress), lane = (index % 2 ? 1 : -1) * 2.6;
+    const pose = surfacePose(track, progress), lane = (index % 2 ? 1 : -1) * 2.6;
     return { ...pose, x: pose.x + Math.cos(pose.heading) * lane, z: pose.z - Math.sin(pose.heading) * lane,
         index, progress, previousProgress: progress, vx: 0, vz: 0, speed: 0, steering: 0, slip: 0,
         distance: 0, gate: 0, laps: 0, started: false, lapStart: 0, lapTimes: [], finished: false,
@@ -32,7 +33,8 @@ export function drive(car, input, track, dt) {
     const rotation = -car.steering * 2.9 * clamp(Math.abs(forward) / 11, 0, 1) * Math.sign(forward) * (input.handbrake ? 1.26 : 1) * dt;
     car.heading = wrapAngle(car.heading + rotation);
     lateral -= forward * Math.sin(rotation);
-    lateral *= Math.exp(-(input.handbrake ? 2.5 : 10) * dt);
+    const surfaceGrip = car.surfaceKind === 'paper' ? 7.5 : car.surfaceKind === 'mat' ? 12 : 10;
+    lateral *= Math.exp(-(input.handbrake ? 2.5 : surfaceGrip) * dt);
     car.vx = Math.sin(car.heading) * forward + Math.cos(car.heading) * lateral;
     car.vz = Math.cos(car.heading) * forward - Math.sin(car.heading) * lateral;
     car.x += car.vx * dt; car.z += car.vz * dt;
@@ -41,7 +43,7 @@ export function drive(car, input, track, dt) {
     // the tape barriers, not just its centre. Rendering uses this exact width.
     for (const offset of [-1.6, 0, 1.6]) {
         const x = car.x + Math.sin(car.heading) * offset, z = car.z + Math.cos(car.heading) * offset;
-        const near = nearestTrackPoint(track.points, x, z), limit = track.width / 2 - 1.2;
+        const near = nearestSurfacePoint(track, x, z, car.progress), limit = near.width / 2 - 1.2;
         if (near.distance > limit) {
             const nx = (x - near.x) / near.distance, nz = (z - near.z) / near.distance;
             const penetration = near.distance - limit;
@@ -52,8 +54,9 @@ export function drive(car, input, track, dt) {
             car.barrierHit = true;
         }
     }
-    const near = nearestTrackPoint(track.points, car.x, car.z);
+    const near = nearestSurfacePoint(track, car.x, car.z, car.progress);
     car.progress = near.progress;
+    car.y = near.y; car.pitch = near.pitch || 0; car.surfaceKind = near.kind;
     car.speed = Math.hypot(car.vx, car.vz);
     car.slip = Math.abs(Math.atan2(lateral, Math.max(.01, Math.abs(forward))));
     updateDrivingFeedback(car, input, dt);
@@ -61,11 +64,11 @@ export function drive(car, input, track, dt) {
 }
 
 export function aiInput(car, track) {
-    const ahead = trackPose(track, car.progress + (8 + car.speed * .23) / track.length);
+    const ahead = surfacePose(track, car.progress + (8 + car.speed * .23) / track.length);
     const error = wrapAngle(Math.atan2(ahead.x - car.x, ahead.z - car.z) - car.heading);
     const later = trackPose(track, car.progress + 24 / track.length);
     const bend = Math.abs(wrapAngle(later.heading - ahead.heading));
-    const target = clamp(32 - bend * 20 + car.index * .8, 17, 33);
+    const target = clamp(32 - bend * 20 + car.index * .8 - Math.max(0, 16 - ahead.width) * 1.3, 15, 33);
     return { throttle: car.speed < target, brake: car.speed > target + 2,
         steer: clamp(-error * 2.0, -1, 1), handbrake: false };
 }
@@ -99,7 +102,7 @@ export class PocketRace {
             this.updateProgress(car);
             this.track.boosts.forEach((pad, index) => {
                 const claim = `${car.laps}:${index}`;
-                if (!car.boostClaims.has(claim) && Math.hypot(car.x - pad.x, car.z - pad.z) < 4 && car.speed > 8) {
+                if (!car.boostClaims.has(claim) && Math.hypot(car.x - pad.x, car.z - pad.z) < 4 && Math.abs((car.y || 0) - (pad.y || 0)) < 2 && car.speed > 8) {
                     car.boostClaims.add(claim); car.boost = .9;
                     if (car.index === 0) this.events.push('boost');
                 }
@@ -145,6 +148,7 @@ export class PocketRace {
         for (let i = 0; i < this.cars.length; i++) for (let j = i + 1; j < this.cars.length; j++) {
             const a = this.cars[i], b = this.cars[j];
             if (a.finished || b.finished) continue;
+            if (Math.abs((a.y || 0) - (b.y || 0)) > 2.5) continue;
             const dx = b.x - a.x, dz = b.z - a.z, distance = Math.hypot(dx, dz);
             if (distance > 0 && distance < 2.5) {
                 const nx = dx / distance, nz = dz / distance, push = (2.5 - distance) * .5;
@@ -156,7 +160,7 @@ export class PocketRace {
     }
     reset(car = this.player, penalize = true) {
         if (!['racing', 'countdown'].includes(this.state) || car.finished) return;
-        Object.assign(car, trackPose(this.track, car.resetProgress), { vx: 0, vz: 0, speed: 0, steering: 0, boost: 0,
+        Object.assign(car, surfacePose(this.track, car.resetProgress), { vx: 0, vz: 0, speed: 0, steering: 0, boost: 0,
             progress: car.resetProgress, previousProgress: car.resetProgress });
         if (penalize) { this.penalty += 3; this.events.push('reset'); }
     }

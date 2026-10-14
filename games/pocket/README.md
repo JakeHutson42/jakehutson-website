@@ -2,24 +2,38 @@
 
 Open `pocket-circuit.html` through a static HTTP server. This is a browser-only,
 top-down miniature racer using the repository's pinned local Three.js 0.180.0.
-No install, backend, image downloads or new runtime dependencies are required.
+No install, backend, external asset requests or new runtime dependencies are
+required. A generated 239 KB material atlas is served locally with the game.
 
 ## Maps
 
-`tracks.js` generates a smooth, closed track from a versioned seed, room profile
-and UTC date. Equal-distance samples feed the road ribbons, visible tape rails,
-bumper collision capsules, ordered checkpoints, minimaps and AI look-ahead.
-Desk Derby, Kitchen Rush and Toybox GP have different silhouettes, materials and
-household props. Large room-specific objects anchor the scenery; remaining props
-are placed deterministically with their full bounding circles outside the road.
-Everything is geometry or a small canvas texture generated locally.
+`tracks.js` selects the room generator. Desk Derby's v2 flagship uses a designed
+sequence of household surfaces in `desk-track.js`: a low notebook climb, a raised
+book stack, a ruled bridge, a paper ramp, cutting-mat bends, a separate underpass,
+a paper sweep and a pencil chicane. Its 512 equal-distance points carry height,
+width and material. Seeds make bounded variations around the designed connections.
+Kitchen Rush and Toybox GP retain their original v1 flat layouts in this revision.
 
-This is preferable to a huge raster map: geometry scales to every screen, avoids
-large asset downloads, and keeps collision boundaries aligned with the visible
-track. It also needs no Python job or scheduled map bank. Each room gets a daily
-seed at midnight UTC; Remix adds a numbered seed. An active cup retains its seed
-across all three rooms, including a midnight rollover. Bump the generator version
-in the seed and track ID before changing layouts/handling that invalidate records.
+`surface.js` supplies poses and progress-local projections to the driving model.
+The bridge is twelve units high; the underpass is a different portion of the lap.
+Both collision and race progress retain the current road layer. Capsule contacts
+use interpolated widths (12–24 units). Cars on different levels cannot collide or
+claim each other's boost pads. Ordered gates retain the existing lap rules.
+
+`desk-world.js` builds beveled books with layered page edges, ruled ramps, a ruler
+with measurement markings and edge lips, a detailed keyboard with instanced caps
+and legends, mugs, pencils, notebooks, a monitor and an articulated desk lamp.
+The wood, paper, cloth and mat use [original generated textures](../../images/pocket/materials/README.md).
+Chalk edges and forward arrows identify the course. A small player-coloured ring
+keeps the car readable while it passes under the ruler. Paper reduces lateral grip
+and the cutting mat increases it. Other rooms retain their original props.
+
+Geometry keeps the elevation and route boundaries independent of image resolution.
+No Python map job or scheduled bank is needed. Each room gets a daily seed at
+midnight UTC; Remix adds a numbered seed. An active cup retains its seed across
+all three rooms, including a midnight rollover. Desk v2 records remain separate
+from its original flat v1 course; old records are preserved. Bump the track ID
+version before changing geometry or handling that invalidates records.
 
 ## Play
 
@@ -47,9 +61,17 @@ Pocket records, paint and sound live under `pocket-circuit:v1`, with at most 80
 layout/mode entries and an in-memory fallback. No data is transmitted.
 
 Simulation runs at a fixed 120 Hz with a bounded frame accumulator. The renderer
-caps device pixel ratio at 1.75; HUD updates run at about 10 Hz. Road strips use
-batched geometry. Changing rooms disposes old geometry/textures; replacing cars
-uses the shared disposal helper. Hidden tabs stop rendering and pause racing.
+caps device pixel ratio at 1.75; HUD updates run at about 10 Hz. Immutable opaque
+desk meshes merge into material batches, with instanced keycaps. Car meshes also
+batch by material while retaining working brake lights. The directional shadow
+map renders once per layout; cars use small soft contact shadows. Four
+512-pixel material textures stay cached across room changes. Changing rooms
+disposes map geometry and transient textures; replacing cars uses the shared
+disposal helper. Hidden tabs stop rendering and pause racing.
+The north-fixed orthographic camera lowers from about 68° to 58° above the surface,
+showing book edges and ramps while keeping the driving route readable. The view
+follows road height smoothly. Canvas `data-draw-calls` and `data-triangles` expose
+renderer counts for development without adding debug controls to the player UI.
 Sound uses the existing licensed local loops (`../drift/sounds/CREDITS.txt`).
 
 ## Verification and deployment
@@ -71,3 +93,5 @@ through the site's existing Cloudflare Pages process; no new hosting is needed.
 Tests cover seeded reproducibility, road separation, prop clearance, complete
 three-lap AI races on all rooms/multiple seeds, ordered gates, reverse crossing,
 reset penalties, pause, boost farming, wall impacts and defensive local records.
+Additional v2 checks cover continuous grades, variable widths, separate crossover
+projections, recovery at bridge height, and cross-level collision/boost isolation.
