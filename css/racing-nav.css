@@ -1,5 +1,7 @@
 /* Shared, buildless navigation treatment. Kept separate from the compiled site CSS. */
 .nav-links { gap: clamp(15px, 2vw, 30px); }
+.nav-racing { --nav-race-bg: #151917; --nav-race-accent: #dfff00; --nav-check-light: #f2f0e9; }
+.nav-pocket { --nav-race-bg: #262233; --nav-race-accent: #ffdc70; --nav-check-light: #ffdc70; color: #695274; }
 .nav-links .nav-racing,
 .mobile-navigation-inner .nav-racing {
     position: relative;
@@ -27,15 +29,16 @@
     animation: racing-flag-wave 1.65s ease-in-out infinite;
     animation-play-state: paused;
 }
+.nav-pocket::before { background-image: url('../images/pocket/checkered-flag.svg'); }
 /* A soft traveling highlight gives the checkerboard a fabric-like folded surface. */
 .nav-racing > span { position: relative; z-index: 1; }
 .nav-racing > span:first-child { transition: background 180ms ease; }
 .nav-racing:hover::before, .nav-racing:focus-visible::before { opacity: 1; animation-play-state: running; }
 .nav-racing:hover > span:first-child, .nav-racing:focus-visible > span:first-child {
-    background: #151917; color: #dfff00; box-shadow: 0 0 0 4px #151917;
+    background: var(--nav-race-bg); color: var(--nav-race-accent); box-shadow: 0 0 0 4px var(--nav-race-bg);
 }
 .nav-racing .racing-link-arrow { position: relative; z-index: 1; }
-.nav-racing:hover .racing-link-arrow, .nav-racing:focus-visible .racing-link-arrow { color: #dfff00; background: #151917; box-shadow: 0 0 0 3px #151917; }
+.nav-racing:hover .racing-link-arrow, .nav-racing:focus-visible .racing-link-arrow { color: var(--nav-race-accent); background: var(--nav-race-bg); box-shadow: 0 0 0 3px var(--nav-race-bg); }
 @keyframes racing-flag-wave {
     0%, 100% { background-position: 0 0; transform: skewY(-5deg) rotate(-8deg) scale(1.1); filter: brightness(0.85); }
     45% { transform: skewY(5deg) rotate(5deg) scale(1.15); filter: brightness(1.15); }
@@ -45,5 +48,5 @@
     .mobile-navigation-inner .nav-racing { display: flex; margin: 12px 0; padding: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .nav-racing::before { animation: none; transform: none; transition: none; background: repeating-conic-gradient(#111 0% 25%, #f2f0e9 0% 50%) 0 0 / 20px 20px; }
+    .nav-racing::before { animation: none; transform: none; transition: none; background: repeating-conic-gradient(var(--nav-race-bg) 0% 25%, var(--nav-check-light) 0% 50%) 0 0 / 20px 20px; }
 }

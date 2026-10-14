@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#262233">
+    <title>Pocket Circuit — Small cars. Big races.</title>
+    <meta name="description" content="A free top-down toy car racer. Race three household circuits, dodge the stationery and take home the Pocket Cup. Play on keyboard or touch.">
+    <link rel="stylesheet" href="lib/fonts/fonts.css">
+    <link rel="stylesheet" href="css/drift.css">
+    <link rel="stylesheet" href="css/drift-play.css">
+    <link rel="stylesheet" href="css/pocket-circuit.css">
+</head>
+<body class="drift-page pocket-page">
+    <a class="skip-link" href="#circuit">Skip to the game</a>
+    <header class="game-header">
+        <div class="game-header-inner">
+            <a href="pocket-circuit.html" class="game-wordmark" aria-label="Pocket Circuit home"><span class="pocket-mark" aria-hidden="true">▰<i></i><i></i></span><span>POCKET<em>CIRCUIT</em></span></a>
+            <nav class="game-navigation" aria-label="Game menu"><button type="button" id="paintButton"><span aria-hidden="true">◇</span> Toy garage</button><button type="button" id="helpButton"><span aria-hidden="true">?</span> How to play</button><button type="button" id="recordsButton"><span aria-hidden="true">≡</span> Records</button></nav>
+            <a href="index.html" class="back-to-site">↗ <span>Jake’s website</span></a>
+        </div>
+    </header>
+    <main class="drift-shell">
+        <header class="lobby-heading">
+            <div><p class="race-eyebrow"><span class="live-dot" aria-hidden="true"></span> THE HOUSE IS YOUR RACETRACK</p><h1>SMALL CARS.<br><em>BIG RACES.</em></h1><p>Clear the desk. Claim the kitchen. Rule the toybox.</p></div>
+            <div class="lobby-badge"><span class="badge-number">1:64</span><div><strong>A WHOLE WORLD, SCALED DOWN.</strong><span>Free to play · No account needed</span></div></div>
+        </header>
+        <section class="circuit-section" id="circuit" aria-label="Pocket Circuit racing game">
+            <div class="circuit-toolbar"><div class="circuit-label"><span class="live-dot" aria-hidden="true"></span><strong id="layoutLabel">TODAY’S PLAYGROUND</strong><span class="toolbar-divider" aria-hidden="true">/</span><time id="circuitDate"></time></div><div class="archive-field"><label for="roomSelect">Room</label><select id="roomSelect"><option value="0">01 / Desk Derby</option><option value="1">02 / Kitchen Rush</option><option value="2">03 / Toybox GP</option></select><button type="button" id="remixButton" title="Generate a fresh layout">↻ <span>Remix</span></button></div></div>
+            <div class="race-stage" id="raceStage">
+                <div class="scene-view"><canvas id="raceCanvas" tabindex="0" aria-label="Top-down toy car race. W or Up accelerates, S or Down brakes, A and D or Left and Right steer, Space slides, R resets, Escape pauses."></canvas></div>
+                <div class="scene-caption" aria-hidden="true"><span id="roomCaption">THE HOME OFFICE</span><span>REAL LIFE. LITTLE FASTER.</span></div>
+                <div class="stage-tools"><button id="soundButton" type="button" aria-label="Mute game sound" aria-pressed="true" title="Toggle sound">♫</button><button id="fullscreenButton" type="button" aria-label="Enter fullscreen">⛶</button></div>
+                <button id="mobileExitButton" class="mobile-exit-button" type="button" aria-label="Leave race">↙ EXIT</button>
+                <aside class="starting-card" id="startingCard">
+                    <div class="card-index"><span id="trackEdition">ROOM 01 / 03</span><span class="small-checkers" aria-hidden="true"></span></div>
+                    <h2 id="trackName">DESK DERBY</h2><p class="track-description" id="trackDescription">Thread the stationery. Sweep past the coffee.</p>
+                    <canvas id="trackMap" width="520" height="200" aria-label="Map of selected circuit"></canvas>
+                    <div class="track-specs"><div><span>THE GRID</span><strong id="gridSpec">YOU + 3 RIVALS</strong></div><div><span>THE RACE</span><strong>3 LAPS</strong></div></div>
+                    <label class="mode-label" for="modeSelect">Race mode</label><select id="modeSelect"><option value="cup">Pocket Cup · 3 rooms</option><option value="single">Quick race · this room</option><option value="trial">Time trial · solo</option></select>
+                    <button class="race-button primary" id="startButton" disabled>UNPACKING THE TOYS… <span aria-hidden="true">↗</span></button>
+                    <button type="button" class="garage-shortcut" id="carButton"><span class="paint-dot" id="paintDot" aria-hidden="true"></span> YOUR POCKET GT <span>Change colour ↗</span></button>
+                </aside>
+                <div class="race-hud" id="raceHud" hidden>
+                    <div class="hud-top"><div class="hud-readout"><span>LAP</span><strong id="lapValue">1 / 3</strong></div><div class="hud-readout hud-time"><span>RACE TIME</span><strong id="timeValue">00:00.00</strong></div><div class="hud-readout"><span>POSITION</span><strong id="positionValue">1 / 4</strong></div><button type="button" id="pauseButton" class="hud-pause" aria-label="Pause race">Ⅱ</button></div>
+                    <div class="race-notice" id="raceNotice" role="status" aria-live="polite"></div>
+                    <div class="hud-bottom"><div class="pocket-standings" id="standings" aria-label="Race standings"></div><div class="speed-readout"><strong id="speedValue">0</strong><span>TOY MPH</span><div class="boost-meter"><span id="boostBar"></span></div><small id="boostLabel">HIT THE YELLOW PADS</small></div></div>
+                    <canvas id="raceMap" width="240" height="180" aria-label="Track map and racer positions"></canvas>
+                    <div class="touch-controls" aria-label="Touch driving controls">
+                        <div class="touch-steering" data-control-group="steering"><span class="touch-control-label" aria-hidden="true">STEER · SLIDE THUMB</span><button type="button" data-drive="left" aria-label="Steer left" aria-pressed="false">←</button><button type="button" data-drive="right" aria-label="Steer right" aria-pressed="false">→</button></div>
+                        <div class="touch-pedals" data-control-group="pedals"><span class="touch-control-label" aria-hidden="true">SLIDE / BRAKE / GO</span><button type="button" data-drive="handbrake" class="touch-drift" aria-label="Handbrake slide" aria-pressed="false">SLIDE</button><button type="button" data-drive="brake" aria-label="Brake or reverse" aria-pressed="false">↓</button><button type="button" data-drive="throttle" aria-label="Accelerate" aria-pressed="false">↑</button></div>
+                    </div>
+                </div>
+                <div class="countdown pocket-countdown" id="countdown" hidden role="status" aria-live="polite"><div class="start-panel"><span class="start-kicker">LITTLE CARS / BIG MOMENT</span><div class="start-lights" aria-hidden="true"><i></i><i></i><i></i></div><strong id="countdownWord">READY</strong><span class="start-hint">THREE LAPS. MAKE THEM COUNT.</span></div></div>
+                <div class="stage-message" id="stageMessage" role="status">Unpacking the toybox…</div>
+                <dialog id="menuDialog" class="pocket-dialog" aria-labelledby="menuTitle"><button type="button" id="closeMenu" class="dialog-close" aria-label="Close menu">×</button><p class="race-eyebrow" id="menuEyebrow">POCKET CIRCUIT</p><h2 id="menuTitle">TAKE FIVE.</h2><div id="menuContent"></div><div id="menuActions"></div></dialog>
+            </div>
+            <div class="circuit-bottom"><span><span class="live-dot" aria-hidden="true"></span> BUILT FOR A QUICK BREAK <strong>3 rooms · 3 laps · 4 little racers</strong></span><span id="storageStatus">Personal bests stay on this device.</span></div>
+        </section>
+        <section class="lobby-info" aria-label="Personal record"><div class="personal-best"><p class="race-eyebrow">YOUR BEST / THIS LAYOUT</p><h2 id="bestTime">A blank page. A fresh start.</h2><p id="bestDetail">Finish a race to leave your mark.</p></div><p><span aria-hidden="true">↗</span> Same tiny car, three very different worlds. Race the whole house in the Pocket Cup, or chase your own best in a solo time trial.</p></section>
+        <section class="room-section" aria-labelledby="roomsTitle"><div class="section-heading"><div><p class="race-eyebrow">01 / PICK YOUR PLAYGROUND</p><h2 id="roomsTitle">EVERY ROOM.<em> A RACETRACK.</em></h2></div><p>Familiar objects. Unfamiliar speed.</p></div><div class="room-grid">
+            <button class="room-card" type="button" data-room="0" aria-pressed="true"><div class="room-art desk-art" aria-hidden="true"><span class="art-pencil"></span><span class="art-book">BIG<br>IDEAS</span><span class="art-cup"></span><i>01</i></div><div><span>THE HOME OFFICE</span><h3>DESK DERBY <b>↗</b></h3><p>Coffee, keycaps and corners.</p></div></button>
+            <button class="room-card" type="button" data-room="1" aria-pressed="false"><div class="room-art kitchen-art" aria-hidden="true"><span class="art-plate"></span><span class="art-cereal">TURBO<br>LOOPS</span><span class="art-cookie"></span><i>02</i></div><div><span>THE BREAKFAST CLUB</span><h3>KITCHEN RUSH <b>↗</b></h3><p>The fastest thing before breakfast.</p></div></button>
+            <button class="room-card" type="button" data-room="2" aria-pressed="false"><div class="room-art toy-art" aria-hidden="true"><span class="art-block"></span><span class="art-domino">● ●<br>● ●</span><span class="art-ball"></span><i>03</i></div><div><span>THE PLAYROOM</span><h3>TOYBOX GP <b>↗</b></h3><p>Little blocks. Big competition.</p></div></button>
+        </div></section>
+        <section class="driving-school" id="controls" aria-labelledby="controlsTitle"><div class="section-heading"><div><p class="race-eyebrow">02 / GET YOUR THUMBS READY</p><h2 id="controlsTitle">PICK UP.<em> PUT YOUR FOOT DOWN.</em></h2></div><p>Keyboard on desktop. Two thumbs on mobile.</p></div><div class="guide-controls">
+            <article class="control-tile"><div class="key-pair"><kbd>W</kbd><span>or</span><kbd>↑</kbd></div><h3>Little pedal. Lots of go.</h3><p>Hold to accelerate. Yellow arrows give you a short speed boost, once per pad each lap.</p></article>
+            <article class="control-tile"><div class="key-pair"><kbd>A</kbd><kbd>D</kbd><span> / ← →</span></div><h3>Find the tiny apex.</h3><p>Steer relative to your car. The camera follows from above and keeps north in the same place.</p></article>
+            <article class="control-tile"><div class="key-pair"><kbd>S</kbd><span>or</span><kbd>↓</kbd></div><h3>Slow is sometimes fast.</h3><p>Brake before tight corners. Keep holding at a standstill to reverse out of trouble.</p></article>
+            <article class="control-tile"><div class="key-pair"><kbd class="wide-key">SPACE</kbd></div><h3>A little sideways.</h3><p>Tap the handbrake while steering to swing the rear around. Release to regain grip.</p></article>
+            <div class="utility-controls"><span><kbd>ESC</kbd> Pause / resume <kbd>R</kbd> Reset to checkpoint (+3s)</span><span><strong>TOUCH</strong> Left thumb steers. Right thumb slides, brakes and accelerates.</span></div>
+        </div><div class="drift-steps"><article><span>01</span><div><h3>Race the whole house.</h3><p>The Pocket Cup visits all three rooms. Finish ahead of your rivals to earn 10, 6, 4 or 2 points per race.</p></div></article><article><span>02</span><div><h3>A fresh daily layout.</h3><p>Each room gets a new circuit at midnight UTC. Remix makes an extra layout whenever you fancy another race.</p></div></article><article><span>03</span><div><h3>Leave your own mark.</h3><p>Ordered checkpoints keep every lap honest. Time trials have their own records. Your bests save on this device.</p></div></article></div></section>
+        <footer class="drift-footer"><a href="pocket-circuit.html" class="footer-wordmark">POCKET / CIRCUIT</a><span>Built by Jake Hutson · <span id="year">2026</span></span><div><a href="drift.html">Play Apex Drift ↗</a><a href="games/drift/sounds/CREDITS.txt">Audio credits</a><a href="privacy.html">Privacy</a></div></footer>
+    </main>
+    <noscript><p class="no-script-message">Enable JavaScript to unpack Pocket Circuit. The game runs locally in your browser.</p></noscript>
+    <script type="module" src="games/pocket/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+  <defs>
+    <pattern id="toy-checks" width="48" height="48" patternUnits="userSpaceOnUse">
+      <rect width="48" height="48" fill="#ffdc70"/>
+      <path d="M0 0h24v24H0zM24 24h24v24H24z" fill="#262233"/>
+      <rect x="5" y="5" width="14" height="14" rx="3" fill="#ed736c"/>
+      <circle cx="9" cy="9" r="2" fill="#ffb29e"/>
+      <circle cx="15" cy="15" r="2" fill="#ffb29e"/>
+      <g transform="translate(36 36) rotate(-18)">
+        <rect x="-7" y="-5" width="14" height="10" rx="3" fill="#65c9b2"/>
+        <path d="M-4-6h3v2h-3zm5 0h3v2H1zm-5 10h3v2h-3zm5 0h3v2H1z" fill="#fff5df"/>
+        <rect x="-3" y="-3" width="5" height="6" rx="1" fill="#262233"/>
+      </g>
+    </pattern>
+    <linearGradient id="toy-light" x1="0" x2="1">
+      <stop offset="0" stop-color="#262233" stop-opacity=".2"/>
+      <stop offset=".3" stop-color="#fff5df" stop-opacity=".2"/>
+      <stop offset=".65" stop-color="#262233" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#fff5df" stop-opacity=".1"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="140" fill="url(#toy-checks)"/>
+  <rect width="400" height="140" fill="url(#toy-light)"/>
+</svg>

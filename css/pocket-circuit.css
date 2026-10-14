@@ -1,0 +1,142 @@
+/* Pocket Circuit shares Apex's layout and play shell, with its own toybox palette. */
+.pocket-page { --race-bg: #262233; --race-panel: #302b40; --race-ink: #fff5df; --race-muted: #c0b7c9; --race-line: #4e455f; --race-accent: #ffdc70; background: radial-gradient(ellipse at 85% 0, #4a3448, transparent 55%), var(--race-bg); }
+.pocket-page .game-header { background: #262233e8; }
+.pocket-page .game-wordmark { font-size: 28px; }
+.pocket-mark { position: relative; width: 39px; height: 29px; border: 2px solid var(--race-accent); border-radius: 8px; color: var(--race-accent); font: 30px/22px sans-serif; text-align: center; transform: rotate(-12deg); }
+.pocket-mark i { position: absolute; width: 7px; height: 8px; background: var(--race-ink); border-radius: 2px; bottom: -6px; left: 3px; }
+.pocket-mark i:last-child { left: auto; right: 3px; }
+.pocket-page .lobby-heading { padding-top: 36px; }
+.pocket-page .lobby-heading h1 { font-size: clamp(48px, 5vw, 72px); }
+.pocket-page .badge-number { font-size: 62px; }
+.pocket-page .race-stage { background: #a27a61; height: 590px; }
+.pocket-page .starting-card { padding: 26px; }
+.pocket-page .starting-card h2 { font-size: 48px; }
+.pocket-page #trackMap { margin: 8px 0; max-height: 112px; }
+.pocket-page .track-specs { margin-bottom: 13px; }
+.mode-label { font: 10px var(--font-mono); color: var(--race-muted); margin-bottom: 7px; text-transform: uppercase; letter-spacing: .07em; }
+#modeSelect { width: 100%; padding: 11px 10px; color: var(--race-ink); background: var(--race-bg); border: 1px solid var(--race-line); margin-bottom: 12px; font-size: 12px; min-height: 44px; }
+#remixButton { min-height: 44px; padding: 8px 13px; color: var(--race-accent); background: transparent; border: 1px solid var(--race-line); font-size: 12px; white-space: nowrap; }
+#remixButton:hover { border-color: var(--race-accent); }
+.garage-shortcut { border: 0; background: transparent; padding: 16px 0 0; color: var(--race-ink); font: 10px var(--font-mono); text-align: left; }
+.garage-shortcut > span:last-child { display: block; color: var(--race-muted); font-size: 10px; margin: 5px 0 0 20px; }
+.paint-dot { display: inline-block; width: 10px; height: 10px; background: #f8cf5c; border-radius: 50%; margin-right: 6px; }
+.pocket-page .stage-tools button, .pocket-page .mobile-exit-button, .pocket-page .touch-controls button { background: #302b40ec; }
+.pocket-page #soundButton { font-size: 23px; }
+.pocket-page #soundButton[aria-pressed=false] { color: #f39a94; text-decoration: line-through; }
+.pocket-page .hud-top { gap: 10px; padding-right: 100px; }
+.pocket-page .hud-readout, .pocket-page .speed-readout, .pocket-standings { background: #262233ed; border-color: var(--race-accent); }
+.pocket-page .hud-readout strong { font-size: 22px; }
+.pocket-page .hud-pause { right: 105px; height: 44px; width: 44px; color: var(--race-accent); background: #262233ed; }
+.pocket-page #raceMap { top: 110px; background: #262233de; border-radius: 4px; }
+.pocket-page .race-notice { top: 110px; font-size: 11px; z-index: 2; }
+.pocket-standings { padding: 13px 16px; min-width: 145px; font: 10px/2 var(--font-mono); }
+.pocket-standings div { display: flex; align-items: center; gap: 9px; }
+.pocket-standings i, .result-row i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.pocket-standings .is-you { color: var(--race-accent); }
+.pocket-page .speed-readout { padding: 13px 16px; min-width: 140px; }
+.pocket-page .speed-readout > span { font: 9px var(--font-mono); display: block; margin-top: 9px; }
+.speed-readout > small { display: block; font: 7px var(--font-mono); color: var(--race-muted); margin-top: 7px; }
+.boost-meter { width: 100%; height: 3px; margin-top: 12px; background: var(--race-line); }
+.boost-meter > span { display: block; width: 100%; height: 100%; background: var(--race-accent); transform: scaleX(0); transform-origin: left; }
+.pocket-page .start-panel { background: #262233ed; border-color: #ffdc7070; }
+.pocket-page .countdown[data-phase=go] .start-panel { animation: none; }
+.pocket-dialog { color: var(--race-ink); background: var(--race-bg); border: 1px solid var(--race-line); border-top: 4px solid var(--race-accent); padding: 32px; width: min(480px, calc(100% - 32px)); max-height: calc(100svh - 40px); overflow: auto; border-radius: 7px; box-shadow: 0 24px 100px #0008; }
+.pocket-dialog::backdrop { background: #191524ac; backdrop-filter: blur(4px); }
+.dialog-close { position: absolute; right: 12px; top: 10px; width: 44px; height: 44px; color: var(--race-muted); background: transparent; border: 0; font-size: 28px; }
+.pocket-dialog h2 { font: italic 700 50px/1 var(--race-display); margin: 10px 0 20px; padding-right: 20px; }
+#menuContent { font-size: 13px; color: var(--race-muted); }
+#menuContent p { margin: 0 0 15px; }
+#menuContent kbd { height: 30px; min-width: 28px; font-size: 11px; }
+#menuActions { margin-top: 22px; }
+.result-row { display: grid; grid-template-columns: 22px 12px 1fr auto; align-items: center; gap: 8px; padding: 11px 0; border-bottom: 1px solid var(--race-line); font: 12px var(--font-mono); }
+.result-row.is-you { color: var(--race-accent); }
+.result-row small { font-size: 10px; color: var(--race-muted); }
+.result-summary { display: flex; gap: 24px; margin: 18px 0; }
+.result-summary span { display: block; font: 9px var(--font-mono); }
+.result-summary strong { display: block; color: var(--race-ink); font: 24px var(--font-mono); margin-top: 7px; }
+.paint-options { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0; }
+.paint-options button { width: 54px; height: 54px; border-radius: 50%; background: var(--paint); border: 3px solid transparent; box-shadow: inset 0 0 0 4px var(--race-bg); }
+.paint-options button[aria-pressed=true] { border-color: var(--race-ink); }
+.record-entry { padding: 12px 0; border-bottom: 1px solid var(--race-line); }
+.record-entry strong, .record-entry small { display: block; }
+.record-entry strong { color: var(--race-ink); font-size: 12px; }
+.record-entry span { color: var(--race-accent); font: 15px var(--font-mono); }
+.record-entry small { font-size: 10px; margin-top: 3px; }
+.room-section { margin: 35px 0 55px; }
+.room-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.room-card { padding: 0; text-align: left; color: var(--race-ink); background: var(--race-panel); border: 1px solid var(--race-line); border-radius: 6px; overflow: hidden; transition: border-color .15s; }
+.room-card:hover, .room-card[aria-pressed=true] { border-color: var(--race-accent); }
+.room-card > div:last-child { padding: 20px; }
+.room-card > div > span:not([class]) { color: var(--race-muted); font: 9px var(--font-mono); letter-spacing: .1em; }
+.room-card h3 { font: 600 32px var(--race-display); margin: 8px 0; }
+.room-card h3 b { float: right; color: var(--race-accent); font: 22px var(--font-display); }
+.room-card p { margin: 0; font-size: 12px; color: var(--race-muted); }
+.room-art { height: 180px; position: relative; overflow: hidden; }
+.room-art > span { position: absolute; box-shadow: 5px 7px 0 #33273926; }
+.room-art i { position: absolute; right: 17px; bottom: -10px; font: italic 800 96px/1 var(--race-display); color: #fff3; }
+.desk-art { background: repeating-linear-gradient(3deg, #bd906d 0 20px, #ba8c691a 21px 23px), #c89976; }
+.art-pencil { width: 190px; height: 15px; background: linear-gradient(#edb74d 0 33%, #ffd777 33% 66%, #dda53b 66%); transform: rotate(-25deg); left: -20px; top: 50px; border-right: 19px solid #ead1a3; }
+.art-book { width: 106px; height: 130px; left: 40%; top: 39px; background: #f4e6c9; border-left: 10px solid #719c95; transform: rotate(14deg); font: 700 23px/1.1 var(--race-display); color: #897688; padding: 22px 12px; }
+.art-cup { width: 68px; height: 68px; background: #724e38; border: 10px solid #eee1c9; border-radius: 50%; top: 23px; right: 22px; }
+.kitchen-art { background: linear-gradient(90deg, transparent 49%, #fff3 50%, transparent 51%), linear-gradient(transparent 49%, #fff3 50%, transparent 51%), #9fbeb6; background-size: 100px 100px; }
+.art-plate { width: 136px; height: 136px; border: 17px solid #f6efdf; border-radius: 50%; background: #e6dcca; left: -20px; top: 18px; }
+.art-cereal { width: 90px; height: 126px; background: #f2c45e; border-top: 12px solid #e1b350; color: #b06258; padding: 23px 10px; font: 800 24px/1 var(--race-display); transform: rotate(-13deg); left: 43%; top: 24px; }
+.art-cookie { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #775243 0 3px, transparent 4px), radial-gradient(circle at 65% 65%, #775243 0 4px, transparent 5px), #c8945c; right: 22px; top: 30px; transform: rotate(15deg); }
+.toy-art { background: repeating-linear-gradient(0deg, #aa9dba 0 3px, #ad9fbd 3px 6px); }
+.art-block { width: 120px; height: 64px; background: radial-gradient(ellipse at 25% 28%, #80bba9 0 12px, transparent 13px), radial-gradient(ellipse at 75% 28%, #80bba9 0 12px, transparent 13px), #599c8e; left: 15px; top: 40px; transform: rotate(-18deg); border-bottom: 12px solid #418b80; }
+.art-domino { width: 62px; height: 112px; color: #645268; background: linear-gradient(transparent 49%, #655369 49% 51%, transparent 51%), #ece4d5; left: 48%; top: 34px; transform: rotate(17deg); font: 18px/50px sans-serif; text-align: center; }
+.art-ball { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(30deg, #f2c655 0 45%, #f7e8c3 45% 50%, #ec9b6b 50%); right: 15px; top: 20px; }
+.pocket-page .section-heading h2 { font-size: clamp(30px, 3vw, 42px); }
+.pocket-page .control-tile { background: #302b40; }
+.pocket-page .race-stage.mobile-play .hud-top { padding-right: 0; }
+.pocket-page .race-stage.mobile-play { height: var(--mobile-play-height, 100svh); }
+.pocket-page .race-stage:fullscreen { width: 100vw; height: 100dvh; }
+.pocket-page .mobile-play .hud-pause { top: -58px; left: 62px; right: auto; }
+.pocket-page .mobile-play .pocket-standings { min-width: 112px; padding: 8px 11px; font-size: 8px; }
+.pocket-page .mobile-play .hud-bottom { bottom: calc(var(--touch-bottom) + 174px); }
+.pocket-page .mobile-play #raceMap { top: calc(var(--play-top) + 140px); }
+.pocket-page .mobile-play .touch-controls button.is-held { background: var(--race-accent); color: var(--race-bg); }
+.pocket-page .mobile-play .race-notice { top: calc(var(--play-top) + 220px); }
+@media (max-width: 1000px) { .pocket-page .game-header-inner { gap: 14px; } .pocket-page .game-navigation button { padding: 10px; font-size: 12px; } .pocket-page .back-to-site { display: none; } .pocket-page .lobby-badge { display: none; } }
+@media (max-width: 767px) {
+    .pocket-page .game-header-inner, .pocket-page .drift-shell { width: calc(100% - 28px); }
+    .pocket-page .game-header-inner { flex-wrap: wrap; padding: 18px 0 10px; }
+    .pocket-page .game-navigation { width: 100%; margin-left: 0; justify-content: space-between; }
+    .pocket-page .game-navigation button { font-size: 11px; }
+    .pocket-page .lobby-heading { padding: 28px 0 23px; }
+    .pocket-page .lobby-heading h1 { font-size: 52px; }
+    .pocket-page .lobby-heading p:last-child { font-size: 13px; }
+    .pocket-page .circuit-toolbar { align-items: flex-start; flex-direction: column; padding: 14px; gap: 13px; }
+    .pocket-page .archive-field { width: 100%; gap: 10px; }
+    .pocket-page .archive-field select { flex: 1; max-width: none; font-size: 11px; }
+    .pocket-page .archive-field label { font-size: 11px; }
+    .pocket-page .race-stage:not(.mobile-play) { height: 760px; }
+    .pocket-page .race-stage:not(.mobile-play) .scene-view { position: absolute; inset: 0 0 auto; height: 300px; }
+    .pocket-page .race-stage:not(.mobile-play) .starting-card { position: absolute; top: 300px; width: 100%; bottom: 0; padding: 20px; }
+    .pocket-page .starting-card h2 { font-size: 38px; }
+    .pocket-page .card-index { margin-bottom: 12px; }
+    .pocket-page #trackMap { max-height: 75px; margin: 4px 0; }
+    .pocket-page .scene-caption { top: 245px; bottom: auto; left: 16px; }
+    .pocket-page .stage-tools { top: 12px; right: 12px; }
+    .pocket-page .track-specs { gap: 12px; padding-top: 10px; margin-bottom: 10px; }
+    .pocket-page .track-description { font-size: 12px; }
+    .pocket-page .garage-shortcut { padding-top: 10px; }
+    .pocket-page .mobile-play .scene-view { inset: 0; height: 100%; }
+    .pocket-page .mobile-play .hud-readout { min-width: 66px; }
+    .pocket-page .mobile-play .hud-readout strong { font-size: 16px; }
+    .pocket-page .lobby-info { gap: 22px; }
+    .room-grid { grid-template-columns: 1fr; gap: 14px; }
+    .room-card { display: grid; grid-template-columns: 35% 1fr; }
+    .room-card .room-art { height: 150px; }
+    .room-card > div:last-child { padding: 20px 16px; }
+    .room-card h3 { font-size: 28px; }
+    .room-art i { font-size: 60px; }
+    .room-art > span { transform: scale(.7) rotate(12deg); transform-origin: top left; }
+    .room-art > span:last-of-type { display: none; }
+    .pocket-page .section-heading { display: block; }
+    .pocket-page .section-heading > p { margin-top: 12px; font-size: 12px; }
+    .pocket-dialog { padding: 26px 22px; }
+    .pocket-dialog h2 { font-size: 43px; }
+}
+@media (max-height: 500px) and (orientation: landscape) { .pocket-page .mobile-play .pocket-standings { display: none; } .pocket-page .mobile-play .hud-bottom { bottom: var(--touch-bottom); right: calc(var(--play-right) + 170px); left: auto; } .pocket-page .mobile-play .hud-top { top: var(--play-top); left: 130px; right: 120px; } .pocket-page .mobile-play .hud-pause { top: 0; left: -62px; } .pocket-page .mobile-play .speed-readout { padding: 8px; min-width: 80px; } .pocket-page .mobile-play .speed-readout strong { font-size: 32px; } .pocket-page .mobile-play #raceMap { top: 65px; } }
+@media (prefers-reduced-motion: reduce) { .pocket-page *, .pocket-page *::before, .pocket-page *::after { animation: none !important; transition: none !important; } }
