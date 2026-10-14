@@ -1,0 +1,8 @@
+night-sky.webp
+Source: Qwantani Night (Pure Sky), Poly Haven
+https://polyhaven.com/a/qwantani_night_puresky
+Photography: Greg Zaal. Processing: Jarod Guest.
+Licence: CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/
+Derived from the tonemapped 8192 x 4096 JPG; resized to 4096 x 2048,
+encoded as WebP quality 86. Displayed with a cool night tint and subtle
+procedural nebula clouds in the game's sky shader.

@@ -19,6 +19,7 @@ test('world startup creates smoke before the first lobby update', () => {
     const context = vm.createContext({
         THREE: { ...THREE, WebGLRenderer: Renderer }, CAMERA_CONFIG, smokeVelocity, driftIntensity,
         buildCar: () => new THREE.Group(),
+        NightSky: class { constructor() { this.ready = Promise.resolve(); } },
         window: { devicePixelRatio: 1, matchMedia: () => ({ matches: false }) },
         ResizeObserver: class { observe() {} },
         document: { createElement: () => ({ getContext: () => ({

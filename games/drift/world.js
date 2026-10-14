@@ -3,6 +3,7 @@ import { roadObstacles } from './obstacles.js';
 import { roadSamples, offsetSurface, roadHeight, surfacePose, surfaceFrame, loopChaseView } from './road-surface.js';
 import { smokeVelocity } from './smoke-motion.js';
 import { CircuitFlythrough } from './preview-camera.js';
+import { NightSky } from './night-sky.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { nearestTrackPoint, trackPose, wrapAngle } from './math.js';
 import { buildTrackBarriers } from './barrier-mesh.js';
@@ -67,6 +68,7 @@ export class DriftWorld {
         this.buildSmoke();
         this.buildSparks();
         this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        this.nightSky = new NightSky(this.scene);
         this.resizeObserver = new ResizeObserver(() => this.resize());
         this.resizeObserver.observe(canvas.parentElement);
         this.resize();
@@ -87,6 +89,7 @@ export class DriftWorld {
     }
 
     async prepare(race) {
+        await this.nightSky.ready;
         // The lobby preview and full-screen race use different canvas bounds.
         this.resize();
         // Compile shaders behind the input lock, then submit the actual view.
@@ -508,6 +511,7 @@ export class DriftWorld {
         const heat = car.brakeHeat || 0;
         if (this.car.userData.brakeDiscMaterial) this.car.userData.brakeDiscMaterial.emissiveIntensity = heat * heat * 3;
         if (this.car.userData.tailLightMaterial) this.car.userData.tailLightMaterial.emissiveIntensity = car.braking ? 2 : 0.5;
+        this.nightSky.update(this.camera, deltaTime, { paused: race.state === 'paused', reducedMotion: this.reducedMotion });
         this.renderer.render(this.scene, this.camera);
     }
 }

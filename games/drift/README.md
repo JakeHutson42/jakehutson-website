@@ -255,3 +255,24 @@ Version 11 circuits are 25% shorter, targeting 0.75-1.5 miles per lap along the 
 Vertical stunt loops were removed from all generated circuits in version 10.
 
 Handling refinement: handbrake grip is 1.2 and powered-slide grip is 2.15, with a 0.45-second progressive return to road grip after releasing a handbrake tap. Handbrake longitudinal drag is reduced to retain pace. Acceleration rises by roughly 17%; maximum speed remains about 89 mph. The chase camera sits closer and lower, widening from 56 to 68 degrees as speed builds; reduced motion disables the speed-dependent changes. Updated handling uses v9 personal records while the track generator/cache remains v8.
+
+
+## Night sky and neon HUD
+
+The sky uses a self-hosted 4096 x 2048 WebP panorama (about 673 KiB), derived
+from Poly Haven's CC0 Qwantani Night (Pure Sky). Photography by Greg Zaal,
+processing by Jarod Guest; `textures/CREDITS.txt` records the source and licence.
+A single inward-facing, camera-centred dome combines the photograph with a cool
+night tint and subtle static procedural nebula clouds. The shader has no fog,
+lights or extra full-screen render pass. Image failure leaves a usable dark sky.
+
+Two reusable line meshes animate shooting stars every 18-48 seconds and warm,
+longer meteor trails every 180-360 seconds. These are visual effects only; they
+freeze when paused and are disabled with reduced motion. GPU buffers are reused,
+and the sky persists across track changes rather than loading another copy.
+
+Race telemetry uses checkpoint-cyan neon text instead of filled panels. Lap,
+total score, checkpoint messages and live drift points have independent centre
+anchors and tabular figures. The drift bar sits above the car. Mobile portrait
+stacks lap/time/total score; landscape moves the timer to the left. Touch controls
+and safe areas are retained. Menus keep their backgrounds for legibility.
