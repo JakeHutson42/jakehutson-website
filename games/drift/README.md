@@ -263,7 +263,9 @@ The sky uses a self-hosted 4096 x 2048 WebP panorama (about 673 KiB), derived
 from Poly Haven's CC0 Qwantani Night (Pure Sky). Photography by Greg Zaal,
 processing by Jarod Guest; `textures/CREDITS.txt` records the source and licence.
 A single inward-facing, camera-centred dome combines the photograph with a cool
-night tint and subtle static procedural nebula clouds. The shader has no fog,
+night tint and subtle static procedural nebula clouds. Broad photographic haze
+is darkened separately from small bright stars, preserving a prominent star field
+against a blue-black sky. The shader has no fog,
 lights or extra full-screen render pass. Image failure leaves a usable dark sky.
 
 Two reusable line meshes animate shooting stars every 18-48 seconds and warm,
@@ -273,6 +275,7 @@ and the sky persists across track changes rather than loading another copy.
 
 Race telemetry uses checkpoint-cyan neon text instead of filled panels. Lap,
 total score, checkpoint messages and live drift points have independent centre
-anchors and tabular figures. The drift bar sits above the car. Mobile portrait
-stacks lap/time/total score; landscape moves the timer to the left. Touch controls
+anchors and tabular figures. The drift bar sits above the car. Mobile keeps the lap centred at the top, with timer and total score on one row
+under EXIT and sound respectively. Live drift points and their bar sit higher
+below the lap counter, clear of the car and driving line. Touch controls
 and safe areas are retained. Menus keep their backgrounds for legibility.

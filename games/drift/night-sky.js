@@ -10,12 +10,12 @@ export class NightSky {
         this.fallback = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
         this.fallback.needsUpdate = true;
         this.material = new THREE.ShaderMaterial({
-            uniforms: { panorama: { value: this.fallback } },
+            uniforms: { panorama: { value: this.fallback }, skyTexel: { value: new THREE.Vector2(1/4096,1/2048) } },
             side: THREE.BackSide, depthWrite: false, toneMapped: false,
             vertexShader: `varying vec2 skyUv; varying vec3 direction;
                 void main() { skyUv=uv; direction=normalize(position);
                     gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-            fragmentShader: `uniform sampler2D panorama; varying vec2 skyUv; varying vec3 direction;
+            fragmentShader: `uniform sampler2D panorama; uniform vec2 skyTexel; varying vec2 skyUv; varying vec3 direction;
                 float hash(vec3 p) { return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453); }
                 float noise(vec3 p) {
                     vec3 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
@@ -28,10 +28,18 @@ export class NightSky {
                 void main() {
                     vec3 d=normalize(direction);
                     vec3 photo=texture2D(panorama,skyUv).rgb;
+                    // Separate small bright stars from the broad photographic
+                    // haze, so a darker sky does not erase the star field.
+                    vec3 haze=(texture2D(panorama,skyUv+vec2(skyTexel.x*3.0,0.0)).rgb
+                        +texture2D(panorama,skyUv-vec2(skyTexel.x*3.0,0.0)).rgb
+                        +texture2D(panorama,skyUv+vec2(0.0,skyTexel.y*3.0)).rgb
+                        +texture2D(panorama,skyUv-vec2(0.0,skyTexel.y*3.0)).rgb)*0.25;
+                    vec3 stars=max(photo-haze-vec3(0.012),vec3(0.0));
                     float above=smoothstep(0.0,0.22,d.y);
                     float mist=pow(smoothstep(0.40,0.82,cloud(d*4.0+vec3(3,0,5))),2.0);
                     vec3 nebula=mix(vec3(0.13,0.045,0.24),vec3(0.02,0.14,0.20),cloud(d*3.0));
-                    vec3 colour=vec3(0.003,0.006,0.018)+above*(photo*vec3(0.26,0.33,0.58)+nebula*mist*0.30);
+                    vec3 colour=vec3(0.0007,0.001,0.004)+above*(photo*vec3(0.025,0.032,0.075)
+                        +stars*vec3(0.65,0.78,1.0)+nebula*mist*0.12);
                     gl_FragColor=vec4(colour,1.0);
                     #include <colorspace_fragment>
                 }`,

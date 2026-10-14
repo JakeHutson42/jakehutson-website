@@ -216,28 +216,29 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 .race-stage .race-hud .speed-readout.instrument-cluster { position: absolute; bottom: 22px; right: 22px; background: none; border: 0; padding: 0; color: var(--race-accent); filter: drop-shadow(0 2px 3px #000); }
 .race-stage .race-hud #raceMap { top: 140px; right: 22px; background: none; filter: drop-shadow(0 1px 3px #000); opacity: .85; }
 .race-stage.mobile-play .race-hud .hud-top { top: var(--play-top); left: var(--play-left); right: var(--play-right); }
-.race-stage.mobile-play .race-hud .hud-time { top: 48px; left: 50%; transform: translateX(-50%); width: 130px; }
-.race-stage.mobile-play .race-hud .hud-time strong { font-size: 16px; }
+.race-stage.mobile-play .race-hud .hud-time { top: 60px; left: 0; transform: none; width: 130px; }
 .race-stage.mobile-play .race-hud .hud-readout > span { font-size: 8px; }
 .race-stage.mobile-play .race-hud .hud-readout strong { font-size: 23px; }
-.race-stage.mobile-play .race-hud .hud-score { top: 90px; width: 130px; }
+.race-stage.mobile-play .race-hud .hud-time strong { font-size: 20px; }
+.race-stage.mobile-play .race-hud .hud-score { top: 60px; left: auto; right: 0; transform: none; width: 130px; }
 .race-stage.mobile-play .race-hud .hud-pause { left: 62px; right: auto; }
-.race-stage.mobile-play .race-hud .combo-readout { bottom: 38%; width: min(210px,46vw); }
+.race-stage.mobile-play .race-hud .combo-readout { top: clamp(120px,20%,180px); bottom: auto; width: min(210px,46vw); }
 .race-stage.mobile-play .race-hud .combo-readout > strong { font-size: 32px; }
 .race-stage.mobile-play .race-hud .combo-readout small { left: calc(50% + 55px); font-size: 18px; }
 .race-stage.mobile-play .race-hud .speed-readout.instrument-cluster { bottom: calc(var(--touch-bottom) + 158px); right: var(--play-right); width: 145px; }
 .race-stage.mobile-play .race-hud .speed-dial { width: 76px; height: 76px; }
 .race-stage.mobile-play .race-hud .speed-readout .dial-speed strong { font-size: 23px; }
 .race-stage.mobile-play .race-hud #raceMap { top: calc(var(--play-top) + 130px); right: var(--play-right); width: 72px; height: 58px; }
+.race-stage.mobile-play .race-hud .race-notice { top: max(220px,40%); }
 @media (orientation: landscape) {
-    .race-stage.mobile-play .race-hud .hud-time { top: 48px; left: 0; transform: none; width: 105px; }
-    .race-stage.mobile-play .race-hud .hud-score { top: 46px; }
-    .race-stage.mobile-play .race-hud .combo-readout { bottom: 38%; width: 190px; }
+    .race-stage.mobile-play .race-hud .hud-time { top: 54px; width: 105px; }
+    .race-stage.mobile-play .race-hud .hud-score { top: 54px; width: 105px; }
+    .race-stage.mobile-play .race-hud .combo-readout { top: 28%; bottom: auto; width: 190px; }
     .race-stage.mobile-play .race-hud .combo-readout > span { min-height: 16px; font-size: 8px; }
     .race-stage.mobile-play .race-hud .combo-readout > strong { font-size: 26px; }
     .race-stage.mobile-play .race-hud .speed-readout.instrument-cluster { bottom: var(--touch-bottom); right: calc(var(--play-right) + 170px); width: 130px; }
     .race-stage.mobile-play .race-hud .speed-dial { width: 66px; height: 66px; }
-    .race-stage.mobile-play .race-hud .race-notice { top: 34%; font-size: 24px; }
+    .race-stage.mobile-play .race-hud .race-notice { top: 50%; font-size: 24px; }
 }
 @media (prefers-reduced-motion: no-preference) {
     .race-stage .race-hud .race-notice:not(:empty) { animation: neon-notice 250ms ease-out both; }
@@ -245,4 +246,4 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 }
 
 .race-stage .race-hud .race-notice { text-transform: uppercase; }
-.race-stage.mobile-play.is-short-portrait .race-hud .race-notice { top: calc(var(--play-top) + 145px); font-size: 22px; }
+.race-stage.mobile-play.is-short-portrait .race-hud .race-notice { top: 220px; font-size: 22px; }
