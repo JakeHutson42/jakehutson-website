@@ -58,7 +58,8 @@ function buildBarrierStreetlights(track) {
     const box = new THREE.BoxGeometry(1, 1, 1);
     const metal = new THREE.MeshStandardMaterial({ color: 0x353f52, metalness: 0.65, roughness: 0.4 });
     const poles = new THREE.InstancedMesh(box, metal, count * 2);
-    const heads = new THREE.InstancedMesh(box, new THREE.MeshBasicMaterial({ color: 0xffdeb0 }), count);
+    const lampColour = track.biome === 'synthwave' ? 0xff64db : 0xffdeb0;
+    const heads = new THREE.InstancedMesh(box, new THREE.MeshBasicMaterial({ color: lampColour }), count);
     poles.name = 'lamp-poles-and-arms'; heads.name = 'lamp-heads'; poles.castShadow = true;
     const dummy = new THREE.Object3D(); const poses = [];
     let lampCount = 0;
@@ -69,6 +70,8 @@ function buildBarrierStreetlights(track) {
         if (track.loop && (segment / track.points.length) >= track.loop.start &&
             (segment / track.points.length) <= track.loop.end) continue;
         const elevation = roadHeight(track, (segment + distance / Math.max(lengths[segment], 0.001)) / track.points.length);
+        const progress = (segment + distance / Math.max(lengths[segment], 0.001)) / track.points.length;
+        if (track.structures?.some(f => f.type === 'tunnel' && progress >= f.start && progress <= f.end)) continue;
         const side = index % 2 ? 1 : -1;
         const offset = track.width / 2 + EDGE.vergeWidth + EDGE.barrierThickness / 2;
         const rx = Math.cos(pose.heading), rz = -Math.sin(pose.heading);
@@ -81,7 +84,7 @@ function buildBarrierStreetlights(track) {
         const headX = x - rx * side * 2, headZ = z - rz * side * 2;
         dummy.position.set(headX, elevation + 7.9, headZ); dummy.scale.set(0.8, 0.12, 0.45); dummy.updateMatrix();
         heads.setMatrixAt(lampCount++, dummy.matrix);
-        poses.push({ x: headX, y: elevation, z: headZ, color: 0xffdeb0, progress: index / count });
+        poses.push({ x: headX, y: elevation, z: headZ, color: lampColour, progress: index / count });
     }
     poles.count = lampCount * 2; heads.count = lampCount;
     group.add(poles, heads); group.userData.lampPoses = poses;
@@ -123,7 +126,7 @@ function buildArrowBarriers(track, samples) {
     for (const [name, vertices] of [['direction-chevrons', arrows], ['amber-barrier-trim', trim]]) {
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        const material = new THREE.MeshBasicMaterial({ color: 0xffb04a, side: THREE.DoubleSide, toneMapped: false });
+        const material = new THREE.MeshBasicMaterial({ color: track.biome === 'synthwave' ? 0xff39d4 : 0xffb04a, side: THREE.DoubleSide, toneMapped: false });
         const mesh = new THREE.Mesh(geometry, material); mesh.name = name; group.add(mesh);
     }
     return group;

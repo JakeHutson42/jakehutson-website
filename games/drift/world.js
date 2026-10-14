@@ -3,6 +3,7 @@ import { roadSamples, offsetSurface, roadHeight, surfacePose, surfaceFrame, loop
 import { smokeVelocity } from './smoke-motion.js';
 import { CircuitFlythrough } from './preview-camera.js';
 import { NightSky } from './night-sky.js';
+import { buildSynthwave } from './synthwave.js';
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { nearestTrackPoint, trackPose, wrapAngle } from './math.js';
 import { buildTrackBarriers } from './barrier-mesh.js';
@@ -89,6 +90,7 @@ export class DriftWorld {
 
     async prepare(race) {
         await this.nightSky.ready;
+        await this.skyReady;
         // The lobby preview and full-screen race use different canvas bounds.
         this.resize();
         // Compile shaders behind the input lock, then submit the actual view.
@@ -175,11 +177,15 @@ export class DriftWorld {
             materials.forEach(material => material.dispose());
         }
         this.track = track;
+        this.skyReady = this.nightSky.setBiome(track.biome || 'city');
+        this.scene.fog.color.setHex(track.biome === 'synthwave' ? 0x170b29 : 0x080d23);
         this.flythrough = new CircuitFlythrough(track);
         this.environment = new THREE.Group();
         this.scene.add(this.environment);
         const floor = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), this.material(COLORS.sand));
-        floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; this.environment.add(floor);
+        floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
+        if (track.biome !== 'synthwave') this.environment.add(floor);
+        else { floor.geometry.dispose(); floor.material.dispose(); }
         const halfWidth = track.width / 2;
         const road = new THREE.Mesh(ribbonGeometry(track, -halfWidth, halfWidth, 0.08), this.material(COLORS.asphalt, { side: THREE.DoubleSide, roughness: 0.23, metalness: 0.35 }));
         road.receiveShadow = true; this.environment.add(road);
@@ -196,7 +202,13 @@ export class DriftWorld {
         this.lampPoses = barriers.userData.lampPoses;
         this.buildStartLine(track);
         this.buildLoopEntry(track);
-        this.buildScenery(track);
+        if (track.biome === 'synthwave') {
+            this.environment.add(buildSynthwave(track));
+            this.streetLamps = Array.from({ length: 6 }, () => {
+                const lamp = new THREE.PointLight(0xff39d4,85,30,2);
+                this.environment.add(lamp); return lamp;
+            });
+        } else this.buildScenery(track);
         this.buildBridgeSupports(track);
         this.markIndex = 0; this.lastMark = null;
         this.tireMarks.geometry.attributes.position.array.fill(0);

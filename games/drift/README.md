@@ -52,7 +52,9 @@ Using the existing root-directory deployment also works with the checked-in bank
 | `games/drift/mobile-play-view.js` | Stable phone play area, page locking/restoration, rotation |
 | `games/drift/audio.js` | Recorded engine/tyre mixer and start-light tones |
 | `games/drift/storage.js` | Versioned, defensive local-storage adapter |
-| `games/drift/track-loader.js` | Track files, validation, UTC archive filtering |
+| `games/drift/track-loader.js` | Local template and track-file validation |
+| `games/drift/biome-circuits.js` | Validated local regeneration and saved biome seeds |
+| `games/drift/synthwave.js` | Mountains, curved tunnels, flat bridges and portals |
 | `games/drift/math.js` | Shared track projections, poses, formatting |
 | `games/drift/tracks/` | Dated JSON circuits and a manifest |
 | `lib/` (repository root) | Pinned local libraries, icons, fonts, and licenses |
@@ -65,53 +67,41 @@ The game uses its own navigation. Main-site navigation is duplicated in the othe
 static pages and `partials/navbar.html`;
 update all copies when adding links, as there is no server-side template include.
 
-## Daily circuits and the archive
+## Biomes and regeneration
 
-The generator uses a SHA-256 seed of the UTC date and generator version. Version
-12 traces the twist-heavy perimeter reference, exchanging northern corner sequences
-and independently varying corner positions, depths, route proportions and driving
-direction. Dates differ in road geometry and bend counts, rather than just rotation
-or scale. Roads are now 15 metres wide with 640 evenly spaced points.
+The game now offers one current Night City route and one Synthwave Highway route.
+The selector changes worlds; Regenerate replaces only the selected world's route.
+Selection and regeneration are disabled during runs and locked loading operations.
+The two current seeds are saved locally, so switching worlds or reloading keeps the
+chosen routes. Scores are stored by biome and route seed; regenerating never mixes
+records from different roads. Storage failure leaves both worlds usable in memory.
 
-Only tight corners and their neighbours are smoothed to a minimum 21-metre target
-radius before the final reduction. Earlier global smoothing washed out unrelated chicanes. Deterministic
-retries reject overlapping roads, tight corners, base laps outside 1-2 miles, fewer than
-24 curvature reversals, total absolute turning below 38 radians, or nearly flat
-runs of 100 metres or more (radius above 180 metres). These requirements are tested
-across 60 dates. The new circuits are level, with no crossovers or vertical stunt
-loop. Legacy elevated/loop geometry remains in a test fixture for the shared
-surface engine.
+`biome-circuits.js` deforms and evenly resamples `tracks/biome-base.json`, a stable,
+short, twisty authoring template. Deterministic retries enforce 15-metre road width,
+15.5-metre minimum centreline radius, clearance between nearby roads, and laps under
+1810 metres. The base is independent of the dated bank, so future authoring builds
+cannot silently change a saved seed's route. Python's dated generator and bank are
+retained for authoring and regression checks; the player-facing daily/archive menu
+and midnight rollover have been replaced by the two-world selector.
 
-Version 12 keeps the established bend sequences and reduces version 11 laps by
-another 25%, to about 1.50-1.59 km for the four current circuits. Final centreline
-corner radii now have a 15.5-metre minimum, leaving at least an 8-metre inner road
-radius on 15-metre roads. Final geometry is checked again after scaling. Curvature
-reversals and total turning are retained rather than smoothing away the bends.
+Synthwave uses black low-poly peaks, magenta versions of the existing arrow
+barriers and roadside lamps, a large striped horizon sun, and a separate local
+4096 x 2048 night panorama. The source is Poly Haven's CC0 Rogland Clear Night by
+Greg Zaal; the optimised WebP is about 1.82 MiB and loads on the first synthwave
+selection. Both sky textures are cached across regeneration.
 
-Powered-slide and handbrake grip retain the previous 10% reduction (1.935 and
-1.08); normal road grip is 6. Revised circuits and drift-only scoring use v13 personal records. Fullscreen
-is hidden on touch devices and phone-width screens.
+The first synthwave route showcases a tunnel and a bridge. Other seeds may have
+both, either or neither. Feature planning excludes starts, separates structures,
+checks nearby road clearance and allows curved tunnels only where the mountain
+shell has room around the bend. The road stays at y=0 throughout. Bridges follow
+the route over carved canyon terrain, with deck edges and supports below. Tunnels
+use a road-following hollow mountain shell with a 22-metre opening and a 15-metre
+roof. Straight magenta marker bars frame both entrances; arrow walls continue
+through the tunnel. Roadside poles are omitted inside tunnels. Collision uses the
+same existing road barriers; scenery stays outside the driving corridor.
 
-The development bank contains **four circuits**, initially dated 2026-10-11 through
-2026-10-14: two recent dates, today and tomorrow. The browser exposes only dates
-up to today; the upcoming circuit unlocks at midnight UTC. A race already underway
-stays attached to its original date. A missing daily file is shown as unavailable.
-
-Change `scripts/drift/track-bank.json` to configure the rolling bank:
-
-- `archive_days`: previous dates retained (development setting 2).
-- `minimum_future_tracks`: refill below this future count (development setting 1).
-- `refill_future_tracks`: future dates prepared (development setting 1).
-
-Bank maintenance also prunes excess dates when these settings are reduced.
-The browser still supports up to ten archive dates via `archiveDays` in
-`games/drift/config.js`; raise the bank settings again when development is complete.
-`--today YYYY-MM-DD` provides a reproducible reference date for development.
-
-The workflow runs at **22:43 UTC daily** and supports manual dispatch. It caches
-the bank and exports a static-site artifact. The small development buffer needs
-regular generation; restore a larger future buffer before relying on scheduled
-production refreshes. Publication remains separately configurable below.
+`tests/drift/biomes.test.mjs` checks deterministic generation across 48 biome/seed
+combinations, optional structures, persistence, geometry and three-lap drives.
 
 ### Enable automatic publication on your existing Cloudflare Pages site
 

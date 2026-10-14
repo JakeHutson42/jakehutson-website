@@ -6,3 +6,12 @@ Licence: CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/
 Derived from the tonemapped 8192 x 4096 JPG; resized to 4096 x 2048,
 encoded as WebP quality 86. Displayed with a cool night tint and subtle
 procedural nebula clouds in the game's sky shader.
+
+synthwave-sky.webp
+Source: Rogland Clear Night, Poly Haven
+https://polyhaven.com/a/rogland_clear_night
+Photography: Greg Zaal.
+Licence: CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/
+Derived from the tonemapped 8192 x 4096 JPG; resized to 4096 x 2048,
+encoded as WebP quality 84. Displayed with a dark blue-purple night tint,
+procedural nebula clouds and a separate striped synthwave sun.

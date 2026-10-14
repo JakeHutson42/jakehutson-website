@@ -49,10 +49,13 @@ export class NightSky {
         this.dome.renderOrder = -100;
         this.dome.frustumCulled = false;
         this.group.add(this.dome);
+        this.textureCache = new Map();
+        this.loader = loader;
         this.ready = new Promise(resolve => {
             loader.load(new URL('./textures/night-sky.webp', import.meta.url).href, texture => {
                 texture.colorSpace = THREE.SRGBColorSpace;
                 this.texture = texture;
+                this.textureCache.set('city',texture);
                 this.material.uniforms.panorama.value = texture;
                 resolve();
             }, undefined, () => resolve()); // Keep a dark nebula sky if the image fails.
@@ -75,6 +78,29 @@ export class NightSky {
     }
 
     delay(meteor) { return meteor ? 180+this.random()*180 : 18+this.random()*30; }
+
+    async setBiome(biome) {
+        await this.ready;
+        if (biome === 'synthwave' && !this.textureCache.has(biome)) {
+            await new Promise(resolve => this.loader.load(new URL('./textures/synthwave-sky.webp',import.meta.url).href,
+                texture => { texture.colorSpace=THREE.SRGBColorSpace; this.textureCache.set(biome,texture); resolve(); },undefined,resolve));
+        }
+        this.material.uniforms.panorama.value=this.textureCache.get(biome)||this.texture||this.fallback;
+        if (biome === 'synthwave' && !this.sun) {
+            const material=new THREE.ShaderMaterial({ depthWrite:false,toneMapped:false,transparent:true,
+                vertexShader:`varying vec2 sunUv; void main(){sunUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+                fragmentShader:`varying vec2 sunUv; void main(){
+                    vec2 p=sunUv*2.0-1.0; if(dot(p,p)>1.0) discard;
+                    if(sunUv.y<0.58 && fract(sunUv.y*13.0)<mix(0.45,0.10,sunUv.y)) discard;
+                    gl_FragColor=vec4(mix(vec3(1.0,0.035,0.46),vec3(1.0,0.69,0.20),sunUv.y),0.95);
+                    #include <colorspace_fragment>
+                }` });
+            this.sun=new THREE.Mesh(new THREE.PlaneGeometry(280,280),material);
+            this.sun.position.set(-340,115,-760);this.sun.lookAt(0,0,0);this.sun.renderOrder=-90;
+            this.group.add(this.sun);
+        }
+        if(this.sun) this.sun.visible=biome==='synthwave';
+    }
 
     update(camera, seconds, { paused=false, reducedMotion=false } = {}) {
         this.group.position.copy(camera.position);
@@ -113,7 +139,8 @@ export class NightSky {
     dispose() {
         this.group.removeFromParent();
         this.dome.geometry.dispose(); this.material.dispose();
-        this.texture?.dispose(); this.fallback.dispose();
+        this.textureCache.forEach(texture=>texture.dispose()); this.fallback.dispose();
+        if(this.sun) { this.sun.geometry.dispose();this.sun.material.dispose(); }
         this.streaks.forEach(s => { s.mesh.geometry.dispose(); s.mesh.material.dispose(); });
     }
 }

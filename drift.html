@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0c111b">
-    <title>Apex Drift — Daily drifting challenge</title>
-    <meta name="description" content="A daily browser drifting game. Three laps, one shared circuit, and your own perfect line. Play Apex Drift free, with no account needed.">
+    <title>Apex Drift — City streets & synthwave nights</title>
+    <meta name="description" content="A browser drifting game with city streets, synthwave mountains and fresh routes on demand. Three laps. Find your line. Play Apex Drift free, with no account needed.">
     <link rel="stylesheet" href="lib/fonts/fonts.css">
     <link rel="stylesheet" href="css/drift.css">
     <link rel="stylesheet" href="css/drift-garage.css">
@@ -27,12 +27,12 @@
     </header>
     <main class="drift-shell">
         <header class="lobby-heading">
-            <div><p class="race-eyebrow"><span class="live-dot" aria-hidden="true"></span> THE DAILY DRIFTING CHALLENGE</p><h1>FIND <em>YOUR LINE.</em></h1><p>The city is lit. Three laps to own the night.</p></div>
+            <div><p class="race-eyebrow"><span class="live-dot" aria-hidden="true"></span> TWO WORLDS. FIND YOUR LINE.</p><h1>FIND <em>YOUR LINE.</em></h1><p>City streets or synthwave peaks. Three laps to make it yours.</p></div>
             <div class="lobby-badge"><span class="badge-number">03</span><div><strong>LAPS. LIMITLESS LINES.</strong><span>Free to play · No account needed</span></div></div>
         </header>
 
-        <section class="circuit-section" id="circuit" aria-label="Daily drifting game">
-            <div class="circuit-toolbar"><div class="circuit-label"><span class="live-dot" aria-hidden="true"></span><strong id="circuitMode">THE DAILY CIRCUIT</strong><span class="toolbar-divider" aria-hidden="true">/</span><time id="circuitDate">LOADING</time></div><div class="archive-field"><label for="trackSelect">Circuit archive</label><select id="trackSelect" disabled aria-label="Choose today's circuit or a previous circuit"><option>Loading circuits…</option></select></div></div>
+        <section class="circuit-section" id="circuit" aria-label="Apex Drift game">
+            <div class="circuit-toolbar"><div class="circuit-label"><span class="live-dot" aria-hidden="true"></span><strong id="circuitMode">NIGHT CITY</strong><span class="toolbar-divider" aria-hidden="true">/</span><span id="circuitDate">LOADING</span></div><div class="archive-field"><label for="trackSelect">Choose your world</label><select id="trackSelect" disabled aria-label="Choose a biome"><option>Loading circuits…</option></select><button type="button" class="regenerate-button" id="regenerateButton" disabled aria-label="Generate a new track for the selected biome">↻ <span>Regenerate</span></button></div></div>
 
             <!-- The canvas is focusable so keyboard controls do not hijack page navigation. -->
             <div class="race-stage" id="raceStage" aria-label="Drifting game">
@@ -110,14 +110,14 @@
         <div class="utility-controls"><span><span class="tutorial-pause" aria-hidden="true">Ⅱ</span> Need a breather? Pause at the top left.</span><span>Hit EXIT to head back to the track preview.</span></div>
     </div>
     <div class="drift-steps"><article><span>01</span><div><h3>Brake. Then turn.</h3><p>Scrub off speed before the tight stuff. Leave enough to carry you round.</p></div></article><article><span>02</span><div><h3>Let it slide.</h3><p>Tap the handbrake, then let go. Steer into the slide to catch the rear before it finds a wall.</p></div></article><article><span>03</span><div><h3>Keep it going.</h3><p>Link the next drift within 1.4 seconds. Build your combo up to ×5. Clip a wall and the combo ends.</p></div></article></div>
-    </div><p class="dialog-note">Fresh track at midnight UTC. Your scores and car build stay on this device. Clear the site data and they go too.</p></div><div class="dialog-footer"><button type="button" class="race-button primary" data-close-dialog>Got it. Let's drive <span aria-hidden="true">→</span></button></div></dialog>
+    </div><p class="dialog-note">Pick Night City or Synthwave Highway. Regenerate rolls a new route for that world. Your scores and car build stay on this device. Clear the site data and they go too.</p></div><div class="dialog-footer"><button type="button" class="race-button primary" data-close-dialog>Got it. Let's drive <span aria-hidden="true">→</span></button></div></dialog>
     <dialog id="recordsDialog" class="drift-dialog" aria-labelledby="recordsTitle"><div class="dialog-heading"><span class="race-eyebrow">YOUR PERSONAL RECORDS</span><button type="button" data-close-dialog aria-label="Close records">×</button></div><h2 id="recordsTitle">Your best runs.</h2><p>Best total score and fastest finish for each circuit. These may come from different runs.</p><div id="recordsList"></div><p class="dialog-note">Saved in this browser. No account needed.</p></dialog>
             </div>
 
-            <div class="circuit-bottom"><span><span class="live-dot" aria-hidden="true"></span> NEXT TRACK IN <strong id="nextTrackTime">—</strong></span><span id="storageStatus">YOUR BEST RUNS STAY ON THIS DEVICE</span></div>
+            <div class="circuit-bottom"><span><span class="live-dot" aria-hidden="true"></span> TWO WORLDS. NEW ROUTES ON TAP.</span><span id="storageStatus">YOUR BEST RUNS STAY ON THIS DEVICE</span></div>
         </section>
 
-        <div class="lobby-info"><p><span aria-hidden="true">↻</span> New track at midnight UTC. Missed one? Pick an earlier circuit and give it a go.</p><div class="personal-best"><span class="race-eyebrow">YOUR SCORE TO BEAT</span><h2 id="personalBest">No score yet. Your move.</h2><p id="personalBestNote">Finish three laps. Your best score and quickest time stay here.</p></div></div>
+        <div class="lobby-info"><p><span aria-hidden="true">↻</span> Pick your world. Like the bends? Run it again. Fancy a change? Hit Regenerate.</p><div class="personal-best"><span class="race-eyebrow">YOUR SCORE TO BEAT</span><h2 id="personalBest">No score yet. Your move.</h2><p id="personalBestNote">Finish three laps. Your best score and quickest time stay here.</p></div></div>
         <section class="driving-school" id="driving-school" aria-labelledby="drivingSchoolTitle">
             <div class="section-heading"><div><p class="race-eyebrow">KNOW YOUR CONTROLS</p><h2 id="drivingSchoolTitle">GET SIDEWAYS.<br><em>KEEP IT TOGETHER.</em></h2></div><p>Three laps. One score to beat.<br>Catch the slide. Chase the next corner.</p></div>
             <div class="driving-guide" data-guide>

@@ -40,3 +40,15 @@ test('shooting stars are occasional, meteors rare, and effects reuse a bounded p
     sky.streaks.forEach((s,i)=>assert.equal(s.mesh.geometry.attributes.position.array,buffers[i]));
     sky.dispose();
 });
+
+test('switching biomes caches sky textures and shows the striped sun only in synthwave',async()=>{
+    let loads=0;
+    const sky=new NightSky(new THREE.Scene(),{loader:{load(url,loaded){loads++;loaded(new THREE.Texture());}}});
+    await sky.setBiome('synthwave');
+    assert.equal(loads,2);assert.equal(sky.sun.visible,true);
+    const synth=sky.material.uniforms.panorama.value;
+    await sky.setBiome('city');assert.equal(sky.sun.visible,false);
+    await sky.setBiome('synthwave');assert.equal(loads,2);
+    assert.equal(sky.material.uniforms.panorama.value,synth);
+    sky.dispose();
+});

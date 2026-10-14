@@ -14,7 +14,7 @@ export class LocalRecords {
                 // Migrate once; explicit choices in this release remain persistent.
                 this.data.sound = saved.soundPreferenceVersion === 2 ? saved.sound !== false : true;
                 for (const [date, record] of Object.entries(saved.records || {})) {
-                    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(record.score) && record.score >= 0 && Number.isFinite(record.time) && record.time > 0) {
+                    if (/^(?:\d{4}-\d{2}-\d{2}|(?:city|synthwave)-[a-f0-9]{8})$/.test(date) && Number.isFinite(record.score) && record.score >= 0 && Number.isFinite(record.time) && record.time > 0) {
                         this.data.records[date] = { score: Math.floor(record.score), time: record.time, runs: Math.max(1, Math.floor(record.runs) || 1) };
                     }
                 }

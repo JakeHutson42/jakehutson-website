@@ -1,5 +1,5 @@
 import { miles, mph, SPEEDOMETER_MAX_MPH } from './units.js';
-import { CircuitPicker } from './circuit-picker.js';
+import { CircuitLibrary, BIOMES } from './biome-circuits.js';
 import { initialiseDrivingGuides } from './tutorial.js';
 import { LoadingOverlay } from './loading-overlay.js';
 import { GaragePreferences, CAR_MODELS } from './garage-data.js';
@@ -11,7 +11,7 @@ import { LocalRecords } from './storage.js';
 import { Race } from './race.js';
 import { EngineAudio } from './audio.js';
 import { StartSequence } from './start-sequence.js';
-import { utcDate, loadTrackManifest, availableTrackDates, loadTrack } from './track-loader.js';
+import { loadBiomeBase } from './track-loader.js';
 
 // This module coordinates the page. Physics, scoring, persistence, and rendering remain
 // independent so each can be tuned or replaced without rewriting the interface.
@@ -26,16 +26,13 @@ const garagePreferences = new GaragePreferences();
 let garage;
 let world;
 let race;
-let manifest;
-const circuitPicker = new CircuitPicker(element('trackSelect'), loadTrack);
-let currentDate = utcDate();
+let circuitLibrary;
 let loadSequence = 0;
 let lastFrameTime = 0;
 let simulationRemainder = 0;
 let lastHudTime = 0;
 let noticeTimeout;
 let finishHandled = false;
-let pendingDailyDate = null;
 let previewVisible = true;
 // Stop the lobby fly-through while the player reads below it, saving GPU/battery.
 const previewObserver = new IntersectionObserver(entries => {
@@ -99,7 +96,7 @@ function drawMap(canvas, track, car = null) {
     });
     context.closePath();
     context.strokeStyle = '#61718b'; context.lineWidth = car ? 3 : 9; context.lineJoin = 'round'; context.stroke();
-    context.strokeStyle = '#36e6ed'; context.lineWidth = car ? 1 : 3; context.stroke();
+    context.strokeStyle = track.biome === 'synthwave' ? '#ff39d4' : '#36e6ed'; context.lineWidth = car ? 1 : 3; context.stroke();
     for (const bridge of track.bridges || []) {
         const a = trackPose(track, bridge.upper - 18 / track.length), b = trackPose(track, bridge.upper + 18 / track.length);
         context.beginPath(); context.moveTo(...project(a.x, a.z)); context.lineTo(...project(b.x, b.z));
@@ -124,45 +121,41 @@ function drawMap(canvas, track, car = null) {
     }
 }
 
-function populateTrackSelector(selectedDate) {
-    const selector = element('trackSelect');
-    selector.replaceChildren();
-    for (const date of availableTrackDates(manifest)) {
-        const option = document.createElement('option');
-        option.value = date;
-        option.textContent = date === utcDate() ? `TODAY · ${date}` : date;
-        selector.append(option);
+function populateTrackSelector(selectedBiome='city') {
+    const selector=element('trackSelect');selector.replaceChildren();
+    for(const [biome,name] of Object.entries(BIOMES)) {
+        const option=document.createElement('option');option.value=biome;option.textContent=name;selector.append(option);
     }
-    selector.value = selectedDate;
-    selector.disabled = false;
+    selector.value=selectedBiome;selector.disabled=false;
 }
 
-async function selectTrack(date) {
-    return loader.run('Preparing circuit', () => selectTrackContent(date));
+async function selectTrack(biome, regenerate = false) {
+    return loader.run('Preparing circuit', () => selectTrackContent(biome, regenerate));
 }
 
-async function selectTrackContent(date) {
+async function selectTrackContent(biome, regenerate = false) {
     const sequence = ++loadSequence;
     element('startButton').disabled = true;
     element('startButton').textContent = 'LOADING CIRCUIT…';
     element('trackSelect').disabled = true;
+    element('regenerateButton').disabled = true;
     showStageMessage('');
     try {
-        const track = await loadTrack(date);
+        const track = regenerate ? circuitLibrary.regenerate(biome) : circuitLibrary.get(biome);
         if (sequence !== loadSequence) return;
         world.loadTrack(track);
         race = new Race(track);
-        pendingDailyDate = null;
         showPreview();
-        const isDaily = date === utcDate();
-        element('circuitMode').textContent = isDaily ? 'THE DAILY CIRCUIT' : 'ARCHIVE CIRCUIT';
-        const dateElement = element('circuitDate');
-        dateElement.dateTime = date;
-        dateElement.textContent = new Date(`${date}T12:00:00Z`).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }).toUpperCase();
-        element('trackEdition').textContent = `${isDaily ? 'DAILY' : 'ARCHIVE'} / ${date.replaceAll('-', '.')}`;
-        element('trackName').textContent = track.name.toUpperCase();
-        element('trackDescription').textContent =
-            'Linked esses, returning corners and flowing chicanes.';
+        const synthwave=track.biome==='synthwave';
+        element('circuitMode').textContent=synthwave?'SYNTHWAVE HIGHWAY':'NIGHT CITY';
+        const dateElement=element('circuitDate');dateElement.removeAttribute('datetime');
+        dateElement.textContent=`ROUTE ${track.seed.toString(16).toUpperCase().padStart(8,'0')}`;
+        element('trackEdition').textContent=synthwave?'BLACK MOUNTAINS / MAGENTA NIGHTS':'AFTER HOURS / CITY STREETS';
+        element('trackName').textContent=track.name.toUpperCase();
+        element('trackDescription').textContent=synthwave?
+            'Black mountains. Magenta lights. Follow the sun and keep it sideways.':
+            'Linked esses, returning corners and flowing chicanes. Own the night.';
+        document.querySelector('.scene-caption span').textContent=synthwave?'SYNTHWAVE HIGHWAY':'AFTER HOURS';
         element('trackLength').textContent = `${miles(track.drivingLength || track.length).toFixed(2)} MI`;
         drawMap(element('trackMap'), track);
         displayPersonalBest();
@@ -172,12 +165,14 @@ async function selectTrackContent(date) {
         element('startButton').append(arrow);
         element('startButton').disabled = false;
         element('trackSelect').disabled = false;
+        element('regenerateButton').disabled = false;
     } catch (error) {
         race = null;
         showStageMessage(error.message);
         element('startButton').textContent = 'TRY AGAIN ↗';
         element('startButton').disabled = false;
         element('trackSelect').disabled = false;
+        element('regenerateButton').disabled = false;
     }
 }
 
@@ -191,6 +186,7 @@ function showPreview() {
     input.active = false; input.suspended = false; input.clear();
     mobileView.exit();
     element('trackSelect').disabled = false;
+    element('regenerateButton').disabled = false;
     simulationRemainder = 0;
     finishHandled = false;
     clearTimeout(noticeTimeout); element('raceNotice').textContent = '';
@@ -228,6 +224,7 @@ function startRunContent() {
     element('raceHud').hidden = false;
     element('raceOverlay').hidden = true;
     element('trackSelect').disabled = true;
+    element('regenerateButton').disabled = true;
     stage.classList.add('is-playing');
     mobileView.enter();
     element('raceCanvas').focus({ preventScroll: true });
@@ -354,7 +351,7 @@ function showRecords() {
     for (const date of dates) {
         const record = records.get(date);
         const row = document.createElement('div'); row.className = 'record-entry';
-        const dateCell = document.createElement('span'); dateCell.textContent = date;
+        const dateCell = document.createElement('span'); dateCell.textContent = date.startsWith('city-') || date.startsWith('synthwave-') ? `${BIOMES[date.split('-')[0]]} · ${date.split('-')[1].toUpperCase()}` : date;
         const runCount = document.createElement('small'); runCount.textContent = `${record.runs} completed ${record.runs === 1 ? 'run' : 'runs'}`; dateCell.append(runCount);
         const scoreCell = document.createElement('strong'); scoreCell.textContent = `${record.score.toLocaleString()} PTS`;
         const timeCell = document.createElement('span'); timeCell.textContent = formatTime(record.time);
@@ -401,13 +398,9 @@ async function initializeContent() {
                 element('resumeButton').disabled = true;
             });
         }
-        manifest = await loadTrackManifest();
-        const dates = availableTrackDates(manifest);
-        if (!dates.length) throw new Error('No recent circuits are available. The track bank needs to be refreshed.');
-        const selected = dates.includes(utcDate()) ? utcDate() : dates[0];
-        populateTrackSelector(selected);
-        await selectTrack(selected);
-        if (selected !== utcDate()) showStageMessage('Today’s circuit is not ready. An archive circuit is available to drive.');
+        if(!circuitLibrary) circuitLibrary = new CircuitLibrary(await loadBiomeBase());
+        populateTrackSelector('city');
+        await selectTrack('city');
     } catch (error) {
         showStageMessage(`Unable to load the game. ${error.message} A browser with WebGL2 is required.`);
         element('startButton').textContent = 'TRY AGAIN ↗'; element('startButton').disabled = false;
@@ -432,17 +425,14 @@ element('pauseButton').addEventListener('click', pauseRun);
 element('resumeButton').addEventListener('click', resumeRun);
 element('restartButton').addEventListener('click', startRun);
 async function exitRun() {
-    const dates = availableTrackDates(manifest);
-    const nextDate = pendingDailyDate || (dates.includes(race.track.date) ? race.track.date : dates[0]);
-    pendingDailyDate = null;
     race = new Race(race.track); showPreview();
-    populateTrackSelector(nextDate);
-    if (nextDate !== race.track.date) await selectTrack(nextDate);
+    populateTrackSelector(race.track.biome);
     element('startButton').focus({ preventScroll: true });
 }
 element('exitButton').addEventListener('click', exitRun);
 element('mobileExitButton').addEventListener('click', exitRun);
-element('trackSelect').addEventListener('change', event => selectTrack(event.target.value));
+element('trackSelect').addEventListener('change', event => { if (!loader.active) selectTrack(event.target.value); });
+element('regenerateButton').addEventListener('click', () => { if (!loader.active && circuitLibrary) selectTrack(element('trackSelect').value, true); });
 element('soundButton').addEventListener('click', () => {
     enableSound(!audio.enabled, true);
     if (input.active && race?.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });
@@ -472,31 +462,6 @@ for (const id of ['helpButton', 'pauseHelpButton']) {
 }
 element('recordsButton').addEventListener('click', () => { pauseRun(); showRecords(); });
 document.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
-
-// UTC midnight changes the selection only between runs. An in-progress race always
-// finishes on the date it started, so a record can never land on the wrong circuit.
-setInterval(async () => {
-    const now = new Date();
-    const midnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
-    const seconds = Math.floor((midnight - now.getTime()) / 1000);
-    element('nextTrackTime').textContent = `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(Math.floor(seconds / 60) % 60).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-    const today = utcDate(now);
-    if (today !== currentDate && world) {
-        try {
-            const wasDaily = race?.track.date === currentDate;
-            const refreshed = await loadTrackManifest();
-            if (!availableTrackDates(refreshed, today).includes(today)) return;
-            manifest = refreshed; currentDate = today;
-            if (race?.state === 'ready') {
-                populateTrackSelector(wasDaily ? today : race.track.date);
-                if (wasDaily) await selectTrack(today);
-            } else {
-                if (wasDaily) pendingDailyDate = today;
-                showNotice('A new daily circuit is ready after this run.');
-            }
-        } catch { /* Keep the current circuit usable during a temporary network failure. */ }
-    }
-}, 1000);
 
 updateStorageStatus();
 updateSoundButton();

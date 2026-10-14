@@ -54,3 +54,18 @@
     .circuit-picker-button, .picker-chevron, .circuit-picker-row, .circuit-picker-row::before { transition: none; }
     .circuit-picker-row:hover, .circuit-picker-row:focus-visible { transform: none; }
 }
+
+/* One current route per world; regenerate sits beside the biome selector. */
+.archive-field { display: flex; align-items: center; gap: 10px; }
+.archive-field select { width: 220px; min-height: 48px; padding: 10px 32px 10px 14px; background: #101525; color: #e9faff; border: 1px solid #36e6ed66; font: 600 16px var(--font-display); border-radius: 0; }
+.regenerate-button { min-height: 48px; padding: 10px 14px; border: 1px solid #36e6ed66; background: #101525; color: #36e6ed; font: 600 14px var(--font-display); cursor: pointer; transition: color .15s,border-color .15s; }
+.regenerate-button:hover { color: #fff; border-color: #ff39d4; }
+.regenerate-button:disabled { opacity: .4; cursor: wait; }
+@media (max-width: 760px) {
+    .circuit-toolbar { align-items: stretch; }
+    .archive-field { width: 100%; flex-wrap: wrap; }
+    .archive-field label { max-width: none; width: 100%; }
+    .archive-field select { flex: 1; min-width: 0; width: auto; }
+    .regenerate-button { flex: 0 0 auto; }
+}
+@media (prefers-reduced-motion: reduce) { .regenerate-button { transition: none; } }

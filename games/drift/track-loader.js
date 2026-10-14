@@ -24,6 +24,17 @@ export async function loadTrack(date) {
     const response = await fetch(new URL(`${date}.json`, TRACK_DIRECTORY), { cache: 'no-cache' });
     if (!response.ok) throw new Error('This circuit is not available yet. Please try again shortly.');
     const track = await response.json();
+    return validateTrack(track,date);
+}
+
+export async function loadBiomeBase() {
+    const response=await fetch(new URL('biome-base.json',TRACK_DIRECTORY));
+    if(!response.ok) throw new Error('The circuit template could not be loaded. Try again.');
+    const track=await response.json();
+    return validateTrack(track,track.date);
+}
+
+function validateTrack(track,date) {
     const elevationsValid = track.elevations === undefined || (Array.isArray(track.elevations) &&
         Array.isArray(track.points) && track.elevations.length === track.points.length &&
         track.elevations.every(height => Number.isFinite(height) && height >= 0 && height <= 100));
