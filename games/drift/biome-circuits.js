@@ -1,5 +1,6 @@
 // Regeneration stays local: deform a validated short circuit, then recheck the
 // complete road. Each biome owns one current circuit and its own record identity.
+import { DEFAULT_GENERATION, normaliseGeneration, generationHash } from './generation-settings.js';
 export const BIOMES = { city: 'Night City', synthwave: 'Synthwave Highway' };
 export function circuitRandom(seed) {
     return () => { seed=(Math.imul(seed,1664525)+1013904223)>>>0; return seed/4294967296; };
@@ -29,6 +30,22 @@ function resample(points) {
         const t=(target-lengths[segment])/(lengths[segment+1]-lengths[segment]);
         return points[segment].map((v,a)=>v+(points[(segment+1)%points.length][a]-v)*t);
     });
+}
+
+function roundCorners(points,radius) {
+    const count=points.length;
+    for(let pass=0;pass<400;pass++) {
+        const tight=new Set();
+        for(let i=0;i<count;i++) {
+            const p=points[i],a=points[(i+count-1)%count],b=points[(i+1)%count];
+            const ax=p[0]-a[0],az=p[1]-a[1],bx=b[0]-p[0],bz=b[1]-p[1];
+            const turn=Math.abs(Math.atan2(ax*bz-az*bx,ax*bx+az*bz));
+            if(distance(p,b)/Math.max(turn,1e-6)<radius) for(let k=-2;k<=2;k++) tight.add((i+k+count)%count);
+        }
+        if(!tight.size) return points;
+        points=resample(points.map((p,i)=>tight.has(i)?p.map((v,a)=>(points[(i+count-1)%count][a]+2*v+points[(i+1)%count][a])/4):p));
+    }
+    return points;
 }
 
 export function planStructures(track) {
@@ -61,24 +78,34 @@ export function planStructures(track) {
     return features;
 }
 
-export function generateCircuit(base,biome,seed) {
+export function generateCircuit(base,biome,seed,options=DEFAULT_GENERATION) {
     if(!BIOMES[biome]) throw new Error('Unknown biome.');
+    const settings=normaliseGeneration(options),settingsHash=generationHash(settings);
+    seed=(seed^settingsHash)>>>0;
     const random=circuitRandom(seed);
+    const depth=(0.72+settings.depth*0.0056)*(1+(settings.tightness-50)*0.004)*(1+(settings.difficulty-3)*0.06);
+    const radius=Math.max(15.5,15.5+(50-settings.tightness)*0.15+(3-settings.difficulty)*1.6);
+    const outline=depth===1?base.points:base.points.map((p,i)=>{
+        const broad=[0,0];
+        for(let k=-20;k<=20;k++) for(let a=0;a<2;a++) broad[a]+=base.points[(i+k+base.points.length)%base.points.length][a]/41;
+        return p.map((v,a)=>broad[a]+(v-broad[a])*depth);
+    });
     for(let attempt=0;attempt<100;attempt++) {
         const phase=random()*Math.PI*2,angle=random()*Math.PI*2;
         const sx=1.04+random()*0.08,sz=1.04+random()*0.08;
-        const bend=8+random()*14,mirror=random()<0.5?-1:1;
-        let points=base.points.map(([x,z])=>{
+        const bend=(8+random()*14)*(settings.variety/50),mirror=random()<0.5?-1:1;
+        let points=outline.map(([x,z])=>{
             const px=x*sx+bend*Math.sin(z/90+phase);
             const pz=z*sz+bend*0.7*Math.sin(x/105-phase);
             return [mirror*(px*Math.cos(angle)-pz*Math.sin(angle)),px*Math.sin(angle)+pz*Math.cos(angle)];
         });
         points=resample(points);
+        if(settingsHash) points=roundCorners(points,radius);
         const length=points.reduce((sum,p,i)=>sum+distance(p,points[(i+1)%points.length]),0);
         if(length>1810 || !safeCircuit(points)) continue;
         const track={...base,points,seed:seed>>>0,biome,name:BIOMES[biome],
             date:`${biome}-${(seed>>>0).toString(16).padStart(8,'0')}`,
-            length,drivingLength:length,elevations:points.map(()=>0),bridges:[],structures:[]};
+            length,drivingLength:length,generationSettings:settings,elevations:points.map(()=>0),bridges:[],structures:[]};
         delete track.loop;
         track.structures=planStructures(track);
         return track;
@@ -88,24 +115,29 @@ export function generateCircuit(base,biome,seed) {
 
 export class CircuitLibrary {
     constructor(base,storage) {
-        this.base=base;this.tracks=new Map();this.seeds={};
+        this.base=base;this.tracks=new Map();this.seeds={};this.settings={};
         try { this.storage=storage||globalThis.localStorage;
-            const saved=JSON.parse(this.storage?.getItem('apex-drift:biomes:v1')||'{}');
-            for(const biome of Object.keys(BIOMES)) if(Number.isInteger(saved[biome])) this.seeds[biome]=saved[biome]>>>0;
+            const saved=JSON.parse(this.storage?.getItem('apex-drift:circuits:v2')||this.storage?.getItem('apex-drift:biomes:v1')||'{}');
+            for(const biome of Object.keys(BIOMES)) {
+                const seeds=saved.seeds||saved;
+                if(Number.isInteger(seeds[biome])) this.seeds[biome]=seeds[biome]>>>0;
+                this.settings[biome]=normaliseGeneration(saved.settings?.[biome]);
+            }
         } catch { /* Memory-only generation still works. */ }
     }
     get(biome) {
         if(!this.tracks.has(biome)) {
             const seed=this.seeds[biome]??((this.base.seed^(biome==='city'?0x3fa468:0x8b7df9))>>>0);
-            this.tracks.set(biome,generateCircuit(this.base,biome,seed));this.seeds[biome]=seed;
+            this.tracks.set(biome,generateCircuit(this.base,biome,seed,this.settingsFor(biome)));this.seeds[biome]=seed;
         }
         return this.tracks.get(biome);
     }
-    regenerate(biome,seed=(Math.random()*4294967296)>>>0) {
+    settingsFor(biome) { return normaliseGeneration(this.settings[biome]); }
+    regenerate(biome,seed=(Math.random()*4294967296)>>>0,options=this.settingsFor(biome)) {
         if(seed===this.seeds[biome]) seed=(seed+1)>>>0;
-        const track=generateCircuit(this.base,biome,seed);
-        this.tracks.set(biome,track);this.seeds[biome]=seed;
-        try { this.storage?.setItem('apex-drift:biomes:v1',JSON.stringify(this.seeds)); } catch { /* Keep the new route for this visit. */ }
+        const settings=normaliseGeneration(options),track=generateCircuit(this.base,biome,seed,settings);
+        this.tracks.set(biome,track);this.seeds[biome]=seed;this.settings[biome]=settings;
+        try { this.storage?.setItem('apex-drift:circuits:v2',JSON.stringify({seeds:this.seeds,settings:this.settings})); } catch { /* Keep the new route for this visit. */ }
         return track;
     }
 }

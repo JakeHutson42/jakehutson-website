@@ -1,6 +1,7 @@
 import { miles, mph, SPEEDOMETER_MAX_MPH } from './units.js';
 import { CircuitLibrary, BIOMES } from './biome-circuits.js';
 import { CircuitPicker } from './circuit-picker.js';
+import { TrackSettings } from './generation-settings.js';
 import { initialiseDrivingGuides } from './tutorial.js';
 import { LoadingOverlay } from './loading-overlay.js';
 import { GaragePreferences, CAR_MODELS } from './garage-data.js';
@@ -29,6 +30,14 @@ let world;
 let race;
 let circuitLibrary;
 const circuitPicker = new CircuitPicker(element('trackSelect'), biome => circuitLibrary?.get(biome));
+const trackSettings = new TrackSettings(element('trackSettingsDialog'), {
+    read: () => circuitLibrary.settingsFor(element('trackSelect').value),
+    apply: settings => loader.run('Building your next route', async () => {
+        const biome = element('trackSelect').value;
+        circuitLibrary.regenerate(biome, undefined, settings);
+        if (!await selectTrackContent(biome)) throw new Error('The route could not load. Try again.');
+    }),
+});
 let loadSequence = 0;
 let lastFrameTime = 0;
 let simulationRemainder = 0;
@@ -142,6 +151,7 @@ async function selectTrackContent(biome, regenerate = false) {
     element('startButton').textContent = 'LOADING CIRCUIT…';
     element('trackSelect').disabled = true;
     element('regenerateButton').disabled = true;
+    element('trackSettingsButton').disabled = true;
     showStageMessage('');
     try {
         const track = regenerate ? circuitLibrary.regenerate(biome) : circuitLibrary.get(biome);
@@ -170,6 +180,8 @@ async function selectTrackContent(biome, regenerate = false) {
         element('startButton').disabled = false;
         element('trackSelect').disabled = false;
         element('regenerateButton').disabled = false;
+        element('trackSettingsButton').disabled = false;
+        return true;
     } catch (error) {
         race = null;
         showStageMessage(error.message);
@@ -177,6 +189,8 @@ async function selectTrackContent(biome, regenerate = false) {
         element('startButton').disabled = false;
         element('trackSelect').disabled = false;
         element('regenerateButton').disabled = false;
+        element('trackSettingsButton').disabled = false;
+        return false;
     }
 }
 
@@ -191,6 +205,7 @@ function showPreview() {
     mobileView.exit();
     element('trackSelect').disabled = false;
     element('regenerateButton').disabled = false;
+    element('trackSettingsButton').disabled = false;
     simulationRemainder = 0;
     finishHandled = false;
     clearTimeout(noticeTimeout); element('raceNotice').textContent = '';
@@ -229,6 +244,7 @@ function startRunContent() {
     element('raceOverlay').hidden = true;
     element('trackSelect').disabled = true;
     element('regenerateButton').disabled = true;
+    element('trackSettingsButton').disabled = true;
     stage.classList.add('is-playing');
     mobileView.enter();
     element('raceCanvas').focus({ preventScroll: true });
@@ -437,6 +453,11 @@ element('exitButton').addEventListener('click', exitRun);
 element('mobileExitButton').addEventListener('click', exitRun);
 element('trackSelect').addEventListener('change', event => { if (!loader.active) selectTrack(event.target.value); });
 element('regenerateButton').addEventListener('click', () => { if (!loader.active && circuitLibrary) selectTrack(element('trackSelect').value, true); });
+element('trackSettingsButton').addEventListener('click', () => {
+    if (!loader.active && circuitLibrary && race?.state === 'ready') {
+        trackSettings.open(BIOMES[element('trackSelect').value]);
+    }
+});
 element('soundButton').addEventListener('click', () => {
     enableSound(!audio.enabled, true);
     if (input.active && race?.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });

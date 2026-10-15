@@ -54,6 +54,7 @@ Using the existing root-directory deployment also works with the checked-in bank
 | `games/drift/storage.js` | Versioned, defensive local-storage adapter |
 | `games/drift/track-loader.js` | Local template and track-file validation |
 | `games/drift/biome-circuits.js` | Validated local regeneration and saved biome seeds |
+| `games/drift/generation-settings.js` | Slider modal, normalisation and settings identity |
 | `games/drift/synthwave.js` | Mountains, curved tunnels, flat bridges and portals |
 | `games/drift/math.js` | Shared track projections, poses, formatting |
 | `games/drift/tracks/` | Dated JSON circuits and a manifest |
@@ -83,6 +84,22 @@ short, twisty authoring template. Deterministic retries enforce 15-metre road wi
 cannot silently change a saved seed's route. Python's dated generator and bank are
 retained for authoring and regression checks; the player-facing daily/archive menu
 and midnight rollover have been replaced by the two-world selector.
+
+Track Settings sits beside Regenerate and opens a native modal with keyboard-
+accessible range sliders for difficulty, corner variety, tightness and depth.
+Readouts update while dragging. Reset only resets the draft; Apply & Regenerate
+builds a new route for the selected world. Closing without applying discards edits.
+Controls stay locked during a run and while generation is loading. The modal
+keeps its header/actions available while slider content scrolls on short screens.
+
+The generator varies deviations from a smoothed outline to change corner depth,
+changes route deformation for variety, and rounds corners more on easier/open
+settings. Every result retains road clearance and a 15.5-metre safety radius.
+Defaults preserve existing route geometry and record IDs. Custom settings mix
+into the seed so records for a changed layout cannot collide with its old records.
+Seeds and per-world settings save atomically under `apex-drift:circuits:v2`, with
+migration from the previous seed-only preferences. Failed generation leaves the
+current route and saved settings intact.
 
 Synthwave uses black low-poly peaks, magenta versions of the existing arrow
 barriers and roadside lamps, a large striped horizon sun, and a separate local

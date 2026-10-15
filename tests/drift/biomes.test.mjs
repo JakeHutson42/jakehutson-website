@@ -16,6 +16,7 @@ import { CAMERA_CONFIG, TRACK_EDGE_CONFIG as EDGE } from '../../games/drift/conf
 import { CircuitFlythrough } from '../../games/drift/preview-camera.js';
 import { smokeVelocity } from '../../games/drift/smoke-motion.js';
 import { driftIntensity } from '../../games/drift/driving-feedback.js';
+import { DEFAULT_GENERATION, normaliseGeneration } from '../../games/drift/generation-settings.js';
 const base=JSON.parse(readFileSync(new URL('../../games/drift/tracks/biome-base.json',import.meta.url)));
 
 test('regenerated circuits are deterministic, short, level and safe in both biomes',()=>{
@@ -66,8 +67,9 @@ test('synthwave has curved tunnel shells, straight portal markers and level brid
 });
 
 test('the actual driving model completes regenerated city and synthwave circuits',()=>{
-    for(const biome of ['city','synthwave']) {
-        const track=generateCircuit(base,biome,1637726400),race=new Race(track);race.start();
+    for(const biome of ['city','synthwave']) for(const settings of [DEFAULT_GENERATION,
+        {difficulty:1,variety:0,tightness:0,depth:0},{difficulty:5,variety:100,tightness:100,depth:100}]) {
+        const track=generateCircuit(base,biome,1637726400,settings),race=new Race(track);race.start();
         for(let step=0;step<120*600 && race.state!=='finished';step++) {
             const car=race.car,nearest=nearestRoadPoint(track,car.x,car.z,car.progress);
             const target=trackPose(track,nearest.progress+13/track.length);
@@ -102,4 +104,41 @@ test('the world switches biomes and regenerates without retaining old scenery',a
         assert.equal(Boolean(world.environment.getObjectByName('black-mountain-peaks')),biome==='synthwave');
         assert.ok(world.lampPoses.length>0);
     }
+});
+
+test('slider extremes remain safe and easier settings produce broader corners',()=>{
+    const easy={difficulty:1,variety:0,tightness:0,depth:0};
+    const expert={difficulty:5,variety:100,tightness:100,depth:100};
+    const minimumRadius=points=>Math.min(...points.map((p,i)=>{
+        const a=points[(i+points.length-1)%points.length],b=points[(i+1)%points.length];
+        const ax=p[0]-a[0],az=p[1]-a[1],bx=b[0]-p[0],bz=b[1]-p[1];
+        return Math.hypot(bx,bz)/Math.max(Math.abs(Math.atan2(ax*bz-az*bx,ax*bx+az*bz)),1e-6);
+    }));
+    for(const biome of ['city','synthwave']) for(const seed of [1,42,1234]) {
+        const a=generateCircuit(base,biome,seed,easy),b=generateCircuit(base,biome,seed,expert);
+        assert.ok(safeCircuit(a.points) && safeCircuit(b.points));
+        assert.ok(minimumRadius(a.points)>20);
+        assert.ok(minimumRadius(a.points)>minimumRadius(b.points)*1.3);
+        assert.ok(minimumRadius(b.points)<19);
+        assert.ok(a.length<1810 && b.length<1810);
+        assert.notEqual(a.date,b.date);
+    }
+    const invalid=normaliseGeneration({difficulty:99,variety:-4,tightness:Infinity,depth:'80'});
+    assert.deepEqual(invalid,{difficulty:5,variety:0,tightness:50,depth:80});
+});
+
+test('generation settings migrate, persist per world and change route records',()=>{
+    let saved={'apex-drift:biomes:v1':JSON.stringify({city:42,synthwave:1234})};
+    const storage={getItem:key=>saved[key]||null,setItem:(key,value)=>saved[key]=value};
+    const library=new CircuitLibrary(base,storage),old=library.get('city');
+    assert.equal(old.seed,42);
+    const custom={difficulty:2,variety:70,tightness:20,depth:35};
+    const track=library.regenerate('city',42,custom);
+    assert.notEqual(track.date,old.date);
+    assert.deepEqual(library.settingsFor('city'),custom);
+    assert.deepEqual(library.settingsFor('synthwave'),DEFAULT_GENERATION);
+    const restored=new CircuitLibrary(base,storage);
+    assert.deepEqual(restored.get('city'),track);
+    assert.deepEqual(restored.settingsFor('city'),custom);
+    assert.deepEqual(restored.settingsFor('synthwave'),DEFAULT_GENERATION);
 });

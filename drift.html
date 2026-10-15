@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/drift.css?v=driving-height-4">
     <link rel="stylesheet" href="css/drift-garage.css">
     <link rel="stylesheet" href="css/drift-play.css?v=hud-layout-3">
-    <link rel="stylesheet" href="css/drift-picker.css">
+    <link rel="stylesheet" href="css/drift-picker.css?v=track-settings-1">
 </head>
 <body class="drift-page">
     <a class="skip-link" href="#circuit">Skip to the game</a>
@@ -32,7 +32,7 @@
         </header>
 
         <section class="circuit-section" id="circuit" aria-label="Apex Drift game">
-            <div class="circuit-toolbar"><div class="circuit-label"><span class="live-dot" aria-hidden="true"></span><strong id="circuitMode">NIGHT CITY</strong><span class="toolbar-divider" aria-hidden="true">/</span><span id="circuitDate">LOADING</span></div><div class="archive-field"><label for="trackSelect">Choose your world</label><select id="trackSelect" disabled aria-label="Choose a biome"><option>Loading circuits…</option></select><button type="button" class="regenerate-button" id="regenerateButton" disabled aria-label="Generate a new track for the selected biome">↻ <span>Regenerate</span></button></div></div>
+            <div class="circuit-toolbar"><div class="circuit-label"><span class="live-dot" aria-hidden="true"></span><strong id="circuitMode">NIGHT CITY</strong><span class="toolbar-divider" aria-hidden="true">/</span><span id="circuitDate">LOADING</span></div><div class="archive-field"><label for="trackSelect">Choose your world</label><select id="trackSelect" disabled aria-label="Choose a biome"><option>Loading circuits…</option></select><button type="button" class="regenerate-button" id="regenerateButton" disabled aria-label="Generate a new track for the selected biome">↻ <span>Regenerate</span></button><button type="button" class="regenerate-button track-settings-button" id="trackSettingsButton" disabled aria-label="Open track generation settings" aria-haspopup="dialog" aria-controls="trackSettingsDialog">⚙ <span>Settings</span></button></div></div>
 
             <!-- The canvas is focusable so keyboard controls do not hijack page navigation. -->
             <div class="race-stage" id="raceStage" aria-label="Drifting game">
@@ -111,6 +111,18 @@
     </div>
     <div class="drift-steps"><article><span>01</span><div><h3>Brake. Then turn.</h3><p>Scrub off speed before the tight stuff. Leave enough to carry you round.</p></div></article><article><span>02</span><div><h3>Let it slide.</h3><p>Tap the handbrake, then let go. Steer into the slide to catch the rear before it finds a wall.</p></div></article><article><span>03</span><div><h3>Keep it going.</h3><p>Link the next drift within 1.4 seconds. Build your combo up to ×5. Clip a wall and the combo ends.</p></div></article></div>
     </div><p class="dialog-note">Pick Night City or Synthwave Highway. Regenerate rolls a new route for that world. Your scores and car build stay on this device. Clear the site data and they go too.</p></div><div class="dialog-footer"><button type="button" class="race-button primary" data-close-dialog>Got it. Let's drive <span aria-hidden="true">→</span></button></div></dialog>
+    <dialog id="trackSettingsDialog" class="drift-dialog track-settings" aria-labelledby="trackSettingsTitle">
+        <form class="settings-form">
+            <div class="dialog-heading"><div><p class="race-eyebrow" data-settings-world>YOUR WORLD</p><h2 id="trackSettingsTitle">BUILD YOUR BENDS.</h2><p>Dial it in. Apply rolls a new route for this world.</p></div><button type="button" data-close-dialog aria-label="Close track settings without applying">×</button></div>
+            <div class="settings-controls">
+                <label class="settings-slider" for="generationDifficulty"><span>Difficulty <output for="generationDifficulty" data-value="difficulty">Balanced</output></span><small>Chilled sweepers or a more demanding line.</small><input type="range" id="generationDifficulty" name="difficulty" min="1" max="5" step="1" value="3"><span class="slider-ends"><span>Easy</span><span>Expert</span></span></label>
+                <label class="settings-slider" for="generationVariety"><span>Corner variety <output for="generationVariety" data-value="variety">50%</output></span><small>How much the corners wander and change shape.</small><input type="range" id="generationVariety" name="variety" min="0" max="100" step="5" value="50"><span class="slider-ends"><span>Predictable</span><span>Mix it up</span></span></label>
+                <label class="settings-slider" for="generationTightness"><span>Corner tightness <output for="generationTightness" data-value="tightness">50%</output></span><small>Open flowing turns or tighter returning corners.</small><input type="range" id="generationTightness" name="tightness" min="0" max="100" step="5" value="50"><span class="slider-ends"><span>Open</span><span>Tight</span></span></label>
+                <label class="settings-slider" for="generationDepth"><span>Corner depth <output for="generationDepth" data-value="depth">50%</output></span><small>Shallow changes of direction or deeper cutbacks.</small><input type="range" id="generationDepth" name="depth" min="0" max="100" step="5" value="50"><span class="slider-ends"><span>Shallow</span><span>Deep</span></span></label>
+            </div>
+            <div class="dialog-footer settings-footer"><p data-settings-status role="status" aria-live="polite"></p><div><button type="button" class="race-button secondary" data-settings-reset>Reset sliders</button><button type="submit" class="race-button primary">Apply &amp; regenerate <span aria-hidden="true">↗</span></button></div></div>
+        </form>
+    </dialog>
     <dialog id="recordsDialog" class="drift-dialog" aria-labelledby="recordsTitle"><div class="dialog-heading"><span class="race-eyebrow">YOUR PERSONAL RECORDS</span><button type="button" data-close-dialog aria-label="Close records">×</button></div><h2 id="recordsTitle">Your best runs.</h2><p>Best total score and fastest finish for each circuit. These may come from different runs.</p><div id="recordsList"></div><p class="dialog-note">Saved in this browser. No account needed.</p></dialog>
             </div>
 
@@ -141,6 +153,6 @@
     </main>
 
     <noscript><p class="no-script">Apex Drift needs JavaScript and WebGL2 to run. Switch JavaScript on and get on the grid.</p></noscript>
-    <script type="module" src="games/drift/main.js"></script>
+    <script type="module" src="games/drift/main.js?v=track-settings-1"></script>
 </body>
 </html>
