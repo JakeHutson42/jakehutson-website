@@ -1,5 +1,6 @@
 import * as THREE from '../../lib/three/0.180.0/three.module.min.js';
 import { surfacePose } from './surface.js';
+import { courseEdges, pencilSegments } from './course-geometry.js';
 
 const PALETTE = ['#db7a68', '#5d9b8c', '#e1b851', '#85779b', '#e5d9bf'];
 
@@ -147,8 +148,6 @@ export class DeskBuilder {
         const w = this.w, p = this.group(0, 0, 0);
         this.soft(p, 0, 11.55, 0, 92, .9, 14, '#d9b663', .22);
         this.soft(p, 0, 12.02, 0, 90, .08, 13.4, '#efcc79', .02);
-        // Joined edge lips are visible at the exact drivable ruler width.
-        for (const z of [-6.2, 6.2]) this.soft(p, 0, 12.25, z, 91, .4, .4, '#ad8849', .08);
         for (let i = 0; i <= 40; i++) {
             const x = -44 + i * 2.2, size = i % 5 === 0 ? 2.8 : i % 2 ? 1.1 : 1.7;
             w.box(p, x, 12.1, -5.4 + size / 2, .12, .025, size, '#584a36');
@@ -158,36 +157,42 @@ export class DeskBuilder {
         w.topLabel(p, 'POCKET / PRECISION', 0, 12.12, 1, 29, 2.8, '#7a6442', '#efcc79');
     }
     ramps(track) {
-        const positions = [], normals = [], uv = [], indices = [];
+        const positions = [], uv = [], indices = [], edges = courseEdges(track, 0, .08);
+        // One pair of shared vertices per cross-section prevents torn/jagged
+        // joins. The paper stops at the same full-width landing as the road.
         for (let i = 0; i < track.points.length; i++) {
-            if (track.surfaces[i].kind !== 'ramp') continue;
-            const a = surfacePose(track, i / track.points.length), b = surfacePose(track, (i + 1) / track.points.length), base = positions.length / 3;
-            for (const pose of [a, b]) for (const side of [-1, 1]) {
-                positions.push(pose.x + Math.cos(pose.heading) * pose.width / 2 * side, pose.y + .08, pose.z - Math.sin(pose.heading) * pose.width / 2 * side);
-                normals.push(0, 1, 0); uv.push(side > 0 ? 1 : 0, i / 12 + (pose === b ? 1 / 12 : 0));
+            for (let side = 0; side < 2; side++) {
+                const point = edges[side][i]; positions.push(point.x, point.y, point.z); uv.push(side, i / 12);
             }
-            indices.push(base, base + 2, base + 1, base + 1, base + 2, base + 3);
+            if (track.surfaces[i].kind !== 'ramp') continue;
+            const base = i * 2, next = (i + 1) % track.points.length * 2;
+            indices.push(base, next, base + 1, base + 1, next, next + 1);
         }
         const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3)); geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
         geometry.setIndex(indices); geometry.computeVertexNormals(); this.w.mesh(geometry, this.w.deskMaterials.paper, this.root);
     }
     courseEdges(track) {
         const w = this.w;
-        for (let i = 0; i < track.points.length; i += 2) {
-            const pose = surfacePose(track, i / track.points.length);
-            if (pose.kind === 'ruler') continue;
-            for (const side of [-1, 1]) {
-                const x = pose.x + Math.cos(pose.heading) * pose.width / 2 * side;
-                const z = pose.z - Math.sin(pose.heading) * pose.width / 2 * side;
-                const ink = pose.kind === 'paper' || pose.kind === 'ramp' ? '#8a7661' : '#f0e3c9';
-                const dash = w.box(this.root, x, pose.y + .25, z, .4, .035, 3.2, ink);
-                dash.rotation.y = pose.heading; dash.castShadow = false;
-            }
+        const bodyGeometry = new THREE.CylinderGeometry(.7, .7, 1, 6); bodyGeometry.rotateX(Math.PI / 2);
+        const woodGeometry = new THREE.ConeGeometry(.7, 1.2, 6); woodGeometry.rotateX(-Math.PI / 2);
+        const leadGeometry = new THREE.ConeGeometry(.17, .45, 6); leadGeometry.rotateX(-Math.PI / 2);
+        const ferruleGeometry = new THREE.CylinderGeometry(.74, .74, .9, 8); ferruleGeometry.rotateX(Math.PI / 2);
+        const eraserGeometry = new THREE.CylinderGeometry(.7, .7, .8, 8); eraserGeometry.rotateX(Math.PI / 2);
+        for (const segment of pencilSegments(track)) {
+            const { a, b, length } = segment;
+            const p = this.group((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+            p.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(b.x - a.x, b.y - a.y, b.z - a.z).normalize());
+            const body = w.mesh(bodyGeometry, PALETTE[(Math.floor(segment.index / 12) + segment.side) % PALETTE.length], p);
+            body.scale.z = length;
+            w.mesh(woodGeometry, '#d9b681', p, 0, 0, length / 2 + .6);
+            w.mesh(leadGeometry, '#3b353c', p, 0, 0, length / 2 + 1.15);
+            w.mesh(ferruleGeometry, '#bcb9a7', p, 0, 0, -length / 2 - .35);
+            w.mesh(eraserGeometry, '#cd8b87', p, 0, 0, -length / 2 - 1.1);
         }
         for (let i = 8; i < track.points.length; i += 14) {
             const pose = surfacePose(track, i / track.points.length);
-            if (pose.kind === 'ruler') continue;
+            if (pose.kind === 'ruler' || pose.kind === 'ramp' || Math.abs(pose.pitch) > .025) continue;
             const arrow = this.group(pose.x, pose.y + .27, pose.z, pose.heading);
             for (const side of [-1, 1]) {
                 const mark = w.box(arrow, side * .75, 0, 0, .4, .025, 2.5,
@@ -195,13 +200,6 @@ export class DeskBuilder {
                 // Arms converge toward local +Z: the direction of travel.
                 mark.rotation.y = -side * .7; mark.castShadow = false;
             }
-        }
-        for (let i = 4; i < track.points.length; i += 21) {
-            const pose = surfacePose(track, i / track.points.length);
-            if (pose.y > .1 || pose.kind !== 'wood') continue;
-            const side = i % 2 ? 1 : -1;
-            this.pencil(this.root, pose.x + Math.cos(pose.heading) * (pose.width / 2 + 1.4) * side, 0,
-                pose.z - Math.sin(pose.heading) * (pose.width / 2 + 1.4) * side, pose.heading, PALETTE[i % 5], 16);
         }
     }
     build(track) {

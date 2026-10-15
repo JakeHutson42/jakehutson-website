@@ -218,7 +218,6 @@ function animate(now) {
             for (const event of race.events) {
                 if (event === 'go') { goTime = .65; audio.countdown(true); }
                 if (event === 'lap' && !race.player.finished) announce(race.player.laps === 2 ? 'FINAL LAP · MAKE IT A GOOD ONE' : 'LAP 2 · KEEP IT TINY');
-                if (event === 'boost') announce('POCKET TURBO!', .8);
             }
             if (race.state === 'finished') { results(); accumulator = 0; break; }
         }

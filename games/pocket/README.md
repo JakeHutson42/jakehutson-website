@@ -21,10 +21,13 @@ use interpolated widths (12–24 units). Cars on different levels cannot collide
 claim each other's boost pads. Ordered gates retain the existing lap rules.
 
 `desk-world.js` builds beveled books with layered page edges, ruled ramps, a ruler
-with measurement markings and edge lips, a detailed keyboard with instanced caps
+with measurement markings, a detailed keyboard with instanced caps
 and legends, mugs, pencils, notebooks, a monitor and an articulated desk lamp.
 The wood, paper, cloth and mat use [original generated textures](../../images/pocket/materials/README.md).
-Chalk edges and forward arrows identify the course. A small player-coloured ring
+Overlapping pencil barriers follow both sides of the entire course, including
+the slopes, bridge and start/finish join. Shared ramp edge vertices prevent torn
+paper joins; direction arrows stay on level surfaces. The barrier bodies share
+low-poly geometry and merge into the existing material batches. A small player-coloured ring
 keeps the car readable while it passes under the ruler. Paper reduces lateral grip
 and the cutting mat increases it. Other rooms retain their original props.
 
@@ -45,7 +48,8 @@ version before changing geometry or handling that invalidates records.
   play shell. Check physical iOS/Android devices for OS gesture and audio behavior.
 - Three laps with seven ordered intermediate gates and a forward finish crossing.
   The clock starts at GO, including the grid approach; lap splits start at the line.
-- Yellow pads provide 0.9 seconds of acceleration/top-speed boost, once per lap.
+- Yellow pads provide 0.9 seconds of acceleration/top-speed boost, once per lap,
+  with the existing HUD meter and no popup announcement.
 - Cup mode races all three rooms from the selected starting room. Four racers
   score 10/6/4/2. At the player's finish, unfinished rivals are ordered by progress.
   Their finish times are never invented. Final ties use the last race order.
