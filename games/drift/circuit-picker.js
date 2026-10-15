@@ -1,10 +1,9 @@
 import { miles } from './units.js';
 export class CircuitPicker {
-    constructor(select, loadTrack) {
+    constructor(select, getTrack) {
         this.select = select;
-        this.loadTrack = loadTrack;
+        this.getTrack = getTrack;
         this.tracks = new Map();
-        this.pending = new Set();
         this.button = document.createElement('button');
         this.button.type = 'button'; this.button.id = 'circuitPickerButton';
         this.button.className = 'circuit-picker-button';
@@ -17,13 +16,13 @@ export class CircuitPicker {
         this.nativePopover = typeof this.panel.showPopover === 'function';
         if (this.nativePopover) this.panel.setAttribute('popover', 'auto');
         const heading = document.createElement('div'); heading.className = 'picker-heading';
-        heading.innerHTML = '<span>CHOOSE YOUR NEXT RUN</span><small>NIGHT SHIFT / CIRCUIT SELECT</small>';
+        heading.innerHTML = '<span>CHOOSE YOUR WORLD</span><small>CITY STREETS / SYNTHWAVE PEAKS</small>';
         this.list = document.createElement('div'); this.list.className = 'circuit-picker-list';
-        this.list.setAttribute('role', 'listbox'); this.list.setAttribute('aria-label', 'Choose a circuit');
+        this.list.setAttribute('role', 'listbox'); this.list.setAttribute('aria-label', 'Choose a world');
         this.panel.append(heading, this.list); document.body.append(this.panel);
         select.after(this.button); select.hidden = true;
         const label = document.querySelector(`label[for="${select.id}"]`);
-        if (label) { label.htmlFor = this.button.id; label.textContent = 'Choose your circuit'; }
+        if (label) label.htmlFor = this.button.id;
         this.button.addEventListener('click', () => this.isOpen ? this.close() : this.open());
         this.button.addEventListener('keydown', event => {
             if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
@@ -61,30 +60,31 @@ export class CircuitPicker {
     }
 
     sync() {
+        // Read current routes again after regeneration instead of retaining a
+        // stale map thumbnail or distance from the old daily-track cache.
+        for (const option of this.select.options) {
+            try {
+                const track = this.getTrack(option.value);
+                if (track) this.tracks.set(option.value, track);
+            } catch { this.tracks.delete(option.value); }
+        }
         this.button.disabled = this.select.disabled;
         if (this.select.disabled && this.isOpen) this.close();
         const date = this.select.value, track = this.tracks.get(date);
         this.button.replaceChildren();
         const text = document.createElement('span'); text.className = 'picker-current';
-        const eyebrow = document.createElement('small'); eyebrow.textContent = this.select.disabled ? 'CIRCUIT SELECT' : 'SELECTED CIRCUIT';
+        const eyebrow = document.createElement('small'); eyebrow.textContent = this.select.disabled ? 'WORLD SELECT' : 'YOUR WORLD';
         const name = document.createElement('strong'); name.textContent = track?.name || this.select.selectedOptions[0]?.textContent || 'Loading circuits…';
         const arrow = document.createElement('span'); arrow.className = 'picker-chevron'; arrow.textContent = '⌄'; arrow.setAttribute('aria-hidden', 'true');
         text.append(eyebrow, name); this.button.append(text, arrow);
-        this.button.setAttribute('aria-label', `Choose circuit. ${name.textContent}`);
+        this.button.setAttribute('aria-label', `Choose world. ${name.textContent}`);
         this.renderRows();
-        for (const option of this.select.options) {
-            const value = option.value;
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || this.tracks.has(value) || this.pending.has(value)) continue;
-            this.pending.add(value);
-            this.loadTrack(value).then(result => { this.tracks.set(value, result); this.sync(); })
-                .catch(() => { /* Dates remain selectable if preview metadata is unavailable. */ });
-        }
     }
 
     renderRows() {
         const focused = document.activeElement?.dataset?.date;
         this.list.replaceChildren();
-        [...this.select.options].filter(option => /^\d{4}-\d{2}-\d{2}$/.test(option.value)).forEach((option, index) => {
+        [...this.select.options].filter(option => ['city', 'synthwave'].includes(option.value)).forEach((option, index) => {
             const date = option.value, track = this.tracks.get(date), selected = this.select.value === date;
             const row = document.createElement('button'); row.type = 'button'; row.className = 'circuit-picker-row';
             row.dataset.date = date; row.style.setProperty('--row', index);
@@ -92,10 +92,13 @@ export class CircuitPicker {
             row.tabIndex = selected ? 0 : -1;
             const number = document.createElement('span'); number.className = 'picker-number'; number.textContent = String(index + 1).padStart(2, '0');
             const details = document.createElement('span'); details.className = 'picker-details';
-            const name = document.createElement('strong'); name.textContent = track?.name || date;
-            const note = document.createElement('small'); note.textContent = `${date} / ${track ? `${miles(track.drivingLength || track.length).toFixed(2)} MI · ${track.loop ? 'VERTICAL LOOP' : 'BRIDGE RUN'}` : 'CITY CIRCUIT'}`;
+            const name = document.createElement('strong'); name.textContent = track?.name || option.textContent;
+            const features = track?.structures?.map(feature => feature.type === 'tunnel' ? 'TUNNEL' : 'BRIDGE') || [];
+            const note = document.createElement('small'); note.textContent = track ?
+                `${miles(track.drivingLength || track.length).toFixed(2)} MI · ${features.length ? features.join(' + ') : date === 'city' ? 'CITY STREETS' : 'MOUNTAIN RUN'}` : 'FINDING YOUR LINE…';
             const badge = document.createElement('span'); badge.className = 'picker-badge';
-            badge.textContent = date === new Date().toISOString().slice(0, 10) ? 'DAILY' : 'ARCHIVE';
+            badge.textContent = date === 'city' ? 'AFTER HOURS' : 'SYNTHWAVE';
+            row.dataset.biome = date;
             const status = document.createElement('span'); status.className = 'picker-row-status'; status.setAttribute('aria-hidden', 'true'); status.textContent = selected ? '✓' : '↗';
             details.append(badge, name, note); row.append(number);
             if (track) row.append(this.preview(track));
@@ -125,6 +128,7 @@ export class CircuitPicker {
 
     open(edge) {
         if (this.select.disabled || !this.list.children.length) return;
+        this.sync();
         this.panel.hidden = false; this.isOpen = true;
         if (this.nativePopover) this.panel.showPopover();
         this.button.setAttribute('aria-expanded', 'true'); this.position();

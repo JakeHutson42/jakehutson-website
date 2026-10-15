@@ -61,11 +61,16 @@
 .regenerate-button { min-height: 48px; padding: 10px 14px; border: 1px solid #36e6ed66; background: #101525; color: #36e6ed; font: 600 14px var(--font-display); cursor: pointer; transition: color .15s,border-color .15s; }
 .regenerate-button:hover { color: #fff; border-color: #ff39d4; }
 .regenerate-button:disabled { opacity: .4; cursor: wait; }
+.circuit-picker-row[data-biome="synthwave"] .picker-badge,
+.circuit-picker-row[data-biome="synthwave"] .picker-map { color: #ff6cdd; }
+.circuit-picker-row[data-biome="synthwave"][aria-selected="true"] { border-color: #ff6cdd; box-shadow: inset 3px 0 #ff6cdd; }
 @media (max-width: 760px) {
     .circuit-toolbar { align-items: stretch; }
     .archive-field { width: 100%; flex-wrap: wrap; }
     .archive-field label { max-width: none; width: 100%; }
     .archive-field select { flex: 1; min-width: 0; width: auto; }
+    .archive-field .circuit-picker-button { flex: 1; min-width: 0; width: auto; gap: 10px; }
+    .archive-field .picker-current strong { white-space: normal; font-size: 19px; }
     .regenerate-button { flex: 0 0 auto; }
 }
 @media (prefers-reduced-motion: reduce) { .regenerate-button { transition: none; } }

@@ -1,5 +1,6 @@
 import { miles, mph, SPEEDOMETER_MAX_MPH } from './units.js';
 import { CircuitLibrary, BIOMES } from './biome-circuits.js';
+import { CircuitPicker } from './circuit-picker.js';
 import { initialiseDrivingGuides } from './tutorial.js';
 import { LoadingOverlay } from './loading-overlay.js';
 import { GaragePreferences, CAR_MODELS } from './garage-data.js';
@@ -27,6 +28,7 @@ let garage;
 let world;
 let race;
 let circuitLibrary;
+const circuitPicker = new CircuitPicker(element('trackSelect'), biome => circuitLibrary?.get(biome));
 let loadSequence = 0;
 let lastFrameTime = 0;
 let simulationRemainder = 0;
@@ -127,6 +129,7 @@ function populateTrackSelector(selectedBiome='city') {
         const option=document.createElement('option');option.value=biome;option.textContent=name;selector.append(option);
     }
     selector.value=selectedBiome;selector.disabled=false;
+    circuitPicker.sync();
 }
 
 async function selectTrack(biome, regenerate = false) {
@@ -142,6 +145,7 @@ async function selectTrackContent(biome, regenerate = false) {
     showStageMessage('');
     try {
         const track = regenerate ? circuitLibrary.regenerate(biome) : circuitLibrary.get(biome);
+        circuitPicker.sync();
         if (sequence !== loadSequence) return;
         world.loadTrack(track);
         race = new Race(track);
