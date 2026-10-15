@@ -204,15 +204,17 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 .race-stage .race-hud .hud-time strong { font-size: 34px; }
 .race-stage .race-hud .hud-score { top: 74px; left: 50%; transform: translateX(-50%); width: min(260px,60vw); }
 .race-stage .race-hud .hud-score strong { font-size: 34px; }
+/* Keep the upper centre clear for raised checkpoint messages on desktop. */
+.race-stage:not(.mobile-play) .race-hud .hud-score { top: 60px; left: auto; right: 0; transform: none; width: 150px; }
 .race-stage .race-hud .hud-pause { top: 0; left: auto; right: 104px; border: 0; background: transparent; color: var(--race-accent); text-shadow: var(--hud-glow); }
 .race-stage .race-hud .hud-bottom { inset: 0; pointer-events: none; }
-.race-stage .race-hud .combo-readout { position: absolute; bottom: 36%; left: 50%; transform: translateX(-50%); width: min(250px,50vw); min-width: 0; padding: 0; background: none; text-align: center; color: var(--race-accent); text-shadow: var(--hud-glow); }
+.race-stage .race-hud .combo-readout { position: absolute; bottom: 48%; left: 50%; transform: translateX(-50%); width: min(250px,50vw); min-width: 0; padding: 0; background: none; text-align: center; color: var(--race-accent); text-shadow: var(--hud-glow); }
 .race-stage .race-hud .combo-readout > span { display: block; min-height: 24px; font: 9px/1.4 var(--font-mono); letter-spacing: .1em; color: #b3f9ff; }
 .race-stage .race-hud .combo-readout > strong { position: relative; display: block; font: 700 42px/1.15 var(--race-display); font-variant-numeric: tabular-nums; }
 .race-stage .race-hud .combo-readout small { position: absolute; left: calc(50% + 72px); top: 50%; transform: translateY(-50%); font-size: 22px; }
 .race-stage .race-hud .combo-track { height: 3px; margin-top: 10px; background: #36e6ed25; }
 .race-stage .race-hud .combo-track span { box-shadow: 0 0 8px #36e6ed, 0 0 18px #36e6ed66; }
-.race-stage .race-hud .race-notice { top: 24%; left: 50%; transform: translateX(-50%); width: min(620px,90%); max-width: none; padding: 0; background: none; color: var(--race-accent); text-shadow: var(--hud-glow); text-align: center; white-space: normal; font: italic 700 clamp(22px,3.5vw,42px)/1.15 var(--race-display); }
+.race-stage .race-hud .race-notice { top: 20%; left: 50%; transform: translateX(-50%); width: min(620px,90%); max-width: none; padding: 0; background: none; color: var(--race-accent); text-shadow: var(--hud-glow); text-align: center; white-space: normal; font: italic 700 clamp(22px,3.5vw,42px)/1.15 var(--race-display); }
 .race-stage .race-hud .speed-readout.instrument-cluster { position: absolute; bottom: 22px; right: 22px; background: none; border: 0; padding: 0; color: var(--race-accent); filter: drop-shadow(0 2px 3px #000); }
 .race-stage .race-hud #raceMap { top: 140px; right: 22px; background: none; filter: drop-shadow(0 1px 3px #000); opacity: .85; }
 .race-stage.mobile-play .race-hud .hud-top { top: var(--play-top); left: var(--play-left); right: var(--play-right); }
