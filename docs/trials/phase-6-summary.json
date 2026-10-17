@@ -1,0 +1,698 @@
+{
+  "date": "2026-10-17",
+  "status": "phase-6-framework-implemented; physical-device gates pending; no deployment",
+  "physics": "qt-physics-3",
+  "bike": "qt-250-works-v3",
+  "assetContentId": "c1b84012482089ec1b89bf38b87b4bb63a6ee08d3518feb3fc81eb137abc5dbd",
+  "approvedCatalog": "3a41b65da93dee528b40827663a4cafcb1d4b948866d30a389cd3bc8c932df9a",
+  "reviewCatalog": "dcf19ee068321140370a315cf94315c2e3aa5e262752ead6ce833383f6949c32",
+  "tests": {
+    "trialsJavaScript": 53,
+    "driftPocketJavaScript": 81,
+    "trialsPython": 18,
+    "driftPython": 8,
+    "total": 160
+  },
+  "staticReferences": 263,
+  "desktop": {
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "resolution": {
+      "width": 1161.8125,
+      "height": 550.390625,
+      "dpr": 1,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+    },
+    "endurance": {
+      "routes": [
+        {
+          "id": "nursery",
+          "biome": "forestry",
+          "quality": "high",
+          "performance": {
+            "samples": 2560,
+            "totalFrames": 2560,
+            "seconds": 12.8902,
+            "maxDrawCalls": 41,
+            "maxTriangles": 75174,
+            "fps": 198.60048719182015,
+            "frameP95": 5.100000000000364,
+            "physicsP95": 0.20000000298023224,
+            "renderP95": 0.7000000029802322
+          },
+          "time": 12.891666666666575,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 6,
+            "programs": 12
+          }
+        },
+        {
+          "id": "sawyer",
+          "biome": "forestry",
+          "quality": "balanced",
+          "performance": {
+            "samples": 2602,
+            "totalFrames": 2602,
+            "seconds": 13.0402,
+            "maxDrawCalls": 41,
+            "maxTriangles": 55566,
+            "fps": 199.53681691998588,
+            "frameP95": 5.100000000002183,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.5
+          },
+          "time": 13.041666666666567,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 6,
+            "programs": 12
+          }
+        },
+        {
+          "id": "ridge",
+          "biome": "forestry",
+          "quality": "low",
+          "performance": {
+            "samples": 2693,
+            "totalFrames": 2693,
+            "seconds": 13.490299999999996,
+            "maxDrawCalls": 41,
+            "maxTriangles": 45510,
+            "fps": 199.62491568015542,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.3999999985098839
+          },
+          "time": 13.491666666666541,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 5,
+            "programs": 14
+          }
+        },
+        {
+          "id": "works",
+          "biome": "quarry",
+          "quality": "high",
+          "performance": {
+            "samples": 2697,
+            "totalFrames": 2697,
+            "seconds": 13.53,
+            "maxDrawCalls": 37,
+            "maxTriangles": 49774,
+            "fps": 199.3348115299335,
+            "frameP95": 5.099999999998545,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.5
+          },
+          "time": 13.533333333333205,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 12,
+            "programs": 19
+          }
+        },
+        {
+          "id": "apprentice",
+          "biome": "quarry",
+          "quality": "balanced",
+          "performance": {
+            "samples": 2587,
+            "totalFrames": 2587,
+            "seconds": 12.965300000000003,
+            "maxDrawCalls": 37,
+            "maxTriangles": 43774,
+            "fps": 199.53259855151825,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.6000000014901161
+          },
+          "time": 12.96666666666657,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 12,
+            "programs": 19
+          }
+        },
+        {
+          "id": "cutstone",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2628,
+            "totalFrames": 2628,
+            "seconds": 13.170199999999998,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.5413888931072,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.3999999985098839
+          },
+          "time": 13.174999999999892,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 19
+          }
+        },
+        {
+          "id": "highbench",
+          "biome": "quarry",
+          "quality": "high",
+          "performance": {
+            "samples": 2663,
+            "totalFrames": 2663,
+            "seconds": 13.345299999999988,
+            "maxDrawCalls": 37,
+            "maxTriangles": 49774,
+            "fps": 199.54590754797587,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.6000000014901161
+          },
+          "time": 13.349999999999882,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 12,
+            "programs": 21
+          }
+        },
+        {
+          "id": "timber",
+          "biome": "quarry",
+          "quality": "balanced",
+          "performance": {
+            "samples": 2583,
+            "totalFrames": 2583,
+            "seconds": 12.945200000000012,
+            "maxDrawCalls": 37,
+            "maxTriangles": 43774,
+            "fps": 199.5334177919227,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.6000000014901161
+          },
+          "time": 12.949999999999905,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 12,
+            "programs": 21
+          }
+        },
+        {
+          "id": "shift",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2624,
+            "totalFrames": 2624,
+            "seconds": 13.145299999999988,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.61507154648447,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.3999999985098839
+          },
+          "time": 13.149999999999894,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 21
+          }
+        },
+        {
+          "id": "nursery",
+          "biome": "forestry",
+          "quality": "high",
+          "performance": {
+            "samples": 2573,
+            "totalFrames": 2573,
+            "seconds": 12.890300000000018,
+            "maxDrawCalls": 41,
+            "maxTriangles": 75174,
+            "fps": 199.60745676981887,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.6000000014901161
+          },
+          "time": 12.891666666666575,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 6,
+            "programs": 21
+          }
+        }
+      ],
+      "seconds": 131.4416666666656,
+      "maxGeometries": 52,
+      "maxTextures": 12,
+      "maxPrograms": 21,
+      "complete": true,
+      "performance": {
+        "samples": 3600,
+        "totalFrames": 26210,
+        "seconds": 131.4123,
+        "maxDrawCalls": 41,
+        "maxTriangles": 75174,
+        "fps": 199.44860564802536,
+        "frameP95": 5.100000000005821,
+        "physicsP95": 0.10000000149011612,
+        "renderP95": 1.5
+      }
+    }
+  },
+  "smallViewport": {
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "resolution": {
+      "width": 760.6875,
+      "height": 400,
+      "dpr": 1,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+    },
+    "endurance": {
+      "routes": [
+        {
+          "id": "nursery",
+          "biome": "forestry",
+          "quality": "low",
+          "performance": {
+            "samples": 2570,
+            "totalFrames": 2570,
+            "seconds": 12.8902,
+            "maxDrawCalls": 41,
+            "maxTriangles": 45458,
+            "fps": 199.37627034491317,
+            "frameP95": 5.100000000000364,
+            "physicsP95": 0.20000000298023224,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 38124630,
+            "total": 69885598,
+            "limit": 4395630592
+          },
+          "time": 12.891666666666575,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 5,
+            "programs": 5
+          }
+        },
+        {
+          "id": "sawyer",
+          "biome": "forestry",
+          "quality": "low",
+          "performance": {
+            "samples": 2604,
+            "totalFrames": 2604,
+            "seconds": 13.0403,
+            "maxDrawCalls": 41,
+            "maxTriangles": 45458,
+            "fps": 199.68865746953674,
+            "frameP95": 5.100000000002183,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 52146837,
+            "total": 73258973,
+            "limit": 4395630592
+          },
+          "time": 13.041666666666567,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 5,
+            "programs": 5
+          }
+        },
+        {
+          "id": "ridge",
+          "biome": "forestry",
+          "quality": "low",
+          "performance": {
+            "samples": 2695,
+            "totalFrames": 2695,
+            "seconds": 13.490200000000002,
+            "maxDrawCalls": 41,
+            "maxTriangles": 45458,
+            "fps": 199.77465122829904,
+            "frameP95": 5.100000000002183,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 42477882,
+            "total": 74539674,
+            "limit": 4395630592
+          },
+          "time": 13.491666666666541,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 5,
+            "programs": 5
+          }
+        },
+        {
+          "id": "works",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2700,
+            "totalFrames": 2700,
+            "seconds": 13.530300000000002,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.55211636105628,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 22657008,
+            "total": 94072468,
+            "limit": 4395630592
+          },
+          "time": 13.533333333333205,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 5
+          }
+        },
+        {
+          "id": "apprentice",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2587,
+            "totalFrames": 2587,
+            "seconds": 12.965300000000003,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.53259855151825,
+            "frameP95": 5.099999999998545,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 37419220,
+            "total": 86208056,
+            "limit": 4395630592
+          },
+          "time": 12.96666666666657,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 5
+          }
+        },
+        {
+          "id": "cutstone",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2629,
+            "totalFrames": 2629,
+            "seconds": 13.170299999999989,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.61580222166558,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 24732060,
+            "total": 82541740,
+            "limit": 4395630592
+          },
+          "time": 13.174999999999892,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 5
+          }
+        },
+        {
+          "id": "highbench",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2664,
+            "totalFrames": 2664,
+            "seconds": 13.345300000000003,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.62084029583443,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 21575425,
+            "total": 82538329,
+            "limit": 4395630592
+          },
+          "time": 13.349999999999882,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 5
+          }
+        },
+        {
+          "id": "timber",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2584,
+            "totalFrames": 2584,
+            "seconds": 12.945300000000003,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.6091245471329,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 25806123,
+            "total": 86208471,
+            "limit": 4395630592
+          },
+          "time": 12.949999999999905,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 5
+          }
+        },
+        {
+          "id": "shift",
+          "biome": "quarry",
+          "quality": "low",
+          "performance": {
+            "samples": 2624,
+            "totalFrames": 2624,
+            "seconds": 13.145300000000002,
+            "maxDrawCalls": 37,
+            "maxTriangles": 39914,
+            "fps": 199.61507154648424,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 31419191,
+            "total": 86994947,
+            "limit": 4395630592
+          },
+          "time": 13.149999999999894,
+          "faults": 0,
+          "resources": {
+            "geometries": 49,
+            "textures": 11,
+            "programs": 5
+          }
+        },
+        {
+          "id": "nursery",
+          "biome": "forestry",
+          "quality": "low",
+          "performance": {
+            "samples": 2574,
+            "totalFrames": 2574,
+            "seconds": 12.890300000000003,
+            "maxDrawCalls": 41,
+            "maxTriangles": 45458,
+            "fps": 199.68503448329358,
+            "frameP95": 5.100000000005821,
+            "physicsP95": 0.10000000149011612,
+            "renderP95": 0.30000000447034836
+          },
+          "heap": {
+            "used": 27700792,
+            "total": 85815452,
+            "limit": 4395630592
+          },
+          "time": 12.891666666666575,
+          "faults": 0,
+          "resources": {
+            "geometries": 52,
+            "textures": 5,
+            "programs": 5
+          }
+        }
+      ],
+      "seconds": 131.4416666666656,
+      "maxGeometries": 52,
+      "maxTextures": 11,
+      "maxPrograms": 5,
+      "complete": true,
+      "performance": {
+        "samples": 3600,
+        "totalFrames": 26231,
+        "seconds": 131.4128,
+        "maxDrawCalls": 41,
+        "maxTriangles": 45458,
+        "fps": 199.6076485700023,
+        "frameP95": 5.100000000005821,
+        "physicsP95": 0.10000000149011612,
+        "renderP95": 1.2999999970197678
+      }
+    },
+    "heapSamplesBytes": [
+      38124630,
+      52146837,
+      42477882,
+      22657008,
+      37419220,
+      24732060,
+      21575425,
+      25806123,
+      31419191,
+      27700792
+    ],
+    "heapRangeMiB": [
+      20.58,
+      49.73
+    ],
+    "heapFirstLastMiB": [
+      36.36,
+      26.42
+    ]
+  },
+  "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor",
+  "contextRecovery": {
+    "lost": {
+      "state": "lost",
+      "pose": {
+        "chassis": {
+          "x": 1.989405304395198,
+          "y": 0.19731211063705706,
+          "angle": -0.02057773610102585
+        },
+        "rear": {
+          "x": 1.322374302712456,
+          "y": 0.3484676619081543,
+          "angle": 0.022835062339490852
+        },
+        "front": {
+          "x": 2.6626583147650265,
+          "y": 0.34846745014187236,
+          "angle": 0.02204626103879101
+        },
+        "rider": {
+          "x": 2.105232333077416,
+          "y": 0.96509615568548,
+          "angle": -0.020565648763629582
+        },
+        "lean": 0
+      },
+      "elapsed": 0.275,
+      "ticks": 33,
+      "faults": 0,
+      "touch": {
+        "throttle": 0,
+        "brake": 0,
+        "lean": 0
+      }
+    },
+    "restored": {
+      "state": "ready",
+      "pose": {
+        "chassis": {
+          "x": 1.989405304395198,
+          "y": 0.19731211063705706,
+          "angle": -0.02057773610102585
+        },
+        "rear": {
+          "x": 1.322374302712456,
+          "y": 0.3484676619081543,
+          "angle": 0.022835062339490852
+        },
+        "front": {
+          "x": 2.6626583147650265,
+          "y": 0.34846745014187236,
+          "angle": 0.02204626103879101
+        },
+        "rider": {
+          "x": 2.105232333077416,
+          "y": 0.96509615568548,
+          "angle": -0.020565648763629582
+        },
+        "lean": 0
+      },
+      "elapsed": 0.275,
+      "ticks": 33,
+      "faults": 0,
+      "touch": {
+        "throttle": 0,
+        "brake": 0,
+        "lean": 0
+      }
+    }
+  },
+  "humanChecks": {
+    "biomeDirection": "Alpine forestry explicitly confirmed on 17 October",
+    "forestryRoutes": "three remain pending",
+    "fineTuning": "deferred by user",
+    "physicalTouchDevices": "untested",
+    "physicalController": "untested",
+    "audioListening": "untested",
+    "thermalBehaviour": "untested"
+  },
+  "localPort": 8766,
+  "export": {
+    "date": "2026-10-17",
+    "directory": "dist",
+    "fileCount": 208,
+    "bytes": 10644213,
+    "fileMapSha256": "db5ce67dc78fa8687675c44448c98e3dcae84b746ba5d4a8f9c342b9a1ce63c4",
+    "localFileMap": ".trials-build/phase6-export-manifest.json",
+    "approvedCatalog": "3a41b65da93dee528b40827663a4cafcb1d4b948866d30a389cd3bc8c932df9a",
+    "assetContentId": "c1b84012482089ec1b89bf38b87b4bb63a6ee08d3518feb3fc81eb137abc5dbd",
+    "pendingForestryExcluded": true,
+    "deployment": "not authorized; not performed"
+  }
+}

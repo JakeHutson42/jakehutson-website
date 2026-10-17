@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "forestry",
+  "name": "Alpine Forestry",
+  "seed": "forestry-01",
+  "palette": {"sky": "#c4d4d6", "fog": "#b9ccce", "soil": "#897c62", "grass": "#78866a", "bark": "#645444", "needles": "#345950", "granite": "#9baaaa", "timber": "#be9b6c", "snow": "#e3e9e4", "water": "#658f9a"},
+  "lighting": {"exposure": 1.15, "sun": "#f4e4c8", "sunIntensity": 2.7, "fogNear": 28, "fogFar": 125},
+  "corridor": {"halfWidth": 1.4, "height": 2.4, "sceneryBackLimit": -3.5},
+  "budgets": {"props": 160, "kitBytes": 1500000, "triangles": 200000, "drawCalls": 100},
+  "prototypes": ["pine", "granite", "fallen_log", "stump", "timber_frame", "trail_marker", "cabin"]
+}

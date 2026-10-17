@@ -1,0 +1,886 @@
+{
+  "date": "2026-10-16",
+  "status": "framework-implemented; forestry-human-review-pending; fine-tuning-deferred-by-user",
+  "physics": "qt-physics-3",
+  "bike": "qt-250-works-v3",
+  "assetContentId": "c1b84012482089ec1b89bf38b87b4bb63a6ee08d3518feb3fc81eb137abc5dbd",
+  "approvedCatalog": "3a41b65da93dee528b40827663a4cafcb1d4b948866d30a389cd3bc8c932df9a",
+  "reviewCatalog": "dcf19ee068321140370a315cf94315c2e3aa5e262752ead6ce833383f6949c32",
+  "forestryBuild": {
+    "blender": "4.5.3",
+    "python": "3.12.14",
+    "runtimeHashes": {
+      "games/trials/course-verifier.js": "089ecc1f9d57b25a976c3c787a943ecee9cb2e4dfe1be68ecd8bdb9adfa18278",
+      "games/trials/rendering/camera.js": "d3910c6dacd036ac9af40515bc20d2eafeeda76f8d32cc76aa1b7e3bc57a0a29",
+      "games/trials/simulation/game.js": "84b7476fdde73a75e1611777981656388a3338906bc04063d3fbf90b77151b61",
+      "games/trials/simulation/rider-pose.js": "add2d66f771b63a4da5da4e962c03f3690d548391fd3b86836317b84454d7ad7",
+      "lib/planck/1.4.2/planck.module.js": "b7740509302142036e8f69c6acc78bb8c4bb6b9256100609e28d9c5a8f8aa6a8",
+      "lib/three/0.180.0/three.module.min.js": "e2b5ee6bccd38fd6d8a2428546b83c5f2426d84b152ef82be8055556e3b40eb6"
+    },
+    "seed": "forestry-01",
+    "sources": {
+      "blender_forestry.py": "fdf16cd9832a0d762c58b0f6b81ad908d3db602d02586ef889d00abce599e5f3",
+      "forestry.py": "d05a6a64bfc4cc0a66f471e922fa8e34d613295a4acb18ac50ad6291352a08f8"
+    },
+    "spec": {
+      "budgets": {
+        "drawCalls": 100,
+        "kitBytes": 1500000,
+        "props": 160,
+        "triangles": 200000
+      },
+      "corridor": {
+        "halfWidth": 1.4,
+        "height": 2.4,
+        "sceneryBackLimit": -3.5
+      },
+      "id": "forestry",
+      "lighting": {
+        "exposure": 1.15,
+        "fogFar": 125,
+        "fogNear": 28,
+        "sun": "#f4e4c8",
+        "sunIntensity": 2.7
+      },
+      "name": "Alpine Forestry",
+      "palette": {
+        "bark": "#645444",
+        "fog": "#b9ccce",
+        "granite": "#9baaaa",
+        "grass": "#78866a",
+        "needles": "#345950",
+        "sky": "#c4d4d6",
+        "snow": "#e3e9e4",
+        "soil": "#897c62",
+        "timber": "#be9b6c",
+        "water": "#658f9a"
+      },
+      "prototypes": [
+        "pine",
+        "granite",
+        "fallen_log",
+        "stump",
+        "timber_frame",
+        "trail_marker",
+        "cabin"
+      ],
+      "schemaVersion": 1,
+      "seed": "forestry-01"
+    },
+    "version": "forestry-composer-1"
+  },
+  "routes": [
+    {
+      "contentHash": "4504b038d68d155454beef0082a75f144964d3d419a59039276c24459ccf8159",
+      "difficulty": "beginner",
+      "id": "nursery",
+      "name": "Nursery Trail",
+      "source": "scripts/trials/curation/forestry/nursery/course.json",
+      "status": "validated-for-review",
+      "successRate": 1,
+      "nodeTime": 12.891666666666575,
+      "usage": {
+        "evaluations": 10,
+        "steps": 15452
+      },
+      "attempts": [
+        {
+          "rate": 1,
+          "reason": null,
+          "repair": 0,
+          "status": "validated-for-review",
+          "usage": {
+            "evaluations": 10,
+            "steps": 15452
+          }
+        }
+      ],
+      "perturbations": [
+        {
+          "name": "baseline",
+          "success": true,
+          "time": 12.891666666666575,
+          "reason": null
+        },
+        {
+          "name": "timing-early",
+          "success": true,
+          "time": 12.741666666666584,
+          "reason": null
+        },
+        {
+          "name": "timing-late",
+          "success": true,
+          "time": 12.958333333333238,
+          "reason": null
+        },
+        {
+          "name": "throttle-low",
+          "success": true,
+          "time": 12.866666666666577,
+          "reason": null
+        },
+        {
+          "name": "throttle-high",
+          "success": true,
+          "time": 12.833333333333245,
+          "reason": null
+        },
+        {
+          "name": "lean-back",
+          "success": true,
+          "time": 12.891666666666575,
+          "reason": null
+        },
+        {
+          "name": "lean-forward",
+          "success": true,
+          "time": 12.883333333333242,
+          "reason": null
+        },
+        {
+          "name": "speed-low",
+          "success": true,
+          "time": 12.916666666666574,
+          "reason": null
+        },
+        {
+          "name": "speed-high",
+          "success": true,
+          "time": 12.891666666666575,
+          "reason": null
+        }
+      ],
+      "sightlines": {
+        "checks": [
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.6735997295341583,
+            "visible": true,
+            "x": 56
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.4310610953077395,
+            "visible": true,
+            "x": 59
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.4310610953077378,
+            "visible": true,
+            "x": 61
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.6715375802349315,
+            "visible": true,
+            "x": 63
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.8299814390426095,
+            "visible": true,
+            "x": 56
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.5306916791751566,
+            "visible": true,
+            "x": 59
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.5306916791751577,
+            "visible": true,
+            "x": 61
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.8278180034880477,
+            "visible": true,
+            "x": 63
+          }
+        ],
+        "passed": true
+      },
+      "budget": {
+        "beamWidth": 3,
+        "maxActions": 32,
+        "maxEvaluations": 110,
+        "maxMilliseconds": 20000,
+        "maxSteps": 350000
+      },
+      "testedApproachEnvelopes": [
+        {
+          "angle": [
+            0,
+            0
+          ],
+          "id": "flat",
+          "samples": 9,
+          "speed": [
+            -0.1,
+            0.1
+          ]
+        },
+        {
+          "angle": [
+            -0.03235263060785741,
+            -9.712034229203469e-05
+          ],
+          "id": "crest",
+          "samples": 9,
+          "speed": [
+            8.030635216178403,
+            8.158112436511594
+          ]
+        },
+        {
+          "angle": [
+            -0.004631447056892912,
+            0.00200076682237758
+          ],
+          "id": "rollers",
+          "samples": 9,
+          "speed": [
+            9.004976568444338,
+            9.235158454313666
+          ]
+        },
+        {
+          "angle": [
+            -0.03312685681385872,
+            -0.02846048470830068
+          ],
+          "id": "step",
+          "samples": 9,
+          "speed": [
+            8.422053139617164,
+            8.726820388942395
+          ]
+        },
+        {
+          "angle": [
+            -0.029739411145802367,
+            -0.02553371654096823
+          ],
+          "id": "jump",
+          "samples": 9,
+          "speed": [
+            8.421080498499762,
+            8.758606322823102
+          ]
+        },
+        {
+          "angle": [
+            -0.13570128382959004,
+            -0.12068612465532798
+          ],
+          "id": "finish",
+          "samples": 9,
+          "speed": [
+            6.1534617941968115,
+            7.696234398857005
+          ]
+        }
+      ]
+    },
+    {
+      "contentHash": "21aa7de4781e29c98081bfbb2374f63b618d028cbee3242930da810572274798",
+      "difficulty": "beginner",
+      "id": "sawyer",
+      "name": "Sawyer's Run",
+      "source": "scripts/trials/curation/forestry/sawyer/course.json",
+      "status": "validated-for-review",
+      "successRate": 1,
+      "nodeTime": 13.041666666666567,
+      "usage": {
+        "evaluations": 10,
+        "steps": 15665
+      },
+      "attempts": [
+        {
+          "rate": 1,
+          "reason": null,
+          "repair": 0,
+          "status": "validated-for-review",
+          "usage": {
+            "evaluations": 10,
+            "steps": 15665
+          }
+        }
+      ],
+      "perturbations": [
+        {
+          "name": "baseline",
+          "success": true,
+          "time": 13.041666666666567,
+          "reason": null
+        },
+        {
+          "name": "timing-early",
+          "success": true,
+          "time": 12.949999999999905,
+          "reason": null
+        },
+        {
+          "name": "timing-late",
+          "success": true,
+          "time": 13.141666666666561,
+          "reason": null
+        },
+        {
+          "name": "throttle-low",
+          "success": true,
+          "time": 13.099999999999897,
+          "reason": null
+        },
+        {
+          "name": "throttle-high",
+          "success": true,
+          "time": 13.041666666666567,
+          "reason": null
+        },
+        {
+          "name": "lean-back",
+          "success": true,
+          "time": 13.116666666666562,
+          "reason": null
+        },
+        {
+          "name": "lean-forward",
+          "success": true,
+          "time": 13.0499999999999,
+          "reason": null
+        },
+        {
+          "name": "speed-low",
+          "success": true,
+          "time": 13.058333333333232,
+          "reason": null
+        },
+        {
+          "name": "speed-high",
+          "success": true,
+          "time": 12.999999999999902,
+          "reason": null
+        }
+      ],
+      "sightlines": {
+        "checks": [
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.6735997295341583,
+            "visible": true,
+            "x": 56
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.4371577493298602,
+            "visible": true,
+            "x": 59
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.4310610953077378,
+            "visible": true,
+            "x": 61
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.6715375802349315,
+            "visible": true,
+            "x": 63
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.8299814390426095,
+            "visible": true,
+            "x": 56
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.5382087488512279,
+            "visible": true,
+            "x": 59
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.5306916791751577,
+            "visible": true,
+            "x": 61
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.8278180034880477,
+            "visible": true,
+            "x": 63
+          }
+        ],
+        "passed": true
+      },
+      "budget": {
+        "beamWidth": 3,
+        "maxActions": 32,
+        "maxEvaluations": 110,
+        "maxMilliseconds": 20000,
+        "maxSteps": 350000
+      },
+      "testedApproachEnvelopes": [
+        {
+          "angle": [
+            0,
+            0
+          ],
+          "id": "flat",
+          "samples": 9,
+          "speed": [
+            -0.1,
+            0.1
+          ]
+        },
+        {
+          "angle": [
+            -0.03139964657962028,
+            0.00024728490058026413
+          ],
+          "id": "crest",
+          "samples": 9,
+          "speed": [
+            8.034881361028159,
+            8.156708976310878
+          ]
+        },
+        {
+          "angle": [
+            0.0008576431584323748,
+            0.009632498519157179
+          ],
+          "id": "rollers",
+          "samples": 9,
+          "speed": [
+            9.152145615567955,
+            9.36085971048062
+          ]
+        },
+        {
+          "angle": [
+            -0.02941910469625211,
+            -0.02380267926947634
+          ],
+          "id": "step",
+          "samples": 9,
+          "speed": [
+            8.40633452091985,
+            8.632782774130535
+          ]
+        },
+        {
+          "angle": [
+            -0.031039117715958818,
+            -0.026723130076233392
+          ],
+          "id": "jump",
+          "samples": 9,
+          "speed": [
+            8.350131269993593,
+            8.71155770298
+          ]
+        },
+        {
+          "angle": [
+            -0.13069036201644982,
+            -0.11370029947388068
+          ],
+          "id": "finish",
+          "samples": 9,
+          "speed": [
+            6.313894979348142,
+            7.829742832564828
+          ]
+        }
+      ]
+    },
+    {
+      "contentHash": "db1d61595db0a8d01295b96bbc701d5791978c03e58897307fc02398ca100b10",
+      "difficulty": "intermediate",
+      "id": "ridge",
+      "name": "Ridge Return",
+      "source": "scripts/trials/curation/forestry/ridge/course.json",
+      "status": "validated-for-review",
+      "successRate": 0.8888888888888888,
+      "nodeTime": 13.391666666666547,
+      "usage": {
+        "evaluations": 10,
+        "steps": 15889
+      },
+      "attempts": [
+        {
+          "rate": 0.8888888888888888,
+          "reason": null,
+          "repair": 0,
+          "status": "validated-for-review",
+          "usage": {
+            "evaluations": 10,
+            "steps": 15889
+          }
+        }
+      ],
+      "perturbations": [
+        {
+          "name": "baseline",
+          "success": true,
+          "time": 13.391666666666547,
+          "reason": null
+        },
+        {
+          "name": "timing-early",
+          "success": true,
+          "time": 13.474999999999875,
+          "reason": null
+        },
+        {
+          "name": "timing-late",
+          "success": true,
+          "time": 13.133333333333228,
+          "reason": null
+        },
+        {
+          "name": "throttle-low",
+          "success": false,
+          "time": 12.20833333333328,
+          "reason": "helmet"
+        },
+        {
+          "name": "throttle-high",
+          "success": true,
+          "time": 13.008333333333235,
+          "reason": null
+        },
+        {
+          "name": "lean-back",
+          "success": true,
+          "time": 13.366666666666548,
+          "reason": null
+        },
+        {
+          "name": "lean-forward",
+          "success": true,
+          "time": 13.6333333333332,
+          "reason": null
+        },
+        {
+          "name": "speed-low",
+          "success": true,
+          "time": 13.416666666666545,
+          "reason": null
+        },
+        {
+          "name": "speed-high",
+          "success": true,
+          "time": 13.383333333333214,
+          "reason": null
+        }
+      ],
+      "sightlines": {
+        "checks": [
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.6735997295341583,
+            "visible": true,
+            "x": 56
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.4371577493298602,
+            "visible": true,
+            "x": 59
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.4310610953077378,
+            "visible": true,
+            "x": 61
+          },
+          {
+            "aspect": 1.7777777777777777,
+            "maxProjection": 0.6715375802349315,
+            "visible": true,
+            "x": 63
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.8299814390426095,
+            "visible": true,
+            "x": 56
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.5382087488512279,
+            "visible": true,
+            "x": 59
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.5306916791751577,
+            "visible": true,
+            "x": 61
+          },
+          {
+            "aspect": 1.3333333333333333,
+            "maxProjection": 0.8278180034880477,
+            "visible": true,
+            "x": 63
+          }
+        ],
+        "passed": true
+      },
+      "budget": {
+        "beamWidth": 3,
+        "maxActions": 32,
+        "maxEvaluations": 110,
+        "maxMilliseconds": 20000,
+        "maxSteps": 350000
+      },
+      "testedApproachEnvelopes": [
+        {
+          "angle": [
+            0,
+            0
+          ],
+          "id": "flat",
+          "samples": 8,
+          "speed": [
+            -0.1,
+            0.1
+          ]
+        },
+        {
+          "angle": [
+            -0.02293161759361123,
+            0.00024728490058026413
+          ],
+          "id": "crest",
+          "samples": 8,
+          "speed": [
+            8.034881361028159,
+            8.150149626605756
+          ]
+        },
+        {
+          "angle": [
+            0.009142257902041139,
+            0.019996101130967094
+          ],
+          "id": "rollers",
+          "samples": 8,
+          "speed": [
+            9.137054900614805,
+            9.336753968523583
+          ]
+        },
+        {
+          "angle": [
+            -0.02947629126877509,
+            -0.019328418471150004
+          ],
+          "id": "step",
+          "samples": 8,
+          "speed": [
+            8.258868819607718,
+            8.387286681579573
+          ]
+        },
+        {
+          "angle": [
+            -0.0324869226994048,
+            -0.025607486642369184
+          ],
+          "id": "jump",
+          "samples": 8,
+          "speed": [
+            8.415840186848042,
+            8.701110958191688
+          ]
+        },
+        {
+          "angle": [
+            -0.1308066019286607,
+            -0.11634249616925839
+          ],
+          "id": "finish",
+          "samples": 8,
+          "speed": [
+            6.63422107476845,
+            7.7722433037812735
+          ]
+        }
+      ]
+    }
+  ],
+  "resources": {
+    "approvedFiles": 17,
+    "approvedBytes": 742274,
+    "reviewFiles": 29,
+    "reviewBytes": 1664719,
+    "kitBytes": 134808,
+    "audioBytes": 352844
+  },
+  "tests": {
+    "javascriptTrials": 44,
+    "javascriptDriftPocket": 81,
+    "pythonTrials": 18,
+    "pythonDrift": 8,
+    "total": 151
+  },
+  "staticReferences": 253,
+  "endurance": {
+    "routes": [
+      {
+        "id": "nursery",
+        "biome": "forestry",
+        "time": 12.891666666666575,
+        "faults": 0,
+        "resources": {
+          "geometries": 52,
+          "textures": 6,
+          "programs": 12
+        }
+      },
+      {
+        "id": "sawyer",
+        "biome": "forestry",
+        "time": 13.041666666666567,
+        "faults": 0,
+        "resources": {
+          "geometries": 52,
+          "textures": 6,
+          "programs": 12
+        }
+      },
+      {
+        "id": "ridge",
+        "biome": "forestry",
+        "time": 13.491666666666541,
+        "faults": 0,
+        "resources": {
+          "geometries": 52,
+          "textures": 6,
+          "programs": 12
+        }
+      },
+      {
+        "id": "works",
+        "biome": "quarry",
+        "time": 13.533333333333205,
+        "faults": 0,
+        "resources": {
+          "geometries": 49,
+          "textures": 12,
+          "programs": 14
+        }
+      },
+      {
+        "id": "apprentice",
+        "biome": "quarry",
+        "time": 12.96666666666657,
+        "faults": 0,
+        "resources": {
+          "geometries": 49,
+          "textures": 12,
+          "programs": 14
+        }
+      },
+      {
+        "id": "cutstone",
+        "biome": "quarry",
+        "time": 13.174999999999892,
+        "faults": 0,
+        "resources": {
+          "geometries": 49,
+          "textures": 12,
+          "programs": 14
+        }
+      },
+      {
+        "id": "highbench",
+        "biome": "quarry",
+        "time": 13.349999999999882,
+        "faults": 0,
+        "resources": {
+          "geometries": 49,
+          "textures": 12,
+          "programs": 14
+        }
+      },
+      {
+        "id": "timber",
+        "biome": "quarry",
+        "time": 12.949999999999905,
+        "faults": 0,
+        "resources": {
+          "geometries": 49,
+          "textures": 12,
+          "programs": 14
+        }
+      },
+      {
+        "id": "shift",
+        "biome": "quarry",
+        "time": 13.149999999999894,
+        "faults": 0,
+        "resources": {
+          "geometries": 49,
+          "textures": 12,
+          "programs": 14
+        }
+      },
+      {
+        "id": "nursery",
+        "biome": "forestry",
+        "time": 12.891666666666575,
+        "faults": 0,
+        "resources": {
+          "geometries": 52,
+          "textures": 6,
+          "programs": 14
+        }
+      }
+    ],
+    "seconds": 131.4416666666656,
+    "maxGeometries": 52,
+    "maxTextures": 12,
+    "maxPrograms": 14,
+    "complete": true,
+    "performance": {
+      "samples": 3600,
+      "totalFrames": 26243,
+      "seconds": 131.58259999999999,
+      "maxDrawCalls": 41,
+      "maxTriangles": 75138,
+      "fps": 199.44126351052498,
+      "frameP95": 5.100000000005821,
+      "physicsP95": 0.10000000149011612,
+      "renderP95": 1.5
+    }
+  },
+  "hardware": {
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "resolution": {
+      "width": 2558,
+      "height": 1334,
+      "dpr": 1,
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36"
+    },
+    "cpu": "not queried; OS CIM access unavailable",
+    "heap": "not measured; renderer resources only"
+  },
+  "humanChecks": {
+    "quarryFoundation": "approved by latest user quote in actual ledger",
+    "forest": "pending",
+    "controller": "untested physical hardware",
+    "audio": "gesture/decode/switch verified; listening untested",
+    "medals": "provisional; fine tuning explicitly deferred"
+  }
+}

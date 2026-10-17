@@ -1,0 +1,35 @@
+{
+  "body": {
+    "biome": "forestry"
+  },
+  "canvas": {
+    "angle": "0.0002",
+    "audio": "{\"ready\":false,\"muted\":false,\"error\":\"\"}",
+    "biome": "forestry",
+    "checkpoint": "4",
+    "controls": "verified-replay",
+    "courseHash": "4504b038d68d155454beef0082a75f144964d3d419a59039276c24459ccf8159",
+    "courseId": "nursery",
+    "drawCalls": "33",
+    "endurance": "{\"routes\":[{\"id\":\"nursery\",\"biome\":\"forestry\",\"time\":12.891666666666575,\"faults\":0,\"resources\":{\"geometries\":52,\"textures\":6,\"programs\":12}},{\"id\":\"sawyer\",\"biome\":\"forestry\",\"time\":13.041666666666567,\"faults\":0,\"resources\":{\"geometries\":52,\"textures\":6,\"programs\":12}},{\"id\":\"ridge\",\"biome\":\"forestry\",\"time\":13.491666666666541,\"faults\":0,\"resources\":{\"geometries\":52,\"textures\":6,\"programs\":12}},{\"id\":\"works\",\"biome\":\"quarry\",\"time\":13.533333333333205,\"faults\":0,\"resources\":{\"geometries\":49,\"textures\":12,\"programs\":14}},{\"id\":\"apprentice\",\"biome\":\"quarry\",\"time\":12.96666666666657,\"faults\":0,\"resources\":{\"geometries\":49,\"textures\":12,\"programs\":14}},{\"id\":\"cutstone\",\"biome\":\"quarry\",\"time\":13.174999999999892,\"faults\":0,\"resources\":{\"geometries\":49,\"textures\":12,\"programs\":14}},{\"id\":\"highbench\",\"biome\":\"quarry\",\"time\":13.349999999999882,\"faults\":0,\"resources\":{\"geometries\":49,\"textures\":12,\"programs\":14}},{\"id\":\"timber\",\"biome\":\"quarry\",\"time\":12.949999999999905,\"faults\":0,\"resources\":{\"geometries\":49,\"textures\":12,\"programs\":14}},{\"id\":\"shift\",\"biome\":\"quarry\",\"time\":13.149999999999894,\"faults\":0,\"resources\":{\"geometries\":49,\"textures\":12,\"programs\":14}},{\"id\":\"nursery\",\"biome\":\"forestry\",\"time\":12.891666666666575,\"faults\":0,\"resources\":{\"geometries\":52,\"textures\":6,\"programs\":14}}],\"seconds\":131.4416666666656,\"maxGeometries\":52,\"maxTextures\":12,\"maxPrograms\":14,\"complete\":true,\"performance\":{\"samples\":3600,\"totalFrames\":26243,\"seconds\":131.58259999999999,\"maxDrawCalls\":41,\"maxTriangles\":75138,\"fps\":199.44126351052498,\"frameP95\":5.100000000005821,\"physicsP95\":0.10000000149011612,\"renderP95\":1.5}}",
+    "engine": "three.js r180",
+    "fps": "200.0",
+    "ikError": "0.000000",
+    "livery": "works",
+    "maxIkError": "0.000000",
+    "performance": "{\"samples\":2573,\"totalFrames\":2573,\"seconds\":12.890199999999997,\"maxDrawCalls\":41,\"maxTriangles\":75138,\"fps\":199.60900529084117,\"frameP95\":5.100000000005821,\"physicsP95\":0.10000000149011612,\"renderP95\":0.6000000014901161}",
+    "physics": "qt-physics-3",
+    "physicsMs": "0.000",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "resolution": "{\"width\":2558,\"height\":1334,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+    "resources": "{\"geometries\":52,\"textures\":6,\"programs\":14}",
+    "state": "finished",
+    "switches": "9",
+    "triangles": "72886",
+    "x": "103.088"
+  },
+  "resolution": [
+    2558,
+    1334
+  ]
+}

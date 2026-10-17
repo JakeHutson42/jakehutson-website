@@ -1,0 +1,21 @@
+{
+  "suspended": {
+    "ready": true,
+    "state": "suspended",
+    "muted": false,
+    "biome": "forestry",
+    "ambientReady": true,
+    "ambientBuffers": 1,
+    "error": ""
+  },
+  "resumed": {
+    "ready": true,
+    "state": "running",
+    "muted": false,
+    "biome": "forestry",
+    "ambientReady": true,
+    "ambientBuffers": 1,
+    "error": ""
+  },
+  "errors": []
+}

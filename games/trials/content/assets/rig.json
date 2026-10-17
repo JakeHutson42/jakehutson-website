@@ -1,0 +1,175 @@
+{
+  "blender": "4.5.3 LTS",
+  "geometryHash": "457713bca35a9d1be345f93a2a88e59171d9a47dd917e4ce6165e6f117096848",
+  "bikeVertices": 11508,
+  "riderVertices": 5002,
+  "bones": [
+    {
+      "name": "pelvis",
+      "start": "pelvis",
+      "end": "spine",
+      "parent": null
+    },
+    {
+      "name": "spine",
+      "start": "spine",
+      "end": "chest",
+      "parent": "pelvis"
+    },
+    {
+      "name": "chest",
+      "start": "chest",
+      "end": "neck",
+      "parent": "spine"
+    },
+    {
+      "name": "head",
+      "start": "neck",
+      "end": "head",
+      "parent": "chest"
+    },
+    {
+      "name": "upper_arm_L",
+      "start": "shoulder_L",
+      "end": "elbow_L",
+      "parent": "chest"
+    },
+    {
+      "name": "forearm_L",
+      "start": "elbow_L",
+      "end": "hand_L",
+      "parent": "upper_arm_L"
+    },
+    {
+      "name": "thigh_L",
+      "start": "hip_L",
+      "end": "knee_L",
+      "parent": "pelvis"
+    },
+    {
+      "name": "shin_L",
+      "start": "knee_L",
+      "end": "foot_L",
+      "parent": "thigh_L"
+    },
+    {
+      "name": "upper_arm_R",
+      "start": "shoulder_R",
+      "end": "elbow_R",
+      "parent": "chest"
+    },
+    {
+      "name": "forearm_R",
+      "start": "elbow_R",
+      "end": "hand_R",
+      "parent": "upper_arm_R"
+    },
+    {
+      "name": "thigh_R",
+      "start": "hip_R",
+      "end": "knee_R",
+      "parent": "pelvis"
+    },
+    {
+      "name": "shin_R",
+      "start": "knee_R",
+      "end": "foot_R",
+      "parent": "thigh_R"
+    }
+  ],
+  "bikeNodes": [
+    "chassis",
+    "forkSlider",
+    "frontWheel",
+    "rearWheel",
+    "shock",
+    "swingarm"
+  ],
+  "joints": {
+    "pelvis": [
+      -0.13,
+      0.69,
+      0
+    ],
+    "spine": [
+      -0.07,
+      0.86,
+      0
+    ],
+    "chest": [
+      0.08,
+      1.07,
+      0
+    ],
+    "neck": [
+      0.17,
+      1.19,
+      0
+    ],
+    "head": [
+      0.22,
+      1.34,
+      0
+    ],
+    "shoulder_L": [
+      0.08,
+      1.07,
+      0.15
+    ],
+    "elbow_L": [
+      0.3,
+      0.92,
+      0.19
+    ],
+    "hand_L": [
+      0.49,
+      0.8,
+      0.25
+    ],
+    "shoulder_R": [
+      0.08,
+      1.07,
+      -0.15
+    ],
+    "elbow_R": [
+      0.3,
+      0.92,
+      -0.19
+    ],
+    "hand_R": [
+      0.49,
+      0.8,
+      -0.25
+    ],
+    "hip_L": [
+      -0.13,
+      0.69,
+      0.12
+    ],
+    "knee_L": [
+      0.17,
+      0.43,
+      0.2
+    ],
+    "foot_L": [
+      -0.1,
+      0.22,
+      0.2
+    ],
+    "hip_R": [
+      -0.13,
+      0.69,
+      -0.12
+    ],
+    "knee_R": [
+      0.17,
+      0.43,
+      -0.2
+    ],
+    "foot_R": [
+      -0.1,
+      0.22,
+      -0.2
+    ]
+  }
+}

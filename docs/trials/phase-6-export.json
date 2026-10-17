@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-17",
+  "directory": "dist",
+  "fileCount": 208,
+  "bytes": 10644213,
+  "fileMapSha256": "db5ce67dc78fa8687675c44448c98e3dcae84b746ba5d4a8f9c342b9a1ce63c4",
+  "localFileMap": ".trials-build/phase6-export-manifest.json",
+  "approvedCatalog": "3a41b65da93dee528b40827663a4cafcb1d4b948866d30a389cd3bc8c932df9a",
+  "assetContentId": "c1b84012482089ec1b89bf38b87b4bb63a6ee08d3518feb3fc81eb137abc5dbd",
+  "pendingForestryExcluded": true,
+  "deployment": "not authorized; not performed"
+}

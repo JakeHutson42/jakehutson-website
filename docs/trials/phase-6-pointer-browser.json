@@ -1,0 +1,56 @@
+{
+  "canvas": {
+    "angle": "-0.0033",
+    "audio": "{\"ready\":true,\"state\":\"running\",\"muted\":false,\"biome\":\"forestry\",\"ambientReady\":true,\"ambientBuffers\":1,\"error\":\"\"}",
+    "biome": "forestry",
+    "checkpoint": "0",
+    "controls": "{\"throttle\":0,\"brake\":0,\"lean\":0}",
+    "courseHash": "4504b038d68d155454beef0082a75f144964d3d419a59039276c24459ccf8159",
+    "courseId": "nursery",
+    "drawCalls": "37",
+    "engine": "three.js r180",
+    "graphics": "ready",
+    "heap": "{\"used\":23897238,\"total\":43304730,\"limit\":4395630592}",
+    "ikError": "0.000000",
+    "livery": "works",
+    "maxIkError": "0.000000",
+    "performance": "{\"samples\":100,\"totalFrames\":100,\"seconds\":0.53,\"maxDrawCalls\":37,\"maxTriangles\":44716,\"fps\":188.67924528301887,\"frameP95\":5.100000000000023,\"physicsP95\":0.5,\"renderP95\":0.5}",
+    "physics": "qt-physics-3",
+    "physicsMs": "0.000",
+    "quality": "low",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "resolution": "{\"width\":343,\"height\":260,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+    "resources": "{\"geometries\":37,\"textures\":3,\"programs\":14}",
+    "state": "running",
+    "switches": "0",
+    "triangles": "44716",
+    "x": "2.026"
+  },
+  "controls": {
+    "bottom": 473.78125,
+    "height": 105,
+    "left": 16,
+    "right": 359,
+    "top": 368.78125,
+    "width": 343,
+    "x": 16,
+    "y": 368.78125
+  },
+  "scene": {
+    "bottom": 368.78125,
+    "height": 260,
+    "left": 16,
+    "right": 359,
+    "top": 108.78125,
+    "width": 343,
+    "x": 16,
+    "y": 108.78125
+  },
+  "scrollWidth": 375,
+  "touch": {
+    "hand": "right",
+    "input": "{\"throttle\":0,\"brake\":0,\"lean\":0}",
+    "ownership": "{\"captures\":1,\"owners\":[]}"
+  },
+  "width": 375
+}

@@ -1,0 +1,31 @@
+# Paste-ready prompt: phase 1
+
+Confirmed pipeline: **Python plus headless Blender**.
+
+---
+
+Implement **phase 1 only** of a high-quality Trials HD / Trials Evolution-inspired browser motorcycle game in this repository. Read `docs/trials/implementation-plan.md`, applicable repository instructions, and the existing Apex Drift/Pocket Circuit implementation first. Finish the working phase and verify it; do not stop at scaffolding or another plan.
+
+Confirmed direction: 3D presentation with side-view 2.5D physics, an industrial quarry biome, desktop keyboard and controller first. Working name Quarry Trials; create `/trials.html`. Use original assets and branding. Preserve the existing games and their records. Keep the current static hosting/export approach, local dependencies and buildless ES modules.
+
+The asset pipeline for this prompt uses Python plus headless Blender at development time. First locate an installed Blender or a configured executable path and pin/document the version used. If it is unavailable, complete independent framework/specification/physics work and report the concrete missing prerequisite; do not silently replace the promised asset pipeline with placeholder geometry and call the phase complete.
+
+Deliver a playable foundation with these connected parts:
+
+1. **Page and runtime.** Add a responsive standalone industrial game page, local CSS and isolated `games/trials` modules. Provide a live scene, Play, instructions, loading/error state, pause, retry, restart, timer and fault count. Use an explicit state machine. Avoid advertising unfinished gameplay features. Match the existing site's level of presentation while developing the quarry's own identity.
+
+2. **Physics proof.** Vendor and license a pinned local Planck.js build; use the existing Three.js 0.180.0 for drawing. Add any required matching Three loaders/utilities locally with buildless-compatible imports. Build a renderer-independent 120 Hz fixed-step simulation in real-world units with interpolation and bounded catch-up. Implement chassis and wheel collision bodies, rear-wheel motor torque, braking, damped suspension and a constrained rider mass proxy. Lean must change the physical bike response. Include bounded airborne correction, body/helmet fault detection and ordered safe checkpoints. Never reposition the bike onto a prescribed road height during normal riding.
+
+3. **Controls and retry.** W/Up accelerates, S/Down brakes, A/D or Left/Right shifts rider weight; R retries the last checkpoint, Backspace restarts and Escape pauses. Add controller trigger throttle/brake, stick lean and retry/restart/pause mappings with dead zones. Clear input on blur, pause, restart and disconnect. Retry restores a safe authored pose and clears velocities, suspension/contact transient state and held input without reloading assets. Count each failed attempt once and document timer/fault semantics.
+
+4. **Generated bike and rider.** Implement strict source specifications and Python/Blender scripts generating one coherent trials motorcycle and one helmeted rider. Derive physical dimensions, wheel contacts, visual pivots and rider sockets from the same specification. The bike must read convincingly in side and three-quarter view, with tyres, frame, fork, engine, swingarm, bars and pegs. Use a named rider skeleton and runtime hand/foot IK with limits; do not assume Blender constraints export as runtime IK. Drive wheel/fork/swingarm and rider poses from simulation. Produce a compact GLB/material package and neutral-lit preview/contact-sheet output for visual review. Cosmetic randomness must not alter physics.
+
+5. **Test course and quarry art sample.** Generate one intentionally designed course containing a flat acceleration/braking section, gentle slope/crest, suspension rollers, short jump with generous landing and low technical step. Include safe checkpoints and a finish. Geometry and collision share a source specification, including explicit gap space and seam topology. Demonstrate seeded bounded variation on a simple module without claiming full procedural playability validation. Dress a representative section with coherent rock, timber and steel, lighting and depth; the rest may remain an honest development course. Keep future scenery out of the swept bike/rider corridor and landing sightline.
+
+6. **Build and validation contract.** Provide one documented Python entry point for the implemented generation/validation stages, stable named seeds, strict dimension/schema errors, tool/config/version hashes, useful output reports and a staging-to-approved-manifest workflow. Keep tooling/caches/large previews outside exported folders and approved game assets inside them. Ordinary website export must work without Blender. Include a Node headless runner that executes a short input script against the production simulation and emits structured results; full search and course-bank validation belong to phase 3.
+
+7. **Verification.** Add meaningful tests for suspension stability, physical lean, obstacle/seam contact, controlled landing, fault counting, checkpoint order, retry cleanup, pause timing, input handling and seeded generation. Run the new tests, Drift/Pocket regression suites, static export and resource checks using available runtimes. Verify runtime-fetched GLBs, textures and course files in addition to import references. Inspect the page in-browser, review the generated bike/rider poses and play the test course where tools allow. Capture actual performance counters and state untested physical-controller/hardware behaviour clearly. Do not claim the full game's quality bar is achieved by this development milestone.
+
+Keep implementation focused: one bike, one rider, one test course and one quarry art sample. Additional biomes, handling classes, daily challenges, online services, full ragdolls, exhaustive generation/search and a public editor are later work. Add a README with generation, serving, verification, coordinate/rig contracts, current limitations and the exact follow-on prompt for phase 2. Do not deploy or publish in this phase.
+
+Finish by reporting what works, the verification evidence, any remaining phase-1 blockers and the local page URL. Only call the phase complete when the physics, generation and visual/articulation gates are demonstrated.

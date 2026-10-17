@@ -1,0 +1,18 @@
+{
+  "angle": "0.0285",
+  "audio": "{\"ready\":false,\"muted\":false,\"error\":\"\"}",
+  "checkpoint": "4",
+  "controls": "{\"throttle\":1,\"lean\":1}",
+  "drawCalls": "33",
+  "engine": "three.js r180",
+  "fps": "200.0",
+  "ikError": "0.000000",
+  "maxIkError": "0.000000",
+  "performance": "{\"samples\":3138,\"maxDrawCalls\":37,\"maxTriangles\":49774,\"fps\":199.99745063797786,\"frameP95\":5.100000000000364,\"physicsP95\":0.19999999925494194,\"renderP95\":0.6000000014901161}",
+  "physicsMs": "0.000",
+  "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "resolution": "{\"width\":2558,\"height\":1334,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+  "state": "finished",
+  "triangles": "48770",
+  "x": "103.031"
+}

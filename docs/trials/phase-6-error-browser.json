@@ -1,0 +1,31 @@
+{
+  "failure": "COULD NOT PREPARE THE QUARRY. Unknown course",
+  "retry": "same invalid route rejected again",
+  "recovered": {
+    "angle": "0.0000",
+    "audio": "{\"ready\":false,\"muted\":false,\"biome\":\"quarry\",\"ambientReady\":false,\"ambientBuffers\":0,\"error\":\"\"}",
+    "biome": "quarry",
+    "checkpoint": "0",
+    "controls": "{\"throttle\":0,\"brake\":0,\"lean\":0}",
+    "courseHash": "9d0386a46f7378211941a5a5b4be2f264a214bf419e38e3e47b912c0060a99bd",
+    "courseId": "works",
+    "drawCalls": "36",
+    "engine": "three.js r180",
+    "graphics": "ready",
+    "heap": "{\"used\":39659055,\"total\":50613499,\"limit\":4395630592}",
+    "ikError": "0.000000",
+    "livery": "works",
+    "maxIkError": "0.000000",
+    "performance": "{\"samples\":0,\"totalFrames\":0,\"seconds\":0,\"maxDrawCalls\":0,\"maxTriangles\":0,\"fps\":1000,\"frameP95\":0,\"physicsP95\":0,\"renderP95\":0}",
+    "physics": "qt-physics-3",
+    "physicsMs": "0.000",
+    "quality": "high",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "resolution": "{\"width\":1161.8125,\"height\":550.390625,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+    "resources": "{\"geometries\":36,\"textures\":6,\"programs\":14}",
+    "state": "lobby",
+    "switches": "0",
+    "triangles": "49774",
+    "x": "2.000"
+  }
+}

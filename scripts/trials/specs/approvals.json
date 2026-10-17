@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "physics": "qt-physics-3",
+  "courses": {
+    "9d0386a46f7378211941a5a5b4be2f264a214bf419e38e3e47b912c0060a99bd": {
+      "quote": "Phase 3 looks good",
+      "source": "User message requesting phase 4, 16 October 2026",
+      "scope": "qt-physics-3 and reviewed phase-3 route",
+      "ledger": "docs/trials/phase-4-approval.md"
+    },
+    "6f50f6b5e4a09c15df509ad25a3313d5f1fecc3c5763c946adeae54ca4f914dd": {
+      "quote": "Phase 3 looks good",
+      "source": "User message requesting phase 4, 16 October 2026",
+      "scope": "qt-physics-3 and reviewed phase-3 route",
+      "ledger": "docs/trials/phase-4-approval.md"
+    },
+    "9e2ff874588f07ce54ba4ddf986d7a505d78c799250c309781f11397e0380abd": {
+      "quote": "Phase 3 looks good",
+      "source": "User message requesting phase 4, 16 October 2026",
+      "scope": "qt-physics-3 and reviewed phase-3 route",
+      "ledger": "docs/trials/phase-4-approval.md"
+    },
+    "126f447c8d4d11c1eedc4018789bc9347750e7bcd30fc10233f6f52e4813dd20": {
+      "quote": "Phase 3 looks good",
+      "source": "User message requesting phase 4, 16 October 2026",
+      "scope": "qt-physics-3 and reviewed phase-3 route",
+      "ledger": "docs/trials/phase-4-approval.md"
+    },
+    "9774e7e51ab79a708f70507f1925b3072d1836b33b9a4a8a877707dbe9370436": {
+      "quote": "Yes it’s good so far. We can refine the courses later on. I want to make sure we get all framework and game systems implemented before we fine tune.",
+      "source": "User direction to prioritise framework and defer fine tuning, 16 October 2026",
+      "scope": "Quarry course and release-system foundation approved; detailed course/medal tuning deferred",
+      "ledger": "docs/trials/phase-4-approval.md"
+    },
+    "40e01393d5cdb11dc5b0ccab60db14a704cc3a274f4a2a6bbf2c131d8492d936": {
+      "quote": "Yes it’s good so far. We can refine the courses later on. I want to make sure we get all framework and game systems implemented before we fine tune.",
+      "source": "User direction to prioritise framework and defer fine tuning, 16 October 2026",
+      "scope": "Quarry course and release-system foundation approved; detailed course/medal tuning deferred",
+      "ledger": "docs/trials/phase-4-approval.md"
+    }
+  },
+  "biomes": {
+    "forestry": {
+      "quote": "Alpine forestry (Recommended)",
+      "source": "User response to second-biome direction question, 17 October 2026",
+      "scope": "Biome direction only; individual forestry routes remain pending human review"
+    }
+  }
+}

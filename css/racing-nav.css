@@ -2,6 +2,7 @@
 .nav-links { gap: clamp(15px, 2vw, 30px); }
 .nav-racing { --nav-race-bg: #151917; --nav-race-accent: #dfff00; --nav-check-light: #f2f0e9; }
 .nav-pocket { --nav-race-bg: #262233; --nav-race-accent: #ffdc70; --nav-check-light: #ffdc70; color: #695274; }
+.nav-trials { --nav-race-bg: #243c35; --nav-race-accent: #dfa748; --nav-check-light: #eae7dc; color: #48604e; }
 .nav-links .nav-racing,
 .mobile-navigation-inner .nav-racing {
     position: relative;

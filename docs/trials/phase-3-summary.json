@@ -1,0 +1,475 @@
+{
+  "date": "2026-10-16",
+  "status": "technical-review-ready-human-approval-pending",
+  "bank": "260454678ce677df9c95d7fc66c0df22d9988325580bd0f77ce5207b0f05deab",
+  "physics": "qt-physics-3",
+  "assetContentId": "c1b84012482089ec1b89bf38b87b4bb63a6ee08d3518feb3fc81eb137abc5dbd",
+  "budgets": {
+    "bankSeconds": 120,
+    "candidates": 3,
+    "nodeHeapMiB": 192,
+    "processSeconds": 31,
+    "repairsPerCandidate": 2
+  },
+  "seed": "quarry-review-01",
+  "candidates": [
+    {
+      "id": "apprentice",
+      "name": "Apprentice line",
+      "difficulty": "beginner",
+      "contentHash": "6f50f6b5e4a09c15df509ad25a3313d5f1fecc3c5763c946adeae54ca4f914dd",
+      "status": "validated-for-review",
+      "requiredSuccessRate": 1,
+      "successes": 9,
+      "trials": 9,
+      "time": 12.96666666666657,
+      "attempts": [
+        {
+          "contentHash": "6f50f6b5e4a09c15df509ad25a3313d5f1fecc3c5763c946adeae54ca4f914dd",
+          "rate": 1,
+          "reason": null,
+          "repair": 0,
+          "status": "validated-for-review",
+          "usage": {
+            "evaluations": 10,
+            "steps": 15598
+          }
+        }
+      ],
+      "failedPerturbations": [],
+      "testedApproachEnvelopes": [
+        {
+          "angle": [
+            0,
+            0
+          ],
+          "id": "flat",
+          "samples": 9,
+          "speed": [
+            -0.1,
+            0.1
+          ]
+        },
+        {
+          "angle": [
+            -0.03235263060785741,
+            -9.712034229203469e-05
+          ],
+          "id": "crest",
+          "samples": 9,
+          "speed": [
+            8.030635216178403,
+            8.158112436511594
+          ]
+        },
+        {
+          "angle": [
+            -0.004157369366826514,
+            0.002627520142227988
+          ],
+          "id": "rollers",
+          "samples": 9,
+          "speed": [
+            9.004655070510232,
+            9.234904159319631
+          ]
+        },
+        {
+          "angle": [
+            -0.033454014697155324,
+            -0.027033147694377757
+          ],
+          "id": "step",
+          "samples": 9,
+          "speed": [
+            8.40685700114258,
+            8.700226080819741
+          ]
+        },
+        {
+          "angle": [
+            -0.029582311473902792,
+            -0.022639157957287215
+          ],
+          "id": "jump",
+          "samples": 9,
+          "speed": [
+            8.192404660676273,
+            8.800219471855314
+          ]
+        },
+        {
+          "angle": [
+            -0.13475976424636446,
+            -0.11529316518237162
+          ],
+          "id": "finish",
+          "samples": 9,
+          "speed": [
+            5.644123026227887,
+            7.803503220466075
+          ]
+        }
+      ],
+      "resourceBytes": {
+        "course": 21631,
+        "report": 48510,
+        "replay": 68087,
+        "sheet": 4413
+      },
+      "browser": {
+        "angle": "0.0090",
+        "audio": "{\"ready\":false,\"muted\":false,\"error\":\"\"}",
+        "checkpoint": "4",
+        "controls": "verified-replay",
+        "drawCalls": "33",
+        "engine": "three.js r180",
+        "fps": "200.0",
+        "ikError": "0.000000",
+        "maxIkError": "0.000000",
+        "performance": "{\"samples\":2592,\"maxDrawCalls\":37,\"maxTriangles\":49774,\"fps\":199.99537047753523,\"frameP95\":5.100000000002183,\"physicsP95\":0.10000000149011612,\"renderP95\":0.5}",
+        "physicsMs": "0.000",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "resolution": "{\"width\":1161.8125,\"height\":550.390625,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+        "state": "finished",
+        "triangles": "48770",
+        "x": "103.032"
+      }
+    },
+    {
+      "id": "cutstone",
+      "name": "Cutstone rhythm",
+      "difficulty": "beginner",
+      "contentHash": "9e2ff874588f07ce54ba4ddf986d7a505d78c799250c309781f11397e0380abd",
+      "status": "validated-for-review",
+      "requiredSuccessRate": 1,
+      "successes": 9,
+      "trials": 9,
+      "time": 13.174999999999892,
+      "attempts": [
+        {
+          "contentHash": "0cabd0d6796661ffafb47c074382c947d5dc32301d67e7af9471a731be752d2e",
+          "rate": 0.8888888888888888,
+          "reason": "perturbation-success-below-required-rate",
+          "repair": 0,
+          "status": "not-validated",
+          "usage": {
+            "evaluations": 100,
+            "steps": 169243
+          }
+        },
+        {
+          "contentHash": "9e2ff874588f07ce54ba4ddf986d7a505d78c799250c309781f11397e0380abd",
+          "rate": 1,
+          "reason": null,
+          "repair": 1,
+          "status": "validated-for-review",
+          "usage": {
+            "evaluations": 20,
+            "steps": 31510
+          }
+        }
+      ],
+      "failedPerturbations": [],
+      "testedApproachEnvelopes": [
+        {
+          "angle": [
+            0,
+            0
+          ],
+          "id": "flat",
+          "samples": 9,
+          "speed": [
+            -0.1,
+            0.1
+          ]
+        },
+        {
+          "angle": [
+            -0.03139964657962028,
+            0.00024728490058026413
+          ],
+          "id": "crest",
+          "samples": 9,
+          "speed": [
+            8.034881361028159,
+            8.156708976310878
+          ]
+        },
+        {
+          "angle": [
+            -0.003886581511981774,
+            0.003834761823659298
+          ],
+          "id": "rollers",
+          "samples": 9,
+          "speed": [
+            9.157158404816915,
+            9.36619083272281
+          ]
+        },
+        {
+          "angle": [
+            -0.03563549121259569,
+            -0.027051037876932527
+          ],
+          "id": "step",
+          "samples": 9,
+          "speed": [
+            8.452209348159748,
+            8.70932801734797
+          ]
+        },
+        {
+          "angle": [
+            -0.02686775518817954,
+            -0.02202564592737201
+          ],
+          "id": "jump",
+          "samples": 9,
+          "speed": [
+            8.097549061394409,
+            8.725207639312508
+          ]
+        },
+        {
+          "angle": [
+            -0.12883096627226925,
+            -0.10218901957482183
+          ],
+          "id": "finish",
+          "samples": 9,
+          "speed": [
+            5.404640796862475,
+            7.759827199643115
+          ]
+        }
+      ],
+      "resourceBytes": {
+        "course": 21618,
+        "report": 50049,
+        "replay": 69976,
+        "sheet": 4441
+      },
+      "browser": {
+        "angle": "0.0475",
+        "audio": "{\"ready\":false,\"muted\":false,\"error\":\"\"}",
+        "checkpoint": "4",
+        "controls": "verified-replay",
+        "courseHash": "9e2ff874588f07ce54ba4ddf986d7a505d78c799250c309781f11397e0380abd",
+        "drawCalls": "33",
+        "engine": "three.js r180",
+        "fps": "200.0",
+        "ikError": "0.000000",
+        "maxIkError": "0.000000",
+        "performance": "{\"samples\":2613,\"maxDrawCalls\":35,\"maxTriangles\":49724,\"fps\":199.9189001017574,\"frameP95\":5.100000000000364,\"physicsP95\":0.20000000298023224,\"renderP95\":0.6000000014901161}",
+        "physics": "qt-physics-3",
+        "physicsMs": "0.000",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "resolution": "{\"width\":612.5625,\"height\":540,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+        "state": "finished",
+        "triangles": "48770",
+        "x": "103.067"
+      }
+    },
+    {
+      "id": "highbench",
+      "name": "High bench",
+      "difficulty": "intermediate",
+      "contentHash": "126f447c8d4d11c1eedc4018789bc9347750e7bcd30fc10233f6f52e4813dd20",
+      "status": "validated-for-review",
+      "requiredSuccessRate": 0.8,
+      "successes": 8,
+      "trials": 9,
+      "time": 13.349999999999882,
+      "attempts": [
+        {
+          "contentHash": "44404d8fb6595bef6c8cd33b55118866fe02394b920b02a3580691bde09ba3d0",
+          "rate": 0.6666666666666666,
+          "reason": "perturbation-success-below-required-rate",
+          "repair": 0,
+          "status": "not-validated",
+          "usage": {
+            "evaluations": 91,
+            "steps": 188491
+          }
+        },
+        {
+          "contentHash": "126f447c8d4d11c1eedc4018789bc9347750e7bcd30fc10233f6f52e4813dd20",
+          "rate": 0.8888888888888888,
+          "reason": null,
+          "repair": 1,
+          "status": "validated-for-review",
+          "usage": {
+            "evaluations": 20,
+            "steps": 40500
+          }
+        }
+      ],
+      "failedPerturbations": [
+        {
+          "name": "throttle-high",
+          "reason": null,
+          "state": "running",
+          "success": false,
+          "throttle": 0.01,
+          "time": 29.999999999998938,
+          "x": 85.98364830128526
+        }
+      ],
+      "testedApproachEnvelopes": [
+        {
+          "angle": [
+            0,
+            0
+          ],
+          "id": "flat",
+          "samples": 8,
+          "speed": [
+            -0.1,
+            0.1
+          ]
+        },
+        {
+          "angle": [
+            -0.030883186013381508,
+            0.00045508719812523954
+          ],
+          "id": "crest",
+          "samples": 8,
+          "speed": [
+            8.035277069815303,
+            8.156746684084801
+          ]
+        },
+        {
+          "angle": [
+            0.0037216127046167057,
+            0.006237051930580292
+          ],
+          "id": "rollers",
+          "samples": 8,
+          "speed": [
+            9.234452379171048,
+            9.41555902422274
+          ]
+        },
+        {
+          "angle": [
+            -0.03256735723323123,
+            -0.02797911669359809
+          ],
+          "id": "step",
+          "samples": 8,
+          "speed": [
+            8.42955700061737,
+            8.568607903369331
+          ]
+        },
+        {
+          "angle": [
+            -0.022405821262366794,
+            -0.019863565330470914
+          ],
+          "id": "jump",
+          "samples": 8,
+          "speed": [
+            8.34559196673101,
+            9.14118544349969
+          ]
+        },
+        {
+          "angle": [
+            -0.1275461307662113,
+            -0.10041680014599227
+          ],
+          "id": "finish",
+          "samples": 8,
+          "speed": [
+            6.153324849517103,
+            8.336512421047585
+          ]
+        }
+      ],
+      "resourceBytes": {
+        "course": 21532,
+        "report": 50339,
+        "replay": 70983,
+        "sheet": 4468
+      },
+      "browser": {
+        "angle": "0.0460",
+        "audio": "{\"ready\":false,\"muted\":false,\"error\":\"\"}",
+        "checkpoint": "4",
+        "controls": "verified-replay",
+        "courseHash": "126f447c8d4d11c1eedc4018789bc9347750e7bcd30fc10233f6f52e4813dd20",
+        "drawCalls": "33",
+        "engine": "three.js r180",
+        "fps": "200.0",
+        "ikError": "0.000000",
+        "maxIkError": "0.000000",
+        "performance": "{\"samples\":2668,\"maxDrawCalls\":37,\"maxTriangles\":49774,\"fps\":199.99550235002215,\"frameP95\":5.100000000000364,\"physicsP95\":0.10000000149011612,\"renderP95\":0.5}",
+        "physics": "qt-physics-3",
+        "physicsMs": "0.000",
+        "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "resolution": "{\"width\":2558,\"height\":1231.625,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+        "state": "finished",
+        "triangles": "48770",
+        "x": "103.087"
+      }
+    }
+  ],
+  "tests": {
+    "javascript": 110,
+    "trialsPython": 11,
+    "driftPython": 8,
+    "total": 129
+  },
+  "staticReferences": 240,
+  "runtimePayloadBytes": 1334957,
+  "handlingComparison": {
+    "physics": "qt-physics-3",
+    "before": {
+      "0": {
+        "x": 4.29897847566155,
+        "vx": 4.925898816789055,
+        "angle": 0.229107899636277,
+        "state": "running"
+      },
+      "1": {
+        "x": 4.119761421147047,
+        "vx": 5.019158126140559,
+        "angle": 0.04799647098561958,
+        "state": "running"
+      },
+      "-1": {
+        "x": 4.386713614984723,
+        "vx": 3.1806738264434995,
+        "angle": 1.3727008454045178,
+        "state": "running"
+      }
+    },
+    "after": {
+      "0": {
+        "x": 5.569144147842238,
+        "vx": 6.706701204986825,
+        "angle": 0.49406003104113666,
+        "state": "running"
+      },
+      "1": {
+        "x": 5.423089148627766,
+        "vx": 7.5697684695226295,
+        "angle": 0.06115460501355474,
+        "state": "running"
+      },
+      "-1": {
+        "x": 4.529900969802425,
+        "vx": 2.3421729229219173,
+        "angle": 2.451304106204957,
+        "state": "running"
+      }
+    },
+    "neutralSpeedGain": 0.36151826386043884,
+    "forwardSpeedGain": 0.508174932783666
+  }
+}

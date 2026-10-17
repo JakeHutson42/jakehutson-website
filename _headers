@@ -11,3 +11,15 @@
   Cache-Control: public, max-age=0, must-revalidate
 /css/pocket-circuit.css
   Cache-Control: public, max-age=0, must-revalidate
+/games/trials/content/current.json
+  Cache-Control: public, max-age=0, must-revalidate
+/games/trials/courses/current.json
+  Cache-Control: public, max-age=0, must-revalidate
+/games/trials/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+/games/trials/simulation/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+/games/trials/rendering/*.js
+  Cache-Control: public, max-age=0, must-revalidate
+/css/trials.css
+  Cache-Control: public, max-age=0, must-revalidate

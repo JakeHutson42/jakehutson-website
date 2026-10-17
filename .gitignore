@@ -21,3 +21,7 @@ Thumbs.db
 # Python tooling and the allowlisted Cloudflare deployment output
 __pycache__/
 dist/
+
+# Local Trials development tools and reproducible build scratch output
+.tools/
+.trials-build/

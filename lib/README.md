@@ -11,6 +11,8 @@ restore step is needed to deploy them. Existing versions have been preserved.
 | `bootstrap-icons/1.11.3` | Icon CSS and WOFF/WOFF2 files | MIT, included |
 | `jquery/3.7.1` | jQuery minified distribution | MIT, included |
 | `three/0.180.0` | Three.js module and core | MIT, included |
+| `three/0.180.0/addons` | Matching r180 GLTFLoader and BufferGeometryUtils; bare Three imports rewritten to local relative modules | Three.js MIT, included at parent |
+| `planck/1.4.2` | Official npm Planck 1.4.2 ESM distribution; renamed `.module.js` for static-server MIME compatibility; missing source-map reference removed | MIT, included |
 | `gsap/3.13.0` | Existing GSAP and ScrollTrigger distributions | GSAP standard license, retained in file headers |
 | `fonts` | Manrope, DM Mono, Barlow Condensed, downloaded 12 October 2026 | SIL Open Font License, each included |
 

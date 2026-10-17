@@ -32,6 +32,10 @@ jobs:
           python -m unittest discover -s tests/drift -p 'test_*.py'
           node --test tests/drift/*.test.mjs
           node --test tests/pocket/*.test.mjs
+          node --test tests/trials/*.test.mjs
+          python -m unittest discover -s tests/trials -p 'test_*.py'
+          python scripts/trials/build.py validate
+          python scripts/trials/build.py release-validate
       - name: Restore the generated track bank
         uses: actions/cache/restore@v4
         id: tracks
@@ -44,6 +48,8 @@ jobs:
           python scripts/drift/generate_tracks.py
           python scripts/drift/build_static.py
           python scripts/validate_static_assets.py dist
+          python scripts/trials/build.py validate --site-root dist
+          python scripts/trials/build.py release-validate --site-root dist
       - name: Retain the track bank for the next refresh
         uses: actions/cache/save@v4
         with:

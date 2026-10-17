@@ -1,0 +1,28 @@
+{
+  "canvas": {
+    "angle": "-0.0191",
+    "audio": "{\"ready\":true,\"state\":\"running\",\"muted\":false,\"biome\":\"forestry\",\"ambientReady\":true,\"ambientBuffers\":1,\"error\":\"\"}",
+    "biome": "forestry",
+    "checkpoint": "0",
+    "controls": "{\"throttle\":0,\"brake\":0,\"lean\":0}",
+    "courseHash": "4504b038d68d155454beef0082a75f144964d3d419a59039276c24459ccf8159",
+    "courseId": "nursery",
+    "drawCalls": "37",
+    "engine": "three.js r180",
+    "fps": "200.0",
+    "ikError": "0.000000",
+    "livery": "survey",
+    "maxIkError": "0.000000",
+    "performance": "{\"samples\":54,\"totalFrames\":54,\"seconds\":0.27,\"maxDrawCalls\":37,\"maxTriangles\":74380,\"fps\":200,\"frameP95\":5.099999999991269,\"physicsP95\":0.19999999552965164,\"renderP95\":0.5}",
+    "physics": "qt-physics-3",
+    "physicsMs": "0.100",
+    "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5080 (0x00002C02) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "resolution": "{\"width\":1365.625,\"height\":650,\"dpr\":1,\"userAgent\":\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36\"}",
+    "resources": "{\"geometries\":37,\"textures\":4,\"programs\":14}",
+    "state": "running",
+    "switches": "2",
+    "triangles": "74380",
+    "x": "1.992"
+  },
+  "errors": []
+}
