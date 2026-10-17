@@ -64,6 +64,50 @@ test('revisiting already scored road cannot increase the combo', () => {
     assert.equal(race.drifting, true); assert.equal(race.combo, 0);
 });
 
+test('bonus tiers require 35% longer drifts and banking adds already-boosted points once', () => {
+    const race = new Race(track); race.state = 'racing';
+    let expected = 0;
+    // Place the car on fresh road with a real sliding velocity each step so this
+    // exercises physics and the scoring path across all four tier boundaries.
+    for (let step = 0; step < 120 * 11; step++) {
+        const progress = .1 + step * .00002;
+        race.car = createCar(track, progress);
+        const forwardX = Math.sin(race.car.heading), forwardZ = Math.cos(race.car.heading);
+        race.car.vx = forwardX * 20 + forwardZ * 10;
+        race.car.vz = forwardZ * 20 - forwardX * 10;
+        race.previousProgress = progress - .000001;
+        const before = race.previousProgress;
+        race.update({ ...noInput, handbrake: true }, GAME_CONFIG.fixedStep);
+        assert.equal(race.drifting, true);
+        const seconds = (step + 1) / 120;
+        // Check away from fractional-step thresholds to avoid floating-point noise.
+        if (Math.abs(seconds / 2.43 - Math.round(seconds / 2.43)) > .001) {
+            assert.equal(race.multiplier, Math.min(5, 1 + Math.floor(seconds / 2.43)));
+        }
+        expected += (race.previousProgress - before) * track.length * 12 * race.multiplier;
+    }
+    assert.equal(race.multiplier, 5);
+    assert.ok(Math.abs(race.combo - expected) < 1e-7);
+    const displayed = Math.floor(race.combo);
+    race.score = 250; race.bankCombo();
+    assert.equal(race.score, 250 + displayed, 'The displayed score already includes each tier bonus');
+    assert.equal(race.multiplier, 1); assert.equal(race.driftDuration, 0);
+    race.bankCombo(); assert.equal(race.score, 250 + displayed, 'Banking twice cannot duplicate points');
+});
+
+test('linked gaps retain the tier for 1.8 seconds, do not advance it, then bank', () => {
+    const race = new Race(track); race.state = 'racing';
+    race.car = createCar(track, .1); race.previousProgress = .1;
+    race.combo = 1000.9; race.multiplier = 5; race.driftDuration = 10;
+    for (let step = 0; step < 180; step++) race.update(noInput, GAME_CONFIG.fixedStep);
+    assert.equal(race.combo, 1000.9, 'The old 1.4 second cutoff should no longer end a combo');
+    assert.equal(race.multiplier, 5); assert.equal(race.driftDuration, 10);
+    race.pause(); race.update(noInput, 10); race.resume();
+    assert.ok(race.comboIdle < 1.51, 'Pause must not consume the linking window');
+    for (let step = 0; step < 40; step++) race.update(noInput, GAME_CONFIG.fixedStep);
+    assert.equal(race.combo, 0); assert.equal(race.multiplier, 1); assert.equal(race.score, 1000);
+});
+
 test('fixed-step simulation matches at 30, 60, and 144 Hz and remains finite', () => {
     function simulate(frameRate) {
         const car = createCar(track);

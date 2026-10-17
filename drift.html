@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="lib/fonts/fonts.css">
     <link rel="stylesheet" href="css/drift.css?v=driving-height-4">
     <link rel="stylesheet" href="css/drift-garage.css">
-    <link rel="stylesheet" href="css/drift-play.css?v=hud-layout-3">
+    <link rel="stylesheet" href="css/drift-play.css?v=bonus-tiers-1">
     <link rel="stylesheet" href="css/drift-picker.css?v=track-settings-1">
 </head>
 <body class="drift-page">
@@ -53,7 +53,7 @@
                 <div class="race-hud" id="raceHud" hidden>
                     <div class="hud-top"><div class="hud-readout hud-lap"><span>LAP</span><strong><span id="lapValue">1</span><small> / 3</small></strong></div><div class="hud-readout hud-time"><span>TIME</span><strong id="timeValue">00:00.00</strong></div><div class="hud-readout hud-score"><span>SCORE</span><strong id="scoreValue">0</strong></div><button type="button" id="pauseButton" class="hud-pause" aria-label="Pause run">Ⅱ</button></div>
                     <div class="race-notice" id="raceNotice" role="status"></div>
-                    <div class="hud-bottom"><div class="combo-readout" id="comboReadout"><span id="driftLabel">FIND YOUR LINE</span><strong><span id="comboValue">0</span><small id="multiplierValue">×1</small></strong><div class="combo-track"><span id="comboBar"></span></div></div><div class="speed-readout instrument-cluster" id="instrumentCluster" role="group" aria-label="Speedometer and engine instruments">
+                    <div class="hud-bottom"><div class="combo-readout" id="comboReadout" data-bonus-tier="1"><span id="driftLabel">FIND YOUR LINE</span><strong class="combo-score"><span id="comboValue">0</span></strong><span class="bonus-tier" id="bonusTier" role="status" aria-label="Drift. Earning rate: 1 times base points. Bonus already included in the displayed score.">DRIFT · BONUS INCLUDED</span><div class="combo-track"><span id="comboBar"></span></div></div><div class="speed-readout instrument-cluster" id="instrumentCluster" role="group" aria-label="Speedometer and engine instruments">
                         <div class="speed-dial"><svg class="speed-dial-face" viewBox="0 0 120 120" aria-hidden="true"><circle class="dial-track" cx="60" cy="60" r="48"/><circle class="dial-fill" id="speedArc" cx="60" cy="60" r="48"/><path class="dial-redline" d="M 94 26 A 48 48 0 0 1 94 94"/><g class="dial-needle" id="speedNeedle"><path d="M 58 63 L 60 19 L 62 63 Z"/><circle cx="60" cy="60" r="4"/></g><text x="20" y="92">0</text><text x="8" y="45">25</text><text x="53" y="14">50</text><text x="96" y="45">75</text><text x="87" y="92">100</text></svg><div class="dial-speed"><strong id="speedValue">0</strong><span>MPH</span></div></div>
                         <div class="engine-instruments"><div class="gear-readout"><span>GEAR</span><strong id="gearValue">N</strong></div><div class="rpm-readout"><strong id="rpmValue">950</strong><span>RPM</span></div><div class="speed-bars rev-bars" id="speedBars" aria-hidden="true"></div><span class="rev-scale">0 <span>4</span> 8 ×1000</span></div>
                     </div></div>
@@ -109,7 +109,7 @@
         <div class="control-tile"><div class="tutorial-touch-pad pedal-demo" aria-hidden="true"><span class="demo-slide">SLIDE</span><span>↓</span><span>↑</span></div><h3>Right thumb. Your pace.</h3><p>↑ to go. ↓ to brake, then reverse. Tap SLIDE as you turn in to get sideways.</p></div>
         <div class="utility-controls"><span><span class="tutorial-pause" aria-hidden="true">Ⅱ</span> Need a breather? Pause at the top left.</span><span>Hit EXIT to head back to the track preview.</span></div>
     </div>
-    <div class="drift-steps"><article><span>01</span><div><h3>Brake. Then turn.</h3><p>Scrub off speed before the tight stuff. Leave enough to carry you round.</p></div></article><article><span>02</span><div><h3>Let it slide.</h3><p>Tap the handbrake, then let go. Steer into the slide to catch the rear before it finds a wall.</p></div></article><article><span>03</span><div><h3>Keep it going.</h3><p>Link the next drift within 1.4 seconds. Build your combo up to ×5. Clip a wall and the combo ends.</p></div></article></div>
+    <div class="drift-steps"><article><span>01</span><div><h3>Brake. Then turn.</h3><p>Scrub off speed before the tight stuff. Leave enough to carry you round.</p></div></article><article><span>02</span><div><h3>Let it slide.</h3><p>Tap the handbrake, then let go. Steer into the slide to catch the rear before it finds a wall.</p></div></article><article><span>03</span><div><h3>Keep it going.</h3><p>Link the next drift within 1.8 seconds. Longer slides climb through green, cyan and violet to fiery gold. Your drift score already includes the bonus. Clip a wall or leave the road and the combo banks.</p></div></article></div>
     </div><p class="dialog-note">Pick Night City or Synthwave Highway. Regenerate rolls a new route for that world. Your scores and car build stay on this device. Clear the site data and they go too.</p></div><div class="dialog-footer"><button type="button" class="race-button primary" data-close-dialog>Got it. Let's drive <span aria-hidden="true">→</span></button></div></dialog>
     <dialog id="trackSettingsDialog" class="drift-dialog track-settings" aria-labelledby="trackSettingsTitle">
         <form class="settings-form">
@@ -146,13 +146,13 @@
         <div class="control-tile"><div class="tutorial-touch-pad pedal-demo" aria-hidden="true"><span class="demo-slide">SLIDE</span><span>↓</span><span>↑</span></div><h3>Right thumb. Your pace.</h3><p>↑ to go. ↓ to brake, then reverse. Tap SLIDE as you turn in to get sideways.</p></div>
         <div class="utility-controls"><span><span class="tutorial-pause" aria-hidden="true">Ⅱ</span> Need a breather? Pause at the top left.</span><span>Hit EXIT to head back to the track preview.</span></div>
     </div>
-    <div class="drift-steps"><article><span>01</span><div><h3>Brake. Then turn.</h3><p>Scrub off speed before the tight stuff. Leave enough to carry you round.</p></div></article><article><span>02</span><div><h3>Let it slide.</h3><p>Tap the handbrake, then let go. Steer into the slide to catch the rear before it finds a wall.</p></div></article><article><span>03</span><div><h3>Keep it going.</h3><p>Link the next drift within 1.4 seconds. Build your combo up to ×5. Clip a wall and the combo ends.</p></div></article></div>
+    <div class="drift-steps"><article><span>01</span><div><h3>Brake. Then turn.</h3><p>Scrub off speed before the tight stuff. Leave enough to carry you round.</p></div></article><article><span>02</span><div><h3>Let it slide.</h3><p>Tap the handbrake, then let go. Steer into the slide to catch the rear before it finds a wall.</p></div></article><article><span>03</span><div><h3>Keep it going.</h3><p>Link the next drift within 1.8 seconds. Longer slides climb through green, cyan and violet to fiery gold. Your drift score already includes the bonus. Clip a wall or leave the road and the combo banks.</p></div></article></div>
     </div>
         </section>
         <footer class="drift-footer"><a href="drift.html" class="footer-wordmark">APEX / DRIFT</a><span>Built by Jake Hutson · <span id="year">2026</span></span><div><a href="pocket-circuit.html">Play Pocket Circuit ↗</a><a href="games/drift/sounds/CREDITS.txt">Audio credits</a><a href="index.html">More from Jake ↗</a><a href="privacy.html">Privacy</a></div></footer>
     </main>
 
     <noscript><p class="no-script">Apex Drift needs JavaScript and WebGL2 to run. Switch JavaScript on and get on the grid.</p></noscript>
-    <script type="module" src="games/drift/main.js?v=track-settings-1"></script>
+    <script type="module" src="games/drift/main.js?v=bonus-tiers-1"></script>
 </body>
 </html>

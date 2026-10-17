@@ -170,8 +170,17 @@ Android Chrome checks are still needed for OS edge gestures and actual browser b
 
 Three ordered quarter-track checkpoints must be passed on asphalt each lap. A run
 finishes after three laps. Drift points require speed, a slide angle, and new forward
-progress. Repeating a bend cannot farm points. Linked slides retain a combo for 1.4
-seconds and grow the multiplier to ×5. Leaving the road banks a combo. There is no
+progress. Repeating a bend cannot farm points. Linked slides retain a combo for 1.8
+seconds. Each tier takes 2.43 seconds of qualifying drift (35% longer than the
+previous 1.8 seconds), reaching the maximum earning rate after 9.72 seconds.
+The HUD score progresses through white / green Flow / cyan Surge / violet
+Overdrive / fiery gold Max Bonus. Points include the current earning bonus as
+they accrue; banking adds the displayed whole points without multiplying again.
+Entrances run once per tier, cancel on banking/restart, and respect reduced motion.
+The max-tier flames animate two small CSS layers using only transform and opacity;
+effects pause with the race. The minimap caches circuit geometry and bounds until
+the circuit or canvas size changes; each HUD tick only copies it and draws the car.
+Leaving the road or hitting a barrier banks a combo. There is no
 global leaderboard or claim of cheat-proof scoring.
 
 The simulation uses metres, seconds, and a 120 Hz fixed update. The render loop uses

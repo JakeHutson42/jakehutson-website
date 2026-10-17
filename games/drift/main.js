@@ -13,6 +13,7 @@ import { LocalRecords } from './storage.js';
 import { Race } from './race.js';
 import { EngineAudio } from './audio.js';
 import { StartSequence } from './start-sequence.js';
+import { BonusReadout } from './bonus-readout.js';
 import { loadBiomeBase } from './track-loader.js';
 
 // This module coordinates the page. Physics, scoring, persistence, and rendering remain
@@ -24,6 +25,8 @@ const stage = element('raceStage');
 const records = new LocalRecords();
 const audio = new EngineAudio(records.data.sound);
 const startSequence = new StartSequence(element('countdown'), audio);
+const bonusReadout = new BonusReadout(element('comboReadout'), element('comboValue'), element('bonusTier'));
+const mapCache = new WeakMap();
 const garagePreferences = new GaragePreferences();
 let garage;
 let world;
@@ -91,6 +94,26 @@ function displayPersonalBest() {
 }
 
 function drawMap(canvas, track, car = null) {
+    let cached = mapCache.get(canvas);
+    if (!cached || cached.track !== track || cached.width !== canvas.width || cached.height !== canvas.height || cached.driving !== Boolean(car)) {
+        const background = document.createElement('canvas');
+        background.width = canvas.width; background.height = canvas.height;
+        const project = drawMapRoute(background, track, Boolean(car));
+        cached = { track, width: canvas.width, height: canvas.height, driving: Boolean(car), background, project };
+        mapCache.set(canvas, cached);
+    }
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(cached.background, 0, 0);
+    if (car) {
+        context.beginPath(); context.arc(...cached.project(car.x, car.z), 4, 0, Math.PI * 2);
+        context.fillStyle = '#ffffff'; context.fill();
+    }
+}
+
+// The route and its bounds are static. Rebuild only when the circuit/canvas changes;
+// during racing each minimap refresh copies the background and draws one marker.
+function drawMapRoute(canvas, track, driving) {
     const context = canvas.getContext('2d');
     const xs = track.points.map(point => point[0]);
     const zs = track.points.map(point => point[1]);
@@ -106,17 +129,17 @@ function drawMap(canvas, track, car = null) {
         if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
     });
     context.closePath();
-    context.strokeStyle = '#61718b'; context.lineWidth = car ? 3 : 9; context.lineJoin = 'round'; context.stroke();
-    context.strokeStyle = track.biome === 'synthwave' ? '#ff39d4' : '#36e6ed'; context.lineWidth = car ? 1 : 3; context.stroke();
+    context.strokeStyle = '#61718b'; context.lineWidth = driving ? 3 : 9; context.lineJoin = 'round'; context.stroke();
+    context.strokeStyle = track.biome === 'synthwave' ? '#ff39d4' : '#36e6ed'; context.lineWidth = driving ? 1 : 3; context.stroke();
     for (const bridge of track.bridges || []) {
         const a = trackPose(track, bridge.upper - 18 / track.length), b = trackPose(track, bridge.upper + 18 / track.length);
         context.beginPath(); context.moveTo(...project(a.x, a.z)); context.lineTo(...project(b.x, b.z));
-        context.strokeStyle = '#080d23'; context.lineWidth = car ? 6 : 14; context.stroke();
-        context.strokeStyle = '#ffc578'; context.lineWidth = car ? 2 : 5; context.stroke();
+        context.strokeStyle = '#080d23'; context.lineWidth = driving ? 6 : 14; context.stroke();
+        context.strokeStyle = '#ffc578'; context.lineWidth = driving ? 2 : 5; context.stroke();
     }
     if (track.loop) {
         const entry = trackPose(track, track.loop.start);
-        context.beginPath(); context.arc(...project(entry.x, entry.z), car ? 4 : 7, 0, Math.PI * 2);
+        context.beginPath(); context.arc(...project(entry.x, entry.z), driving ? 4 : 7, 0, Math.PI * 2);
         context.strokeStyle = '#f34dac'; context.lineWidth = 2; context.stroke();
     }
     for (let checkpoint = 0; checkpoint < 4; checkpoint++) {
@@ -125,11 +148,7 @@ function drawMap(canvas, track, car = null) {
         context.fillStyle = checkpoint === 0 ? '#36e6ed' : '#f3f5fa';
         context.fillRect(x - 3, y - 3, 6, 6);
     }
-    if (car) {
-        const [x, y] = project(car.x, car.z);
-        context.beginPath(); context.arc(x, y, 4, 0, Math.PI * 2);
-        context.fillStyle = '#ffffff'; context.fill();
-    }
+    return project;
 }
 
 function populateTrackSelector(selectedBiome='city') {
@@ -236,6 +255,7 @@ function startRunContent() {
     if (!race || !world) { initialize(); return; }
     race = new Race(race.track);
     race.start(); finishHandled = false;
+    bonusReadout.update(0, 1, false);
     world.lastMark = null;
     simulationRemainder = 0;
     input.clear(); input.suspended = false; input.active = true;
@@ -254,6 +274,7 @@ function startRunContent() {
 function pauseRun() {
     if (!race || !['racing', 'countdown'].includes(race.state)) return;
     race.pause(); input.suspended = true; input.clear();
+    bonusReadout.setActive(false);
     // Silence immediately: background tabs can suspend requestAnimationFrame entirely.
     audio.update(race.car, false);
     element('overlayEyebrow').textContent = 'TAKE A BREATHER';
@@ -306,8 +327,7 @@ function updateHud() {
     element('lapValue').textContent = race.lap;
     element('timeValue').textContent = formatTime(race.elapsed);
     element('scoreValue').textContent = race.score.toLocaleString();
-    element('comboValue').textContent = Math.floor(race.combo).toLocaleString();
-    element('multiplierValue').textContent = `×${race.multiplier}`;
+    bonusReadout.update(race.combo, race.multiplier, race.state === 'racing');
     element('speedValue').textContent = Math.round(mph(race.car.speed));
     element('driftLabel').textContent = race.car.offRoad ? 'OFF ROAD · FIND THE ASPHALT' : race.drifting ? 'HOLD THAT SLIDE' : race.combo ? 'LINK THE NEXT CORNER' : 'FIND YOUR LINE';
     element('comboReadout').classList.toggle('is-drifting', race.drifting);

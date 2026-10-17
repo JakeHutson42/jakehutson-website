@@ -79,7 +79,7 @@ export class Race {
             this.car.slip >= CONFIG.minimumDriftAngle && this.car.slip <= CONFIG.maximumDriftAngle;
         if (this.drifting && newRoad) {
             this.driftDuration += deltaTime;
-            this.multiplier = Math.min(5, 1 + Math.floor(this.driftDuration / 1.8));
+            this.multiplier = Math.min(5, 1 + Math.floor(this.driftDuration / CONFIG.comboTierSeconds));
             this.combo += progressDelta * this.track.length * 12 * this.multiplier;
             this.comboIdle = 0;
         } else {

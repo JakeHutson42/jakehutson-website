@@ -24,7 +24,9 @@ export const GAME_CONFIG = Object.freeze({
     minimumDriftSpeed: 7,
     minimumDriftAngle: 0.20,
     maximumDriftAngle: 1.45,
-    comboGrace: 1.4,
+    comboGrace: 1.8,
+    // 35% more qualifying drift time per tier; linked gaps do not advance it.
+    comboTierSeconds: 2.43,
 });
 
 // Rendering and collision share the same verge and wall dimensions. Cosmetic
