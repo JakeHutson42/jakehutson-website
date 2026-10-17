@@ -1,5 +1,6 @@
 import { GAME_CONFIG as CONFIG } from './config.js';
 import { createCar, updateCar } from './physics.js';
+import { driftAngleReward } from './drift-scoring.js';
 
 export class Race {
     constructor(track) {
@@ -14,7 +15,7 @@ export class Race {
         this.score = 0;
         this.combo = 0;
         this.multiplier = 1;
-        this.driftDuration = 0;
+        this.driftDuration = 0; // Angle-weighted qualifying time toward bonus tiers.
         this.comboIdle = 0;
         this.drifting = false;
         this.countdown = 3;
@@ -65,8 +66,10 @@ export class Race {
                     this.message = `Checkpoint ${this.checkpoint} / 3`;
                 }
             } else if (this.previousProgress > 0.9 && nearest.progress < 0.1) {
-                this.bankCombo();
-                if (this.lap === CONFIG.laps) { this.state = 'finished'; this.drifting = false; return; }
+                // Carry the chain over lap gates; only the end of the run banks it.
+                if (this.lap === CONFIG.laps) {
+                    this.bankCombo(); this.state = 'finished'; this.drifting = false; return;
+                }
                 this.lap++; this.checkpoint = 0; this.furthestProgress = 0;
                 this.message = this.lap === CONFIG.laps ? 'Final lap. Make it count.' : `Lap ${this.lap} / ${CONFIG.laps}`;
             }
@@ -75,12 +78,13 @@ export class Race {
         // High-water progress means circling or repeating a bend cannot farm drift points.
         const newRoad = movingForward && nearest.progress > this.furthestProgress;
         if (this.car.barrierHit) this.bankCombo();
-        this.drifting = !this.car.barrierHit && onRoad && this.car.speed >= CONFIG.minimumDriftSpeed &&
-            this.car.slip >= CONFIG.minimumDriftAngle && this.car.slip <= CONFIG.maximumDriftAngle;
+        const angleReward = driftAngleReward(this.car);
+        this.drifting = onRoad && angleReward > 0;
         if (this.drifting && newRoad) {
-            this.driftDuration += deltaTime;
+            const angle = (angleReward - 1) / (CONFIG.maximumDriftPointFactor - 1);
+            this.driftDuration += deltaTime * (1 + angle * (CONFIG.maximumDriftTierRate - 1));
             this.multiplier = Math.min(5, 1 + Math.floor(this.driftDuration / CONFIG.comboTierSeconds));
-            this.combo += progressDelta * this.track.length * 12 * this.multiplier;
+            this.combo += progressDelta * this.track.length * 12 * angleReward * this.multiplier;
             this.comboIdle = 0;
         } else {
             this.comboIdle += deltaTime;

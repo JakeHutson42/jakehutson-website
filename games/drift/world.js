@@ -58,6 +58,7 @@ export class DriftWorld {
         this.scene.add(this.sun, this.sun.target);
         this.cameraTarget = new THREE.Vector3();
         this.cameraHeading = 0;
+        this.cameraDistanceScale = 1;
         this.followingCar = false;
         this.car = this.buildCar();
         this.scene.add(this.car);
@@ -397,6 +398,11 @@ export class DriftWorld {
         }
     }
 
+    toggleCameraDistance() {
+        this.cameraDistanceScale = this.cameraDistanceScale === 1 ? 0.5 : 1;
+        return this.cameraDistanceScale === 0.5;
+    }
+
     resize() {
         const width = this.renderer.domElement.parentElement.clientWidth;
         const height = this.renderer.domElement.parentElement.clientHeight;
@@ -456,13 +462,15 @@ export class DriftWorld {
             else this.cameraHeading += wrapAngle(car.heading - this.cameraHeading) *
                 (1 - Math.exp(-CAMERA_CONFIG.headingResponse * deltaTime));
             const forward = new THREE.Vector3(Math.sin(this.cameraHeading), 0, Math.cos(this.cameraHeading));
-            const desiredPosition = new THREE.Vector3(car.x - forward.x * CAMERA_CONFIG.followDistance,
-                (car.y || 0) + CAMERA_CONFIG.followHeight - CAMERA_CONFIG.speedHeightDrop * pace, car.z - forward.z * CAMERA_CONFIG.followDistance);
+            const distance = CAMERA_CONFIG.followDistance * this.cameraDistanceScale;
+            const height = (CAMERA_CONFIG.followHeight - CAMERA_CONFIG.speedHeightDrop * pace) * this.cameraDistanceScale;
+            const desiredPosition = new THREE.Vector3(car.x - forward.x * distance,
+                (car.y || 0) + height, car.z - forward.z * distance);
             const desiredTarget = new THREE.Vector3(car.x + forward.x * CAMERA_CONFIG.lookAhead,
                 (car.y || 0) + CAMERA_CONFIG.targetHeight, car.z + forward.z * CAMERA_CONFIG.lookAhead);
             this.camera.up.set(0,1,0);
             if(car.loopT != null) {
-                const view=loopChaseView(car,CAMERA_CONFIG.followDistance,CAMERA_CONFIG.followHeight-CAMERA_CONFIG.speedHeightDrop*pace,
+                const view=loopChaseView(car,distance,height,
                     CAMERA_CONFIG.lookAhead,CAMERA_CONFIG.targetHeight);
                 desiredPosition.fromArray(view.position); desiredTarget.fromArray(view.target);
                 this.camera.up.fromArray(view.up); this.cameraHeading=car.heading;

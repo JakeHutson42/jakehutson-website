@@ -38,8 +38,9 @@
 @keyframes start-ready { from { opacity: 0; transform: translateY(14px) scale(.94); } to { opacity: 1; transform: none; } }
 @keyframes start-set { from { transform: scale(.95); } to { transform: none; } }
 @keyframes start-go { 0% { opacity: 1; transform: scale(.95); } 35% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0; transform: scale(1.16); } }
-#soundButton,#fullscreenButton { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; }
-#soundButton svg { width: 22px; height: 22px; }
+#soundButton,#cameraButton,#fullscreenButton { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; }
+#soundButton svg,#cameraButton svg { width: 22px; height: 22px; }
+#cameraButton[aria-pressed="true"] { color: var(--race-accent); border-color: var(--race-accent); }
 .sound-slash { display: none; stroke: #ff606e; stroke-width: 2.8; paint-order: stroke; }
 #soundButton[aria-pressed="false"] .sound-slash { display: block; }
 #soundButton[aria-pressed="false"] .sound-waves { opacity: .18; }
@@ -204,7 +205,7 @@ body.mobile-race-open { position: fixed; left: 0; right: 0; width: 100%; overflo
 .race-stage .race-hud .hud-time strong { font-size: 34px; }
 .race-stage .race-hud .hud-score { top: 60px; left: auto; right: 0; transform: none; width: 150px; }
 .race-stage .race-hud .hud-score strong { font-size: 34px; }
-.race-stage .race-hud .hud-pause { top: 0; left: auto; right: 104px; border: 0; background: transparent; color: var(--race-accent); text-shadow: var(--hud-glow); }
+.race-stage .race-hud .hud-pause { top: 0; left: auto; right: 154px; border: 0; background: transparent; color: var(--race-accent); text-shadow: var(--hud-glow); }
 .race-stage .race-hud .hud-bottom { inset: 0; pointer-events: none; }
 .race-stage .race-hud .combo-readout { position: absolute; top: 92px; bottom: auto; left: 50%; transform: translateX(-50%); width: min(250px,50vw); min-width: 0; padding: 0; background: none; text-align: center; color: var(--race-accent); text-shadow: var(--hud-glow); }
 .race-stage .race-hud .combo-readout > span { display: block; min-height: 24px; font: 9px/1.4 var(--font-mono); letter-spacing: .1em; color: #b3f9ff; }

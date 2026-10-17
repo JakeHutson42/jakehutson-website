@@ -1,4 +1,5 @@
 import { clamp } from './math.js';
+import { driftAngleReward } from './drift-scoring.js';
 
 export function driftIntensity(car) {
     if (car.barrierHit || car.offRoad || car.loopT != null || car.speed < 7) return 0;
@@ -10,7 +11,11 @@ export function driftIntensity(car) {
 export function updateDrivingFeedback(car, input, dt) {
     car.throttle = Boolean(input.throttle);
     car.braking = Boolean(input.brake || input.handbrake);
-    const heating = car.braking && car.speed > 5 ? 0.45 + car.speed / 55 : -0.16;
+    const brakeHeating = car.braking && car.speed > 5 ? 0.45 + car.speed / 55 : 0;
+    const angleReward = driftAngleReward(car);
+    const driftHeating = angleReward ? 0.35 + angleReward * 0.5 : 0;
+    // Keep brake lights tied to pedals; wheel heat also follows natural slides.
+    const heating = Math.max(brakeHeating, driftHeating) || -0.16;
     car.brakeHeat = clamp((car.brakeHeat || 0) + heating * dt, 0, 1);
     const forward = car.vx * Math.sin(car.heading) + car.vz * Math.cos(car.heading);
     car.reverse = forward < -0.8;

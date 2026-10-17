@@ -2,6 +2,7 @@ import { driftIntensity } from './driving-feedback.js';
 import { clamp } from './math.js';
 
 const ASSETS = { idle: 'engine-idle.wav', engine: 'engine-rev.wav', tyres: 'tyres.wav' };
+const ENGINE_LEVEL = 0.55;
 
 // Recorded loops, mixed locally. No sound requests leave the site during a race.
 export class EngineAudio {
@@ -86,8 +87,8 @@ export class EngineAudio {
         const { idle, engine, tyres } = this.channels;
         target(idle.source.playbackRate, clamp(rpm / 1800, 0.75, 1.65));
         target(engine.source.playbackRate, clamp(rpm / 6800, 0.55, 1.2), 0.045);
-        target(idle.gain.gain, Math.cos(blend * Math.PI / 2) * 0.34);
-        target(engine.gain.gain, Math.sin(blend * Math.PI / 2) * 0.52 * load);
+        target(idle.gain.gain, Math.cos(blend * Math.PI / 2) * 0.34 * ENGINE_LEVEL);
+        target(engine.gain.gain, Math.sin(blend * Math.PI / 2) * 0.52 * load * ENGINE_LEVEL);
         target(engine.filter.frequency, 1800 + load * 3000 + blend * 1200);
         const slide = driftIntensity(car);
         target(tyres.gain.gain, Math.pow(slide, 0.8) * 0.28, 0.055);

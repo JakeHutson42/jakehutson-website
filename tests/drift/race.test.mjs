@@ -41,6 +41,42 @@ test('reverse gate crossing does not unlock a checkpoint', () => {
     assert.equal(race.checkpoint, 0);
 });
 
+test('checkpoints and lap gates retain a bonus; the final finish banks it once', () => {
+    const race = new Race(track); race.state = 'racing';
+    race.combo = 1000.9; race.multiplier = 5; race.driftDuration = 10;
+    for (let lap = 1; lap <= 3; lap++) {
+        for (let gate = 1; gate <= 3; gate++) {
+            cross(race, gate / 4 - .005, gate / 4 + .005);
+            assert.equal(race.combo, 1000.9);
+            assert.equal(race.multiplier, 5);
+            assert.equal(race.driftDuration, 10);
+        }
+        cross(race, .995, .005);
+        if (lap < 3) {
+            assert.equal(race.combo, 1000.9);
+            assert.equal(race.multiplier, 5);
+            assert.equal(race.score, 0);
+        }
+    }
+    assert.equal(race.state, 'finished');
+    assert.equal(race.score, 1000); assert.equal(race.combo, 0);
+    race.update(noInput, GAME_CONFIG.fixedStep); assert.equal(race.score, 1000);
+});
+
+test('a live slide keeps scoring at its current tier over a lap crossing', () => {
+    const race = new Race(track); race.state = 'racing'; race.checkpoint = 3;
+    race.combo = 1000; race.multiplier = 5; race.driftDuration = 10;
+    race.previousProgress = .9999; race.furthestProgress = .9999;
+    race.car = createCar(track, .0001);
+    const forwardX = Math.sin(race.car.heading), forwardZ = Math.cos(race.car.heading);
+    race.car.vx = forwardX * 20 + forwardZ * 10;
+    race.car.vz = forwardZ * 20 - forwardX * 10;
+    race.update({ ...noInput, handbrake: true }, GAME_CONFIG.fixedStep);
+    assert.equal(race.lap, 2); assert.equal(race.multiplier, 5);
+    assert.ok(race.combo > 1000); assert.equal(race.score, 0);
+    assert.ok(race.furthestProgress < .01, 'The new lap must still allow fresh road to score');
+});
+
 test('pause freezes the clock, car, and countdown; reset applies a time penalty', () => {
     const race = new Race(track); race.start(); race.pause();
     race.update({ ...noInput, throttle: true }, 1);
@@ -64,9 +100,8 @@ test('revisiting already scored road cannot increase the combo', () => {
     assert.equal(race.drifting, true); assert.equal(race.combo, 0);
 });
 
-test('bonus tiers require 35% longer drifts and banking adds already-boosted points once', () => {
+test('angle-based tiers stay within animation pacing limits and banking adds boosted points once', () => {
     const race = new Race(track); race.state = 'racing';
-    let expected = 0;
     // Place the car on fresh road with a real sliding velocity each step so this
     // exercises physics and the scoring path across all four tier boundaries.
     for (let step = 0; step < 120 * 11; step++) {
@@ -76,18 +111,13 @@ test('bonus tiers require 35% longer drifts and banking adds already-boosted poi
         race.car.vx = forwardX * 20 + forwardZ * 10;
         race.car.vz = forwardZ * 20 - forwardX * 10;
         race.previousProgress = progress - .000001;
-        const before = race.previousProgress;
         race.update({ ...noInput, handbrake: true }, GAME_CONFIG.fixedStep);
         assert.equal(race.drifting, true);
         const seconds = (step + 1) / 120;
-        // Check away from fractional-step thresholds to avoid floating-point noise.
-        if (Math.abs(seconds / 2.43 - Math.round(seconds / 2.43)) > .001) {
-            assert.equal(race.multiplier, Math.min(5, 1 + Math.floor(seconds / 2.43)));
-        }
-        expected += (race.previousProgress - before) * track.length * 12 * race.multiplier;
+        assert.ok(race.multiplier >= Math.min(5, 1 + Math.floor(seconds / 2.43)));
+        assert.ok(race.multiplier <= Math.min(5, 1 + Math.floor(seconds / 1.8 + 1e-10)), 'No angle can rush entrances into each other');
     }
     assert.equal(race.multiplier, 5);
-    assert.ok(Math.abs(race.combo - expected) < 1e-7);
     const displayed = Math.floor(race.combo);
     race.score = 250; race.bankCombo();
     assert.equal(race.score, 250 + displayed, 'The displayed score already includes each tier bonus');

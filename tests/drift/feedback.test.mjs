@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { driftIntensity, updateDrivingFeedback } from '../../games/drift/driving-feedback.js';
+import { updateCar } from '../../games/drift/physics.js';
 
 
 test('drift feedback grows with angle and remains silent at rest, during contact and in the loop', () => {
@@ -25,4 +26,29 @@ test('automatic shifts drop RPM, resist threshold chatter and show reverse; brak
     const hot = car.brakeHeat; assert.ok(hot > 0.8);
     for (let i = 0; i < 120; i++) updateDrivingFeedback(car, {}, 1 / 120);
     assert.ok(car.brakeHeat < hot);
+});
+
+test('sharp steering heats wheels without pressing Slide or lighting the brake lights', () => {
+    const road = { width: 200, points: [[0, -1000], [0, 1000], [1000, 1000], [1000, -1000]] };
+    const sharp = { x: 0, z: 0, heading: 0, vx: 0, vz: 25, speed: 25, steering: 0 };
+    const gentle = { ...sharp };
+    for (let i = 0; i < 120; i++) {
+        updateCar(sharp, { throttle: true, steer: 1 }, road, 1 / 120);
+        updateCar(gentle, { throttle: true, steer: .1 }, road, 1 / 120);
+    }
+    assert.ok(sharp.brakeHeat > .4, 'A real steering-induced slide must turn the wheel discs red');
+    assert.equal(sharp.braking, false, 'A steering drift must not fake a brake pedal press');
+    assert.equal(gentle.brakeHeat, 0, 'Ordinary gentle cornering stays cool');
+});
+
+test('steeper slides heat faster; spinning, wall contact and off-road travel cannot add drift heat', () => {
+    const car = { speed: 25, vx: 0, vz: 25, heading: 0, slip: .3 };
+    const mild = { ...car }, steep = { ...car, slip: 1.2 };
+    updateDrivingFeedback(mild, {}, .5); updateDrivingFeedback(steep, {}, .5);
+    assert.ok(steep.brakeHeat > mild.brakeHeat);
+    for (const overrides of [{ slip: 1.6 }, { barrierHit: true }, { offRoad: true }, { speed: 0 }, { loopT: .5 }]) {
+        const invalid = { ...car, ...overrides, brakeHeat: .5 };
+        updateDrivingFeedback(invalid, {}, .5);
+        assert.ok(invalid.brakeHeat < .5);
+    }
 });

@@ -171,8 +171,15 @@ Android Chrome checks are still needed for OS edge gestures and actual browser b
 Three ordered quarter-track checkpoints must be passed on asphalt each lap. A run
 finishes after three laps. Drift points require speed, a slide angle, and new forward
 progress. Repeating a bend cannot farm points. Linked slides retain a combo for 1.8
-seconds. Each tier takes 2.43 seconds of qualifying drift (35% longer than the
-previous 1.8 seconds), reaching the maximum earning rate after 9.72 seconds.
+seconds. Scoring uses the measured angle between the car's heading and travel
+direction, with the same reward for steering, throttle and handbrake slides.
+Within the valid 0.20–1.45 radian range (about 11–83 degrees), point value scales
+smoothly from the base rate to double points per metre. Bonus-tier progress
+also scales from its base rate up to 35% faster at the steepest valid angle.
+Each tier requires 2.43 angle-weighted seconds, so a constant angle reaches the
+maximum tier after 7.2–9.72 seconds. Even the fastest tier entrance has 1.8 seconds
+before the next, keeping the HUD animations separate. Spins, wall contact,
+off-road movement, low speed and repeated road cannot farm angle rewards.
 The HUD score progresses through white / green Flow / cyan Surge / violet
 Overdrive / fiery gold Max Bonus. Points include the current earning bonus as
 they accrue; banking adds the displayed whole points without multiplying again.
@@ -180,7 +187,9 @@ Entrances run once per tier, cancel on banking/restart, and respect reduced moti
 The max-tier flames animate two small CSS layers using only transform and opacity;
 effects pause with the race. The minimap caches circuit geometry and bounds until
 the circuit or canvas size changes; each HUD tick only copies it and draws the car.
-Leaving the road or hitting a barrier banks a combo. There is no
+Checkpoints and lap crossings preserve the combo and bonus tier. Finishing the
+third lap banks the remaining points once. Leaving the road or hitting a barrier
+banks a combo. There is no
 global leaderboard or claim of cheat-proof scoring.
 
 The simulation uses metres, seconds, and a 120 Hz fixed update. The render loop uses
@@ -189,11 +198,20 @@ stalls; long background gaps never fast-forward the car.
 
 Top forward speed is 32 m/s (about 115 km/h), with gentler acceleration and steering
 than the initial prototype. Throttle slides still work at the lower cornering pace.
-`CAMERA_CONFIG` in `config.js` controls a low chase camera: 10 m behind, 4.8 m high,
-52-degree vertical field of view. Its heading follows smoothly through slides while
+`CAMERA_CONFIG` in `config.js` controls a low chase camera: 9 m behind, 4.4 m high,
+56-degree base vertical field of view. The camera button next to sound toggles
+between that view and one with half the follow distance and height (4.5 m / 2.2 m
+before the speed adjustment). The choice lasts through restarts and world changes
+for this visit; the lobby fly-through is unchanged. Its heading follows smoothly through slides while
 its position stays attached to the car, keeping the view scale stable at speed.
 This was tuned by playing DailyDrift; it approximates the observed framing and feel
 rather than claiming identical physics or copying its implementation.
+
+The engine's idle and rev channels use 55% of their previous gain (45% quieter).
+Tyre effects, start cues and the mute control retain their existing levels.
+Wheel discs heat during any valid measured slide, including sharp steering with
+no Slide press; steeper angles heat them faster. Brake and handbrake heating still
+work, and discs cool after a slide. Drift heat does not turn the brake lights on.
 
 ## Records, privacy, and future backend
 

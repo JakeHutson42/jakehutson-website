@@ -3,6 +3,7 @@
    accidentally change safe areas, floating controls, or the mobile scroll lock. */
 * { box-sizing: border-box; }
 body { margin: 0; }
+.drift-page .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .drift-page {
     --race-bg: #0c111b; --race-panel: #141e2b; --race-ink: #f3f5fa;
     --race-muted: #a9b7c9; --race-line: #2b3a4d; --race-accent: #36e6ed;

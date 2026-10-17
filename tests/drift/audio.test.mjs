@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { EngineAudio } from '../../games/drift/audio.js';
 import { StartSequence } from '../../games/drift/start-sequence.js';
 import { LocalRecords } from '../../games/drift/storage.js';
+import { driftIntensity } from '../../games/drift/driving-feedback.js';
 
 function param() {
     return { value: 0, setTargetAtTime(v) { this.value = v; }, cancelScheduledValues() {},
@@ -23,6 +24,17 @@ function context() {
         createBufferSource() { const n = node(); this.sources.push(n); return n; },
         createOscillator() { const n = node(); this.tones.push(n); return n; } };
 }
+
+test('idle and rev loops are 45% quieter while tyre levels retain their original gain', () => {
+    const audio = new EngineAudio(); audio.context = context();
+    audio.channels = Object.fromEntries(['idle', 'engine', 'tyres'].map(name => [name, { source: node(), filter: node(), gain: node() }]));
+    audio.update({ rpm: 950, speed: 0, slip: 0 }, true);
+    assert.ok(Math.abs(audio.channels.idle.gain.gain.value - .34 * .55) < 1e-10);
+    const car = { rpm: 8000, speed: 25, slip: .7, throttle: true };
+    audio.update(car, true);
+    assert.ok(Math.abs(audio.channels.engine.gain.gain.value - .52 * .55) < 1e-10);
+    assert.ok(Math.abs(audio.channels.tyres.gain.gain.value - Math.pow(driftIntensity(car), .8) * .28) < 1e-10);
+});
 
 test('audio unlocks synchronously, loads only one mixer and remains muted if toggled during loading', async () => {
     const previousContext = globalThis.AudioContext, previousFetch = globalThis.fetch;

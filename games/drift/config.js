@@ -24,8 +24,11 @@ export const GAME_CONFIG = Object.freeze({
     minimumDriftSpeed: 7,
     minimumDriftAngle: 0.20,
     maximumDriftAngle: 1.45,
+    maximumDriftPointFactor: 2,
+    maximumDriftTierRate: 1.35,
     comboGrace: 1.8,
-    // 35% more qualifying drift time per tier; linked gaps do not advance it.
+    // Base pace is 35% slower than the original. Sharper angles build faster;
+    // even at the steepest valid angle each tier takes at least 1.8 seconds.
     comboTierSeconds: 2.43,
 });
 

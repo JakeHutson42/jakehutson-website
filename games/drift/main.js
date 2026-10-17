@@ -329,7 +329,7 @@ function updateHud() {
     element('scoreValue').textContent = race.score.toLocaleString();
     bonusReadout.update(race.combo, race.multiplier, race.state === 'racing');
     element('speedValue').textContent = Math.round(mph(race.car.speed));
-    element('driftLabel').textContent = race.car.offRoad ? 'OFF ROAD · FIND THE ASPHALT' : race.drifting ? 'HOLD THAT SLIDE' : race.combo ? 'LINK THE NEXT CORNER' : 'FIND YOUR LINE';
+    element('driftLabel').textContent = race.car.offRoad ? 'OFF ROAD · FIND THE ASPHALT' : race.drifting ? 'HOLD THAT SLIDE' : race.combo ? 'LINK THE NEXT CORNER' : '';
     element('comboReadout').classList.toggle('is-drifting', race.drifting);
     element('comboBar').style.transform = `scaleX(${race.combo ? clamp(1 - race.comboIdle / GAME_CONFIG.comboGrace, 0, 1) : 0})`;
 
@@ -480,6 +480,15 @@ element('trackSettingsButton').addEventListener('click', () => {
 });
 element('soundButton').addEventListener('click', () => {
     enableSound(!audio.enabled, true);
+    if (input.active && race?.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });
+});
+element('cameraButton').addEventListener('click', () => {
+    if (!world) return;
+    const close = world.toggleCameraDistance();
+    const button = element('cameraButton');
+    button.setAttribute('aria-pressed', String(close));
+    button.setAttribute('aria-label', close ? 'Use standard camera distance' : 'Move camera 50% closer');
+    button.title = close ? 'Camera: close · switch to standard' : 'Camera: standard · switch to close';
     if (input.active && race?.state !== 'paused') element('raceCanvas').focus({ preventScroll: true });
 });
 element('fullscreenButton').addEventListener('click', async () => {
